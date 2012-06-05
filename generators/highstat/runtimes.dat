@@ -1,5 +1,5 @@
 name	hmc0	hmc1	hmc2	hmc3	hmc4	hmc_cloverdet	hmc_tmcloverdeet	hmc_tmcloverdetratio
-5.1.6_mpi	0.01	0.02	0.03	0.04	0.02	NA	NA	NA
+5.1.6_mpi	0.01	0.02	0.09	0.04	0.02	NA	NA	NA
 5.1.6_serial	0.01	0.02	0.03	0.04	0.02	NA	NA	NA
 hybrid	0.01	0.02	0.03	0.03	0.03	0.03	0.03	0.03
 hybrid_noreduct	0.01	0.02	0.03	0.03	0.03	0.03	0.03	0.03

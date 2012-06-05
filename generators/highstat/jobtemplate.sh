@@ -28,20 +28,18 @@ ADDON=AN
 SUBDIR=SD
 # "s" for start, "c" for continue
 STATE=ST
+# numerical counter for number of continue script
+# if STATE=c
+NCONT=NC
+
 
 OUTPUT=/lustre/fs4/group/nic/kostrzew/output/${SUBDIR}/${BASENAME}_${ADDON}
 EDIR=/afs/ifh.de/group/nic/scratch/pool4/kostrzew/tmLQCD/execs/hmc_tm
 IDIR=/afs/ifh.de/group/nic/scratch/pool4/kostrzew/tmLQCD/inputfiles/${ADDON}
-IFILE=${IDIR}/${STATE}_${BASENAME}.input
+IFILE=${IDIR}/${STATE}${NCONT}_${BASENAME}.input
 
 # write stdout and stderr into tmp dir, will be copied to output at the end
 exec > ${TMPDIR}/stdout.txt.${JOB_ID} 2> ${TMPDIR}/stderr.txt.${JOB_ID}
-
-if [[ ! -d ${OUTPUT} ]]
-then
-  echo "output directory ${OUTPUT} could not be created! Aborting!"
-  exit 1
-fi
 
 if [[ ${STATE} == "s" ]]; then
   if [[ ! -d ${OUTPUT} ]]; then
