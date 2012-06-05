@@ -32,10 +32,9 @@ STATE=ST
 # if STATE=c
 NCONT=NC
 
-
 OUTPUT=/lustre/fs4/group/nic/kostrzew/output/${SUBDIR}/${BASENAME}_${ADDON}
-EDIR=/afs/ifh.de/group/nic/scratch/pool4/kostrzew/tmLQCD/execs/hmc_tm
-IDIR=/afs/ifh.de/group/nic/scratch/pool4/kostrzew/tmLQCD/inputfiles/${ADDON}
+EDIR=${HOME}/tmLQCD/execs/hmc_tm
+IDIR=${HOME}/tmLQCD/inputfiles/${ADDON}
 IFILE=${IDIR}/${STATE}${NCONT}_${BASENAME}.input
 
 # write stdout and stderr into tmp dir, will be copied to output at the end
@@ -45,21 +44,17 @@ if [[ ${STATE} == "s" ]]; then
   if [[ ! -d ${OUTPUT} ]]; then
     mkdir ${OUTPUT}
   fi
-
-  export WDIR=${TMPDIR}
-  cd ${TMPDIR}
-else
-  export WDIR=${OUTPUT}
-  cd ${OUTPUT}
 fi
 
 if [[ ! -d ${OUTPUT} ]]
 then
   echo "output directory ${OUTPUT} could not be found! Aborting!"
-  exit 1
+  exit 111
 fi
 
-MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${WDIR} -np ${NPROCS}"
+cd ${OUTPUT}
+
+MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${OUTPUT} -np ${NPROCS}"
 case ${ADDON} in
   *mpi*): MPIPREFIX=${MPIRUN};;
   *hybrid*): MPIPREFIX=${MPIRUN};;
@@ -67,6 +62,5 @@ esac
 
 ${MPIPREFIX} ${EDIR}/${ADDON} -f ${IDIR}/${IFILE}
 
-if [[ ${STATE} = "s" ]]; then
-  cp ${TMPDIR}/* ${OUTPUT}
-fi
+cp ${TMPDIR}/std* ${OUTPUT}
+
