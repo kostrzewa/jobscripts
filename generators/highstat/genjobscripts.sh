@@ -1,5 +1,7 @@
 #! /bin/sh
 
+DEBUG=1
+
 SD="highstat_test"
 
 TEMPLATE="jobtemplate.sh"
@@ -55,8 +57,19 @@ create_script ()
   fi
 }
 
+# create input file from a given reference input
+# $1 template input file
+# $2 destination input file
+# $3 state
 create_input ()
 {
+  export RAND=0
+  # when we continue we set InitialStoreCounter to a random number
+  # to make sure we don't repeat the sequence ofrandom numbers
+  if [[ ${1} = "c" ]]; then
+    export RAND=${RANDOM}
+  fi
+
   echo "not implemented"
 }
 
@@ -67,9 +80,11 @@ calc_joblimit ()
   export JOBLIMIT=0
   for t in 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48; do
     if [[ $JOBLIMIT -eq 0 ]]; then
-      if [[ `echo "scale=3;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
+      if [[ `echo "scale=5;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
         export JOBLIMIT=$t
-        echo "joblimit" $JOBLIMIT
+        if [[ ${DEBUG} -eq 1 ]]; then
+          echo "joblimit" $JOBLIMIT
+        fi  
       fi
     else
       break
@@ -77,9 +92,22 @@ calc_joblimit ()
   done
 }
 
+# calculate how many measurements should be done in this run
+# $1 total runtime (TOTALTIME)
+# $2 calculated JOBLIMIT
+# $3 total number of measurements to be done (NMEAS)
+calc_nmeas_part ()
+{
+  export NMEAS_PART=`echo "scale=6;a=${1};b=${2};r=(b/a)*${3};r"|bc`
+  export NMEAS_PART=`echo "(${NMEAS_PART}+0.5)/1"|bc`
+
+  if [[ ${DEBUG} -eq 1 ]]; then
+    echo "NMEAS_PART = ${NMEAS_PART}"
+  fi
+}
 
 # extract hard and soft realtime limits from an integer maximum
-# job time such as "15"
+# job time such as "15" (in that case H_RT=14:59:00)
 convert_time ()
 {
   let T=${1}-1
@@ -174,6 +202,7 @@ for e in ${EXECS}; do
         echo "needcontinue"
       fi
 
+      TIME=${TOTALTIME}
       for state in "s" "c"; do
         export ST=${state}
         if [[ $state = "c" ]] && [[ $NEEDCONTINUE -eq 0 ]]; then
@@ -186,21 +215,38 @@ for e in ${EXECS}; do
           export NPARTS=`echo "(${NPARTS}-0.5)/1"|bc`
           # loop over number of continue scripts and chop off 48 hours
           # from the total time in each iteration
-          for i in $(seq $NPARTS); do
+          export i=1
+          while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
              export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}.sh"
-             export TOTALTIME=`echo "scale=3;a=${TOTALTIME};b=48.0;r=a-b;r"|bc`
              export JOBLIMIT=0
-             calc_joblimit ${TOTALTIME}
+             calc_joblimit ${TIME}
              if [[ ${JOBLIMIT} -eq 0 ]]; then
                export JOBLIMIT=48
+             fi 
+             if [[ `echo "scale=3;a=${TIME};r=1;if(a<48.0) r=0;r"|bc` -eq 1 ]];then
+               calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
+             else
+               calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
              fi
              convert_time ${JOBLIMIT}
              create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
+             export TIME=`echo "scale=3;a=${TIME};b=48.0;r=a-b;r"|bc`
+             if [[ ${DEBUG} -eq 1 ]]; then
+               echo "${TIME} remaining out of ${TOTALTIME}"
+             fi 
+             let i=${i}+1
           done
           echo "continue generation not implemented yet"
         elif [[ $state = "s" ]]; then
           echo "The joblimit is ${JOBLIMIT}"
           export JFILE="${JDIR}/${e}/${state}_${e}_${s}.sh"
+          if [[ ${NEEDCONTINUE} -eq 1 ]]; then
+            export TIME=`echo "scale=4;a=${TOTALTIME};b=48.0;r=a-b;r"|bc`
+            calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
+          else
+            export NMEAS_PART=${NMEAS}
+          fi
+          
           convert_time ${JOBLIMIT} # writes H_RT and S_RT
           create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0
         fi
