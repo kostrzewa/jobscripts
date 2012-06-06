@@ -35,6 +35,7 @@ NCONT=NC
 ODIR=OD
 EFILE=EF
 IFILE=IF
+ITOPDIR=ITD
 
 # write stdout and stderr into tmp dir, will be copied to output at the end
 exec > ${TMPDIR}/stdout.txt.${JOB_ID} 2> ${TMPDIR}/stderr.txt.${JOB_ID}
@@ -52,6 +53,13 @@ then
 fi
 
 cd ${ODIR}
+
+case ${BASENAME} in
+  *hmc2*):
+    cp ${ITOPDIR}/normierungLocal.dat ${ODIR}
+    cp ${ITOPDIR}/Square_root_BR_roots.dat ${ODIR}
+  ;;
+esac 
 
 MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS}"
 case ${ADDON} in

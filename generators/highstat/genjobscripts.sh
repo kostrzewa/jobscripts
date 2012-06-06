@@ -9,8 +9,9 @@ TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
 EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp openmp_noreduct hybrid hybrid_noreduct"
 ODIR="/lustre/fs4/group/nic/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_new"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
+ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
@@ -87,6 +88,9 @@ create_script ()
 
   TEMP=`echo ${IDIR}|sed "s/${IN}/${OUT}/g"`
   sed -i "s/IFILE=IF/IFILE=${TEMP}\/${9}\/${PREFIX}_${8}_${9}.input/g" ${2}
+
+  TEMP=`echo ${ITOPDIR}|sed "s/${IN}/${OUT}/g"`
+  sed -i "s/ITOPDIR=ITD/ITOPDIR=${TEMP}/g" ${2}
 }
 
 # create input file from a given reference input
@@ -227,8 +231,10 @@ for e in ${EXECS}; do
       export NP=2
       export OMPNUMTHREADS=4
     ;;
+    # the multicore-mpi machines run an mpi job locally on two processors
+    # the mpi queue uses processors from different machines
     *mpi*):
-      export QUEUE="mpi"
+      export QUEUE="multicore-mpi"
       export NP=8
     ;;
     *openmp*):
