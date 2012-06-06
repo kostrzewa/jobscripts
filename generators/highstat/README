@@ -1,0 +1,18 @@
+genjobscripts is a jobscript and input file generator which takes
+
+ * a jobscript template
+ * template input files
+ * a set of names for the executables to be called
+ * a set of "basenames" which are part of the input filenames
+ * a table "runtimes.dat" which gives the runtime for NMEAS/NTIMES (e.g. 100) trajectories
+   for a given set of parameters corresponding to the executables and the basenames
+
+ example:
+
+ * executables: mpi,hybrid,serial
+ * basenames: hmc0,hmc1,hmc2
+ * jobtemplate.sh (see same directory for example for zeuthen batch system)
+ * template input files: sample-hmc0.input, sample-hmc1.input, sample-hmc2.input
+ * see runtimes.dat in this directory
+
+
