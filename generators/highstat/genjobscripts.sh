@@ -2,14 +2,27 @@
 
 DEBUG=1
 
+# subdirectory in output and jobscript directory
 SD="highstat_test"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
 EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp openmp_noreduct hybrid hybrid_noreduct"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm"
-JDIR="${HOME}/jobscripts/highstat_test"
+ODIR="/lustre/fs4/group/nic/kostrzew/output/${SD}"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_new"
+IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
+TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
+JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
+
+if [[ ! -d ${IDIR} ]]; then
+  mkdir ${IDIR}
+fi
+
+if [[ ! -d ${JDIR} ]]; then
+  mkdir ${JDIR}
+fi
+
 
 # a ratio NMEAS/NTIMES = 100 means that the times in runtimes.dat
 # refer to timings of runs with 100 trajectories
@@ -33,7 +46,9 @@ NTIMES=1000
 # $13 NC (number of continue script)
 create_script ()
 {
-  echo "${1} to ${2}"
+  if [[ ${DEBUG} -eq 1 ]]; then
+    echo "CREATE_SCRIPT copying ${1} to ${2}"
+  fi
   cp ${1} ${2}
   sed -i "s/H_RT/${3}/g" ${2}
   sed -i "s/S_RT/${4}/g" ${2}
@@ -50,27 +65,102 @@ create_script ()
   sed -i "s/ADDON=AN/ADDON=${9}/g" ${2}
   sed -i "s/SUBDIR=SD/SUBDIR=${10}/g" ${2}
   sed -i "s/STATE=ST/STATE=${11}/g" ${2}
+
+  IN='\/'
+  OUT='\\\/'
+
+  TEMP=`echo ${ODIR}|sed "s/${IN}/${OUT}/g"`
+  sed -i "s/ODIR=OD/ODIR=${TEMP}/g" ${2}
+
+  TEMP=`echo ${EDIR}|sed "s/${IN}/${OUT}/g"`
+  sed -i "s/EFILE=EF/EFILE=${TEMP}\/${8}/g" ${2}
+
+  NCONT=""
   if [[ ${11} = "c" ]]; then
-    sed -i "s/NCONT=NC/NCONT=${13}/g" ${2}
+    export NCONT=${13}
+    export PREFIX=${11}${13}
   else
-    sed -i "s/NCONT=NC/NCONT=\"\"/g" ${2}
+    export PREFIX=${11}
   fi
+  sed -i "s/NCONT=NC/NCONT=${NCONT}/g" ${2}
+
+  TEMP=`echo ${IDIR}|sed "s/${IN}/${OUT}/g"`
+  sed -i "s/IFILE=IF/IFILE=${TEMP}\/${9}\/${PREFIX}_${8}_${9}.input/g" ${2}
 }
 
 # create input file from a given reference input
-# $1 template input file
-# $2 destination input file
-# $3 state
+# $1 state
+# $2 number of file if state = c
+# $3 sample name
+# $4 executable type (openmp, mpi, hybrid etc..)
+# $5 how many measurements to do in this run
+# $6 ompnumthreads for openmp
 create_input ()
 {
-  export RAND=0
+  RAND=0
+  TINPUT="${TIDIR}/sample-${3}.input"
+  TEMP="/tmp/Xo321sdTEMP"
+
   # when we continue we set InitialStoreCounter to a random number
   # to make sure we don't repeat the sequence ofrandom numbers
   if [[ ${1} = "c" ]]; then
     export RAND=${RANDOM}
+    export PREFIX=${1}${2}
+  else
+    export PREFIX=${1}
   fi
 
-  echo "not implemented"
+  if [[ ! -d "${IDIR}/${4}" ]]; then
+    mkdir "${IDIR}/${4}"
+  fi
+
+  INPUT="${IDIR}/${4}/${PREFIX}_${3}_${4}.input"
+
+
+  if [[ ${DEBUG} -eq 1 ]]; then
+    echo "Copying ${TINPUT} to ${INPUT}"
+  fi
+
+  cp ${TINPUT} ${INPUT} 
+ 
+  case ${4} in
+    *mpi*):
+      # prepend mpi stuff
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    *hybrid*):
+      # prepend hybrid stuff
+      echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT} 
+    ;;
+    *openmp*):
+      # prepend openmp stuff
+      echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT} 
+    ;;
+    *serial*):
+      # no-op
+    ;;
+  esac
+
+  if [[ ${1} = "s" ]]; then
+    case ${2} in
+      *hmc4*):
+        sed -i 's/startcondition=S/startcondition=cold/g' ${INPUT}
+      ;;
+      *):
+        sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
+      ;;
+    esac
+
+    sed -i 's/initialstorecounter=I/initialstorecounter=0/g' ${INPUT}
+  else
+    sed -i "s/initialstorecounter=I/initialstorecounter=${RAND}/g" ${INPUT}
+    sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
+  fi
+
+  sed -i "s/measurements=N/measurements=${5}/g" ${INPUT}
 }
 
 # $1 total expected runtime
@@ -229,6 +319,7 @@ for e in ${EXECS}; do
                calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
              fi
              convert_time ${JOBLIMIT}
+             create_input ${ST} ${i} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
              create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
              export TIME=`echo "scale=3;a=${TIME};b=48.0;r=a-b;r"|bc`
              if [[ ${DEBUG} -eq 1 ]]; then
@@ -248,6 +339,7 @@ for e in ${EXECS}; do
           fi
           
           convert_time ${JOBLIMIT} # writes H_RT and S_RT
+          create_input  ${ST} 0 ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS}
           create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0
         fi
       done
