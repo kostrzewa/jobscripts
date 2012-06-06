@@ -1,6 +1,6 @@
 #! /bin/sh
 
-DEBUG=1
+DEBUG=0
 
 # subdirectory in output and jobscript directory
 SD="highstat_test"
@@ -116,9 +116,8 @@ create_input ()
 
   INPUT="${IDIR}/${4}/${PREFIX}_${3}_${4}.input"
 
-
   if [[ ${DEBUG} -eq 1 ]]; then
-    echo "Copying ${TINPUT} to ${INPUT}"
+    echo "CREATE_INPUT copying ${TINPUT} to ${INPUT}"
   fi
 
   cp ${TINPUT} ${INPUT} 
@@ -170,10 +169,10 @@ calc_joblimit ()
   export JOBLIMIT=0
   for t in 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48; do
     if [[ $JOBLIMIT -eq 0 ]]; then
-      if [[ `echo "scale=5;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
+      if [[ `echo "scale=6;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
         export JOBLIMIT=$t
         if [[ ${DEBUG} -eq 1 ]]; then
-          echo "joblimit" $JOBLIMIT
+          echo "CALC_JOBLIMIT joblimit = " $JOBLIMIT
         fi  
       fi
     else
@@ -277,7 +276,6 @@ for e in ${EXECS}; do
       TOTALTIME=`echo "scale=3;${NTIMES} * ${TIME}"| bc`
 
       echo "Making a script for" ${e} ${s}
-      echo $TIME $TOTALTIME
 
       # determine correct job length
       calc_joblimit ${TOTALTIME}
@@ -289,7 +287,9 @@ for e in ${EXECS}; do
       if [[ $JOBLIMIT -eq 0 ]]; then
         export NEEDCONTINUE=1
         export JOBLIMIT=48
-        echo "needcontinue"
+        if [[ ${DEBUG} -eq 1 ]]; then
+          echo "needcontinue"
+        fi
       fi
 
       TIME=${TOTALTIME}
@@ -301,7 +301,7 @@ for e in ${EXECS}; do
           # compute number of continue scripts and write them
           # the scale variable must be set so that we can properly use
           # floating point numbers in bc
-          export NPARTS=`echo "scale=3;a=${TOTALTIME};b=48.0;r=a/b;r"|bc`
+          export NPARTS=`echo "scale=6;a=${TOTALTIME};b=48.0;r=a/b;r"|bc`
           export NPARTS=`echo "(${NPARTS}-0.5)/1"|bc`
           # loop over number of continue scripts and chop off 48 hours
           # from the total time in each iteration
@@ -313,7 +313,7 @@ for e in ${EXECS}; do
              if [[ ${JOBLIMIT} -eq 0 ]]; then
                export JOBLIMIT=48
              fi 
-             if [[ `echo "scale=3;a=${TIME};r=1;if(a<48.0) r=0;r"|bc` -eq 1 ]];then
+             if [[ `echo "scale=6;a=${TIME};r=1;if(a<48.0) r=0;r"|bc` -eq 1 ]];then
                calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
              else
                calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
@@ -321,18 +321,16 @@ for e in ${EXECS}; do
              convert_time ${JOBLIMIT}
              create_input ${ST} ${i} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
              create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
-             export TIME=`echo "scale=3;a=${TIME};b=48.0;r=a-b;r"|bc`
+             export TIME=`echo "scale=6;a=${TIME};b=48.0;r=a-b;r"|bc`
              if [[ ${DEBUG} -eq 1 ]]; then
                echo "${TIME} remaining out of ${TOTALTIME}"
              fi 
              let i=${i}+1
           done
-          echo "continue generation not implemented yet"
         elif [[ $state = "s" ]]; then
-          echo "The joblimit is ${JOBLIMIT}"
           export JFILE="${JDIR}/${e}/${state}_${e}_${s}.sh"
           if [[ ${NEEDCONTINUE} -eq 1 ]]; then
-            export TIME=`echo "scale=4;a=${TOTALTIME};b=48.0;r=a-b;r"|bc`
+            export TIME=`echo "scale=6;a=${TOTALTIME};b=48.0;r=a-b;r"|bc`
             calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
           else
             export NMEAS_PART=${NMEAS}
