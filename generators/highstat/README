@@ -4,8 +4,9 @@ genjobscripts is a jobscript and input file generator which takes
  * template input files
  * a set of names for the executables to be called
  * a set of "basenames" which are part of the input filenames
- * a table "runtimes.dat" which gives the runtime for NMEAS/NTIMES (e.g. 100) trajectories
-   for a given set of parameters corresponding to the executables and the basenames
+ * a table "runtimes.dat" which gives the runtime 
+   (IN HOURS) for NMEAS/NTIMES (e.g. 100) trajectories for a given 
+   set of parameters corresponding to the executables and the basenames
 
  example:
 

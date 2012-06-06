@@ -3,7 +3,7 @@
 DEBUG=0
 
 # subdirectory in output and jobscript directory
-SD="highstat_test"
+SD="highstat_time"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
@@ -26,8 +26,8 @@ fi
 
 # a ratio NMEAS/NTIMES = 100 means that the times in runtimes.dat
 # refer to timings of runs with 100 trajectories
-NMEAS=100000
-NTIMES=1000
+NMEAS=100
+NTIMES=1
 
 # this function does the heavy lifting and creates the jobscript
 # from a template file, editing it inline using sed as required
@@ -66,6 +66,7 @@ create_script ()
   sed -i "s/SUBDIR=SD/SUBDIR=${10}/g" ${2}
   sed -i "s/STATE=ST/STATE=${11}/g" ${2}
 
+  # need to escape slashes for passing to sed
   IN='\/'
   OUT='\\\/'
 
@@ -73,7 +74,7 @@ create_script ()
   sed -i "s/ODIR=OD/ODIR=${TEMP}/g" ${2}
 
   TEMP=`echo ${EDIR}|sed "s/${IN}/${OUT}/g"`
-  sed -i "s/EFILE=EF/EFILE=${TEMP}\/${8}/g" ${2}
+  sed -i "s/EFILE=EF/EFILE=${TEMP}\/${9}/g" ${2}
 
   NCONT=""
   if [[ ${11} = "c" ]]; then
@@ -167,7 +168,7 @@ calc_joblimit ()
 {
   # determine correct job length
   export JOBLIMIT=0
-  for t in 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48; do
+  for t in 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48; do
     if [[ $JOBLIMIT -eq 0 ]]; then
       if [[ `echo "scale=6;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
         export JOBLIMIT=$t
@@ -273,7 +274,7 @@ for e in ${EXECS}; do
         fi
       done < runtimes.dat
       
-      TOTALTIME=`echo "scale=3;${NTIMES} * ${TIME}"| bc`
+      TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
 
       echo "Making a script for" ${e} ${s}
 
