@@ -3,7 +3,7 @@
 DEBUG=0
 
 # subdirectory in output and jobscript directory
-SD="highstat_time"
+SD="highstat_test"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
@@ -16,6 +16,14 @@ TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
+JOBLENGTHPARTITIONS="3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48"
+MAXJOBLENGTH=48
+
+# a ratio REFMEAS = 100 means that the times in runtimes.dat
+# refer to timings of runs with 100 trajectories
+NMEAS=10000
+REFMEAS=100
+
 if [[ ! -d ${IDIR} ]]; then
   mkdir ${IDIR}
 fi
@@ -23,12 +31,6 @@ fi
 if [[ ! -d ${JDIR} ]]; then
   mkdir ${JDIR}
 fi
-
-
-# a ratio NMEAS/NTIMES = 100 means that the times in runtimes.dat
-# refer to timings of runs with 100 trajectories
-NMEAS=100
-NTIMES=1
 
 # this function does the heavy lifting and creates the jobscript
 # from a template file, editing it inline using sed as required
@@ -72,7 +74,7 @@ create_script ()
   OUT='\\\/'
 
   TEMP=`echo ${ODIR}|sed "s/${IN}/${OUT}/g"`
-  sed -i "s/ODIR=OD/ODIR=${TEMP}/g" ${2}
+  sed -i "s/ODIR=OD/ODIR=${TEMP}\/${BN}_${AN}/g" ${2}
 
   TEMP=`echo ${EDIR}|sed "s/${IN}/${OUT}/g"`
   sed -i "s/EFILE=EF/EFILE=${TEMP}\/${9}/g" ${2}
@@ -157,9 +159,10 @@ create_input ()
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
-
     sed -i 's/initialstorecounter=I/initialstorecounter=0/g' ${INPUT}
   else
+    # when we continue we set InitialStoreCounter to a random number
+    # to make sure we don't repeat the sequence ofrandom numbers
     sed -i "s/initialstorecounter=I/initialstorecounter=${RAND}/g" ${INPUT}
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
   fi
@@ -172,7 +175,7 @@ calc_joblimit ()
 {
   # determine correct job length
   export JOBLIMIT=0
-  for t in 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48; do
+  for t in ${JOBLENGTHPARTITIONS}; do
     if [[ $JOBLIMIT -eq 0 ]]; then
       if [[ `echo "scale=6;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
         export JOBLIMIT=$t
@@ -188,7 +191,7 @@ calc_joblimit ()
 
 # calculate how many measurements should be done in this run
 # $1 total runtime (TOTALTIME)
-# $2 calculated JOBLIMIT
+# $2 calculated JOBLIMIT or remaining time if this is the final part
 # $3 total number of measurements to be done (NMEAS)
 calc_nmeas_part ()
 {
@@ -215,15 +218,22 @@ convert_time ()
   export S_RT=${T}:45:00 
 }
 
+
+##############################
+# main part of the generator # 
+##############################
+
 for e in ${EXECS}; do
 
   export AN=${e}
  
+  # no parallel environment leads to the deletion of the -pe line in the jobscript template
   export NOPE=0 
   export NCORES=8
   export OMPNUMTHREADS=1
   export QUEUE="none"
   export NP=1
+
   # set some job parameters for which the executable type is important
   case ${e} in
     *hybrid*):
@@ -255,99 +265,101 @@ for e in ${EXECS}; do
     
     export BN=${s}
 
-    SKIP=0
     case ${s} in
       # no clover term implemented in 5.1.6 so we skip the generation of
       # those jobscripts
       *clover*):
         case ${e} in
           *5.1.6*) :
-            export SKIP=1
+           continue 
           ;;
         esac
       ;;
     esac
-    
-    if [[ ${SKIP} -ne 1 ]]; then
-      # SAMPLES will be the names of the indirect variables of the while loop
-      # ${!s} is a variable with the variable name set to the sample currently
-      # being processed, it thus corresponds to e.g. hmc0 and ${!s} is $hmc0
-      # which therefore references the relevant column in the table
-      # runtimes.dat
-      while read name ${SAMPLES}; do
-        if [[ ${name} = ${e} ]]; then
-          TIME=${!s}
-        fi
-      done < runtimes.dat
-      
-      TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
-
-      echo "Making a script for" ${e} ${s}
-
-      # determine correct job length
-      calc_joblimit ${TOTALTIME}
-
-      # if the job does not fit into any of 12 24 48 hours
-      # set logical variable that continue script is required
-      # and set JOBLIMIT to maximum 
-      export NEEDCONTINUE=0
-      if [[ $JOBLIMIT -eq 0 ]]; then
-        export NEEDCONTINUE=1
-        export JOBLIMIT=48
-        if [[ ${DEBUG} -eq 1 ]]; then
-          echo "needcontinue"
-        fi
+   
+    # read runtimes.dat 
+    # SAMPLES will be the names of the indirect variables of the while loop
+    # ${!s} is a variable with the variable name set to the sample currently
+    # being processed, it thus corresponds to e.g. hmc0 and ${!s} is $hmc0
+    # which therefore references the relevant column in the table
+    # runtimes.dat
+    while read name ${SAMPLES}; do
+      if [[ ${name} = ${e} ]]; then
+        TIME=${!s}
       fi
+    done < runtimes.dat
+    # the time measurements in runtimes.dat refer to REFMEAS trajectories
+    # calculate the total runtime from the ratio NMEAS/REFMEAS
+    NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc` 
+    TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
 
-      TIME=${TOTALTIME}
-      for state in "s" "c"; do
-        export ST=${state}
-        if [[ $state = "c" ]] && [[ $NEEDCONTINUE -eq 0 ]]; then
-          continue
-        elif [[ $state = "c" ]] && [[ $NEEDCONTINUE -eq 1 ]]; then
-          # compute number of continue scripts and write them
-          # the scale variable must be set so that we can properly use
-          # floating point numbers in bc
-          export NPARTS=`echo "scale=6;a=${TOTALTIME};b=48.0;r=a/b;r"|bc`
-          export NPARTS=`echo "(${NPARTS}-0.5)/1"|bc`
-          # loop over number of continue scripts and chop off 48 hours
-          # from the total time in each iteration
-          export i=1
-          while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
-             export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}.sh"
-             export JOBLIMIT=0
-             calc_joblimit ${TIME}
-             if [[ ${JOBLIMIT} -eq 0 ]]; then
-               export JOBLIMIT=48
-             fi 
-             if [[ `echo "scale=6;a=${TIME};r=1;if(a<48.0) r=0;r"|bc` -eq 1 ]];then
-               calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
-             else
-               calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
-             fi
-             convert_time ${JOBLIMIT}
-             create_input ${ST} ${i} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
-             create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
-             export TIME=`echo "scale=6;a=${TIME};b=48.0;r=a-b;r"|bc`
-             if [[ ${DEBUG} -eq 1 ]]; then
-               echo "${TIME} remaining out of ${TOTALTIME}"
-             fi 
-             let i=${i}+1
-          done
-        elif [[ $state = "s" ]]; then
-          export JFILE="${JDIR}/${e}/${state}_${e}_${s}.sh"
-          if [[ ${NEEDCONTINUE} -eq 1 ]]; then
-            export TIME=`echo "scale=6;a=${TOTALTIME};b=48.0;r=a-b;r"|bc`
-            calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
-          else
-            export NMEAS_PART=${NMEAS}
-          fi
-          
-          convert_time ${JOBLIMIT} # writes H_RT and S_RT
-          create_input  ${ST} 0 ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS}
-          create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0
-        fi
-      done
+    echo "Making a script for" ${e} ${s}
+
+    # determine correct job length
+    calc_joblimit ${TOTALTIME}
+
+    # if the job does not fit into any of ${JOBLENGTHPARTITIONS} hours
+    # (calc_joblimit will keep JOBLIMIT=0 )
+    # set logical variable that continue script is required
+    # and set JOBLIMIT to maximum 
+    export NEEDCONTINUE=0
+    if [[ $JOBLIMIT -eq 0 ]]; then
+      export NEEDCONTINUE=1
+      export JOBLIMIT=${MAXJOBLENGTH}
+      if [[ ${DEBUG} -eq 1 ]]; then
+        echo "needcontinue"
+      fi
     fi
+    
+    # generate a sufficient number of jobscripts
+    TIME=${TOTALTIME}
+    for state in "s" "c"; do
+      export ST=${state}
+      if [[ $state = "c" ]] && [[ $NEEDCONTINUE -eq 0 ]]; then
+        continue
+      elif [[ $state = "c" ]] && [[ $NEEDCONTINUE -eq 1 ]]; then
+        # compute number of continue scripts and write them
+        # the scale variable must be set so that we can properly use
+        # floating point numbers in bc
+        export NPARTS=`echo "scale=6;a=${TOTALTIME};b=${MAXJOBLENGTH};r=a/b;r"|bc`
+        export NPARTS=`echo "(${NPARTS}-0.5)/1"|bc`
+        # loop over number of continue scripts and chop off 48 hours
+        # from the total time in each iteration
+        export i=1
+        while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
+           export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}.sh"
+           export JOBLIMIT=0
+           calc_joblimit ${TIME}
+           if [[ ${JOBLIMIT} -eq 0 ]]; then
+             export JOBLIMIT=${MAXJOBLENGTH}
+           fi 
+           if [[ `echo "scale=6;a=${TIME};r=1;if(a<${MAXJOBLENGTH}) r=0;r"|bc` -eq 1 ]];then
+             calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
+           else
+             calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
+           fi
+           convert_time ${JOBLIMIT}
+           create_input ${ST} ${i} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
+           create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
+           export TIME=`echo "scale=6;a=${TIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
+           if [[ ${DEBUG} -eq 1 ]]; then
+             echo "${TIME} remaining out of ${TOTALTIME}"
+           fi 
+           let i=${i}+1
+        done
+      elif [[ $state = "s" ]]; then
+        export JFILE="${JDIR}/${e}/${state}_${e}_${s}.sh"
+        if [[ ${NEEDCONTINUE} -eq 1 ]]; then
+          export TIME=`echo "scale=6;a=${TOTALTIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
+          calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
+        else
+          export NMEAS_PART=${NMEAS}
+        fi
+        
+        convert_time ${JOBLIMIT} # writes H_RT and S_RT
+        create_input  ${ST} 0 ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS}
+        create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0
+      fi
+    done
   done
 done    
