@@ -132,7 +132,7 @@ create_input ()
   case ${4} in
     *mpi*):
       # prepend mpi stuff
-      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
     *hybrid*):
