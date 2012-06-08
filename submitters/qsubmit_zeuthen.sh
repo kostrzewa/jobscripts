@@ -20,7 +20,7 @@ for i in ${1}/*/*.sh; do
   case ${BASE} in
     s_*):
       echo "Submitting start job ${i}"
-      #sub ${i}
+      qsub ${i}
     ;;
     c*):
       case ${BASE} in
@@ -36,6 +36,7 @@ for i in ${1}/*/*.sh; do
         ;;
       esac
       echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
+      qsub ${i} -hold_jid ${DEP}
     ;;
   esac
 
