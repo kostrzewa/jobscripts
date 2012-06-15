@@ -42,7 +42,7 @@ exec > ${TMPDIR}/stdout.txt.${JOB_ID} 2> ${TMPDIR}/stderr.txt.${JOB_ID}
 
 if [[ ${STATE} == "s" ]]; then
   if [[ ! -d ${ODIR} ]]; then
-    mkdir ${ODIR}
+    mkdir -p ${ODIR}
   fi
 fi
 
