@@ -3,33 +3,39 @@
 DEBUG=0
 
 # subdirectory in output and jobscript directory
-SD="highstat_test"
+SD="highstat_final1"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
 EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp openmp_noreduct hybrid hybrid_noreduct"
 ODIR="/lustre/fs4/group/nic/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_new"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
-JOBLENGTHPARTITIONS="3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48"
-MAXJOBLENGTH=48
+# PAX=1 -> use the pax cluster to run!
+# for all mpi/hybrid jobs, the queues will be set to "pax"
+# note that serial jobs will have to be submitted separately
+# in the default farm
+PAX=1
+
+JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
+MAXJOBLENGTH=47
 
 # a ratio REFMEAS = 100 means that the times in runtimes.dat
 # refer to timings of runs with 100 trajectories
-NMEAS=10000
-REFMEAS=100
+NMEAS=100000
+REFMEAS=1000
 
 if [[ ! -d ${IDIR} ]]; then
-  mkdir ${IDIR}
+  mkdir -p ${IDIR}
 fi
 
 if [[ ! -d ${JDIR} ]]; then
-  mkdir ${JDIR}
+  mkdir -p ${JDIR}
 fi
 
 # this function does the heavy lifting and creates the jobscript
@@ -55,7 +61,8 @@ create_script ()
   cp ${1} ${2}
   sed -i "s/H_RT/${3}/g" ${2}
   sed -i "s/S_RT/${4}/g" ${2}
-
+  
+  # remove the paralell environment when NOPE = 1 (e.g. serial jobs)
   if [[ ${12} -eq 1 ]]; then
     sed -i "s/#$ -pe QUEUE NCORES//g" ${2}
   else 
@@ -130,32 +137,32 @@ create_input ()
   cp ${TINPUT} ${INPUT} 
  
   case ${4} in
-    *mpi*):
+    *mpi*)
       # prepend mpi stuff
       echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
-    *hybrid*):
-      # prepend hybrid stuff
+    *hybrid*)
+    # prepend hybrid stuff
       echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT} 
     ;;
-    *openmp*):
+    *openmp*)
       # prepend openmp stuff
       echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT} 
     ;;
-    *serial*):
+    *serial*)
       # no-op
     ;;
   esac
 
   if [[ ${1} = "s" ]]; then
     case ${2} in
-      *hmc4*):
+      *hmc4*)
         sed -i 's/startcondition=S/startcondition=cold/g' ${INPUT}
       ;;
-      *):
+      *)
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
@@ -177,7 +184,8 @@ calc_joblimit ()
   export JOBLIMIT=0
   for t in ${JOBLENGTHPARTITIONS}; do
     if [[ $JOBLIMIT -eq 0 ]]; then
-      if [[ `echo "scale=6;a=$1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
+      # add a buffer of one hour to make sure that the job runs through
+      if [[ `echo "scale=6;a=$1+1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
         export JOBLIMIT=$t
         if [[ ${DEBUG} -eq 1 ]]; then
           echo "CALC_JOBLIMIT joblimit = " $JOBLIMIT
@@ -207,7 +215,7 @@ calc_nmeas_part ()
 # job time such as "15" (in that case H_RT=14:59:00)
 convert_time ()
 {
-  let T=${1}-1
+  let T=${1}
 
   # if the number is a single digit, prepend a zero 
   if [[ ${#T} -eq 1 ]]; then
@@ -215,7 +223,7 @@ convert_time ()
   fi
 
   export H_RT=${T}:59:00
-  export S_RT=${T}:45:00 
+  export S_RT=${T}:55:00 
 }
 
 
@@ -231,27 +239,40 @@ for e in ${EXECS}; do
   export NOPE=0 
   export NCORES=8
   export OMPNUMTHREADS=1
-  export QUEUE="none"
+  export QUEUE=""
   export NP=1
+
+  if [[ ${PAX} -eq 1 ]]; then
+    QUEUE="pax"
+  fi
 
   # set some job parameters for which the executable type is important
   case ${e} in
-    *hybrid*):
-      export QUEUE="multicore-mpi"
+    *hybrid*)
+      if [[ ! ${PAX} -eq 1 ]]; then
+        export QUEUE="multicore-mpi"
+      fi
+
       export NP=2
       export OMPNUMTHREADS=4
     ;;
     # the multicore-mpi machines run an mpi job locally on two processors
     # the mpi queue uses processors from different machines
-    *mpi*):
-      export QUEUE="multicore-mpi"
+    *mpi*)
+      if [[ ! ${PAX} -eq 1 ]]; then
+        export QUEUE="multicore-mpi"
+      fi
+    
       export NP=8
     ;;
-    *openmp*):
-      export QUEUE="multicore"
+    *openmp*)
+      if [[ ! ${PAX} -eq 1 ]]; then
+        export QUEUE="multicore"
+      fi
+
       export OMPNUMTHREADS=8
     ;;
-    *serial*):
+    *serial*)
       export NOPE=1
       export NCORES=1
     ;;
@@ -268,10 +289,18 @@ for e in ${EXECS}; do
     case ${s} in
       # no clover term implemented in 5.1.6 so we skip the generation of
       # those jobscripts
-      *clover*):
+      *clover*)
         case ${e} in
-          *5.1.6*) :
-           continue 
+          *5.1.6*)
+            continue 
+          ;;
+        esac
+      ;;
+      # the current polynomial for hmc2 breaks with 8 mpi processes, we skip this one!
+      *hmc2*)
+        case ${e} in
+          *mpi*)
+            continue
           ;;
         esac
       ;;
@@ -327,7 +356,7 @@ for e in ${EXECS}; do
         # from the total time in each iteration
         export i=1
         while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
-           export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}.sh"
+           export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}_${SD}.sh"
            export JOBLIMIT=0
            calc_joblimit ${TIME}
            if [[ ${JOBLIMIT} -eq 0 ]]; then

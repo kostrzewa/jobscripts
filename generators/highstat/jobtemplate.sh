@@ -55,7 +55,7 @@ fi
 cd ${ODIR}
 
 case ${BASENAME} in
-  *hmc2*):
+  *hmc2*)
     cp ${ITOPDIR}/normierungLocal.dat ${ODIR}
     cp ${ITOPDIR}/Square_root_BR_roots.dat ${ODIR}
   ;;
@@ -63,8 +63,8 @@ esac
 
 MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS}"
 case ${ADDON} in
-  *mpi*): MPIPREFIX=${MPIRUN};;
-  *hybrid*): MPIPREFIX=${MPIRUN};;
+  *mpi*) MPIPREFIX=${MPIRUN};;
+  *hybrid*) MPIPREFIX=${MPIRUN};;
 esac
 
 ${MPIPREFIX} ${EFILE} -f ${IFILE}
