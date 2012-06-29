@@ -3,7 +3,7 @@
 DEBUG=0
 
 # subdirectory in output and jobscript directory
-SD="highstat_final1"
+SD="highstat_final2"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
@@ -377,7 +377,7 @@ for e in ${EXECS}; do
            let i=${i}+1
         done
       elif [[ $state = "s" ]]; then
-        export JFILE="${JDIR}/${e}/${state}_${e}_${s}.sh"
+        export JFILE="${JDIR}/${e}/${state}_${e}_${s}_${SD}.sh"
         if [[ ${NEEDCONTINUE} -eq 1 ]]; then
           export TIME=`echo "scale=6;a=${TOTALTIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
           calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
