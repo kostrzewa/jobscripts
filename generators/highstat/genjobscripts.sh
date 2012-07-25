@@ -1,15 +1,15 @@
 #! /bin/sh
 
-DEBUG=0
+DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_final2"
+SD="highstat_bgq_omp"
 
 TEMPLATE="jobtemplate.sh"
-SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc4 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
-EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp openmp_noreduct hybrid hybrid_noreduct"
-ODIR="/lustre/fs4/group/nic/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_new"
+SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
+EXECS="5.1.6_mpi 5.1.6_serial serial serial_gcc mpi mpi_gcc openmp openmp_gcc hybrid hybrid_gcc"
+ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_bgq_omp"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
@@ -29,6 +29,12 @@ MAXJOBLENGTH=47
 # refer to timings of runs with 100 trajectories
 NMEAS=100000
 REFMEAS=1000
+
+# initialstorecounter serves as a way to start the random number generator
+# in different ways (this is a hack... initialstorecounter changes
+# the "nstore" variable which holds how many configurations have 
+# been changed so far
+NSTORE=222
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -166,7 +172,7 @@ create_input ()
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
-    sed -i 's/initialstorecounter=I/initialstorecounter=0/g' ${INPUT}
+    sed -i "s/initialstorecounter=I/initialstorecounter=${NSTORE}/g" ${INPUT}
   else
     # when we continue we set InitialStoreCounter to a random number
     # to make sure we don't repeat the sequence ofrandom numbers
@@ -305,6 +311,9 @@ for e in ${EXECS}; do
         esac
       ;;
     esac
+    
+    echo
+    echo "Making a script for" ${e} ${s}
    
     # read runtimes.dat 
     # SAMPLES will be the names of the indirect variables of the while loop
@@ -315,14 +324,16 @@ for e in ${EXECS}; do
     while read name ${SAMPLES}; do
       if [[ ${name} = ${e} ]]; then
         TIME=${!s}
+        if [[ $DEBUG -eq 1 ]]; then
+          echo "For ${s} with ${e} 1000 iterations take ${TIME} hours."
+        fi
       fi
     done < runtimes.dat
+
     # the time measurements in runtimes.dat refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc` 
     TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
-
-    echo "Making a script for" ${e} ${s}
 
     # determine correct job length
     calc_joblimit ${TOTALTIME}
