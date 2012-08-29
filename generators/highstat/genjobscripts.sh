@@ -7,7 +7,7 @@ SD="highstat_bgq_omp"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
-EXECS="5.1.6_mpi 5.1.6_serial serial serial_gcc mpi mpi_gcc openmp openmp_gcc hybrid hybrid_gcc"
+EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
 EDIR="${HOME}/tmLQCD/execs/hmc_tm_bgq_omp"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
