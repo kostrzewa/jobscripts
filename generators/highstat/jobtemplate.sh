@@ -61,7 +61,12 @@ case ${BASENAME} in
   ;;
 esac 
 
-MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS}"
+case ${ADDON} in
+  *mpi*) export NPN=8;;
+  *hybrid*) export NPN=2;;
+esac
+
+MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN}"
 case ${ADDON} in
   *mpi*) MPIPREFIX=${MPIRUN};;
   *hybrid*) MPIPREFIX=${MPIRUN};;
