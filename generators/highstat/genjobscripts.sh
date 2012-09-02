@@ -3,7 +3,7 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_bgq_omp"
+SD="highstat_bgq_omp_3"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
@@ -12,7 +12,7 @@ ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
 EDIR="${HOME}/tmLQCD/execs/hmc_tm_bgq_omp"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
-TIDIR="${HOME}/tmLQCD/inputfiles/highstat/templates"
+TIDIR="templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
@@ -30,11 +30,8 @@ MAXJOBLENGTH=47
 NMEAS=100000
 REFMEAS=1000
 
-# initialstorecounter serves as a way to start the random number generator
-# in different ways (this is a hack... initialstorecounter changes
-# the "nstore" variable which holds how many configurations have 
-# been changed so far
-NSTORE=222
+# set the random_seed variable in the hmc
+SEED=42
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -172,11 +169,11 @@ create_input ()
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
-    sed -i "s/initialstorecounter=I/initialstorecounter=${NSTORE}/g" ${INPUT}
+    sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
   else
     # when we continue we set InitialStoreCounter to a random number
     # to make sure we don't repeat the sequence ofrandom numbers
-    sed -i "s/initialstorecounter=I/initialstorecounter=${RAND}/g" ${INPUT}
+    sed -i "s/seed=D/seed=${RAND}/g" ${INPUT}
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
   fi
 

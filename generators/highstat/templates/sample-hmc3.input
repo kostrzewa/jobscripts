@@ -1,0 +1,86 @@
+# $Id: sample-hmc3.input 1508 2010-04-08 12:03:18Z urbach $
+# this sample corresponds to a nf=4 run
+# the expected plaquette value is 
+# the expected rectangular values is 
+measurements=N
+startcondition=S
+seed=D
+
+
+L=4
+T=4
+2KappaMu = 0.002740961
+kappa = 0.163260
+NSave = 500000
+ThetaT = 1.
+BCGstabMaxIter = 1000
+CGMaxIter = 10000
+GaugeConfigInputFile = conf.save
+UseEvenOdd = yes
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+DebugLevel = 0
+
+BeginMonomial GAUGE
+  Type = Iwasaki
+  beta = 1.95
+  Timescale = 0
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.01
+  kappa = 0.163260
+  AcceptancePrecision =  1.e-22
+  ForcePrecision = 1.e-14
+  Name = det1
+  solver = CG
+EndMonomial
+
+BeginMonomial DETRATIO
+  Timescale = 2
+  2KappaMu = 0.002740961
+  2KappaMu2 = 0.01
+  kappa = 0.163260
+  kappa2 = 0.163260
+  AcceptancePrecision =  1.e-22
+  ForcePrecision = 1.e-14
+  Name = detratio1
+  solver = CG
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.01
+  kappa = 0.163260
+  AcceptancePrecision =  1.e-22
+  ForcePrecision = 1.e-14
+  Name = det2
+  solver = CG
+EndMonomial
+
+BeginMonomial DETRATIO
+  Timescale = 2
+  2KappaMu = 0.002740961
+  2KappaMu2 = 0.01
+  kappa = 0.163260
+  kappa2 = 0.163260
+  AcceptancePrecision =  1.e-22
+  ForcePrecision = 1.e-14
+  Name = detratio2
+  solver = CG
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  Type2 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 4
+  IntegrationSteps2 = 2
+  tau = 1.
+  Lambda0 = 0.19
+  Lambda1 = 0.21
+  Lambda2 = 0.2
+  NumberOfTimescales = 3
+EndIntegrator
