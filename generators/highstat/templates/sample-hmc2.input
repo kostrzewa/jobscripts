@@ -17,14 +17,15 @@ T=4
 2Kappamubar = 0.1105
 2Kappaepsbar = 0.0935
 kappa = 0.170
-NSave = 500000
+NSave = 0
+writecheckpoints=no
 ThetaT = 1.
 BCGstabMaxIter = 0
 CGMaxIter = 1000
 GaugeConfigInputFile = conf.save
 UseEvenOdd = yes
-ReversibilityCheck = no
-ReversibilityCheckIntervall = 100
+ReversibilityCheck = yes
+ReversibilityCheckIntervall = 5000
 DebugLevel = 0
 
 BeginMonomial GAUGE
