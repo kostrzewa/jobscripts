@@ -3,13 +3,13 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_bgq_omp_3"
+SD="highstat_threadsafe"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
 EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_bgq_omp"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_threadsafe"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
@@ -17,7 +17,8 @@ JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
 # PAX=1 -> use the pax cluster to run!
-# for all mpi/hybrid jobs, the queues will be set to "pax"
+# for all mpi jobs the queue will be set to "pax"
+# while for hybrid jobs the "pax-2ppn" queue will be used
 # note that serial jobs will have to be submitted separately
 # in the default farm
 PAX=1
@@ -31,7 +32,7 @@ NMEAS=100000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=42
+SEED=0
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -246,7 +247,7 @@ for e in ${EXECS}; do
   export NP=1
 
   if [[ ${PAX} -eq 1 ]]; then
-    QUEUE="pax"
+    export QUEUE="pax"
   fi
 
   # set some job parameters for which the executable type is important
@@ -254,6 +255,8 @@ for e in ${EXECS}; do
     *hybrid*)
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
+      else
+        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
       fi
 
       export NP=2
@@ -271,6 +274,8 @@ for e in ${EXECS}; do
     *openmp*)
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore"
+      else
+        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
       fi
 
       export OMPNUMTHREADS=8
