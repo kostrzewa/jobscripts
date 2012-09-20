@@ -11,6 +11,7 @@
 
 measurements=N
 startcondition=S
+initialstorecounter=I
 seed=D
 
 L=4
@@ -25,7 +26,7 @@ BCGstabMaxIter = 0
 CGMaxIter = 1000
 UseEvenOdd = yes
 ReversibilityCheck = yes
-ReversibilityCheckIntervall = 5000
+ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 
 BeginMonomial GAUGE

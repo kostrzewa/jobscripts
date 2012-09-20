@@ -3,13 +3,13 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_threadsafe"
+SD="highstat_more_openmp_1"
 
 TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
 EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_threadsafe"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_more_openmp"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
@@ -32,7 +32,7 @@ NMEAS=100000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=0
+SEED=1
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -115,14 +115,12 @@ create_script ()
 # $6 ompnumthreads for openmp
 create_input ()
 {
-  RAND=0
   TINPUT="${TIDIR}/sample-${3}.input"
   TEMP="/tmp/Xo321sdTEMP"
 
   # when we continue we set InitialStoreCounter to a random number
   # to make sure we don't repeat the sequence ofrandom numbers
   if [[ ${1} = "c" ]]; then
-    export RAND=${RANDOM}
     export PREFIX=${1}${2}
   else
     export PREFIX=${1}
@@ -171,11 +169,11 @@ create_input ()
       ;;
     esac
     sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
+    sed -i "s/initialstorecounter=I/initialstorecounter=0/g" ${INPUT}
   else
-    # when we continue we set InitialStoreCounter to a random number
-    # to make sure we don't repeat the sequence ofrandom numbers
-    sed -i "s/seed=D/seed=${RAND}/g" ${INPUT}
+    # when we continue we read in InitialStoreCounter 
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
+    sed -i "s/initialstorecounter=I/initialstorecounter=readin/g" ${INPUT}
   fi
 
   sed -i "s/measurements=N/measurements=${5}/g" ${INPUT}

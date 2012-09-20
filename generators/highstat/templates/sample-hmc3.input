@@ -4,6 +4,7 @@
 # the expected rectangular values is 
 measurements=N
 startcondition=S
+initialstorecounter=I
 seed=D
 
 
@@ -19,7 +20,7 @@ CGMaxIter = 10000
 GaugeConfigInputFile = conf.save
 UseEvenOdd = yes
 ReversibilityCheck = yes
-ReversibilityCheckIntervall = 5000
+ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 
 BeginMonomial GAUGE

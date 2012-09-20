@@ -10,6 +10,7 @@
 
 measurements=N
 startcondition=S
+initialstorecounter=I
 seed=D
 
 L=4
@@ -18,13 +19,13 @@ gaugeconfiginputfile=conf.save
 2KappaMu = 0.177
 kappa = 0.177
 NSave = 0
-writecheckpoints=0
+writecheckpoints=no
 ThetaT = 1.
 BCGstabMaxIter = 0
 CGMaxIter = 1000
 UseEvenOdd = yes
 ReversibilityCheck = yes
-ReversibilityCheckIntervall = 5000
+ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 
 BeginMonomial GAUGE

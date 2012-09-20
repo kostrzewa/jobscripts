@@ -6,6 +6,7 @@
 #
 measurements=N
 startcondition=S
+initialstorecounter=I
 seed=D
 
 
@@ -20,8 +21,8 @@ ThetaT = 1.0
 BCGstabMaxIter = 0
 CGMaxIter = 1000
 UseEvenOdd = yes
-ReversibilityCheck = no
-ReversibilityCheckIntervall = 5000
+ReversibilityCheck = yes
+ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 gaugeconfiginputfile=conf.save
 
