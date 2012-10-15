@@ -51,7 +51,7 @@ BeginMonomial NDCLOVER
   PrecisionPtilde = 1e-05
   DegreeOfMDPolynomial = 48
   PrecisionHfinal = 1e-10
-  ComputeEVFreq = 1
+  ComputeEVFreq = 0
   2KappaEpsBar = 0.0935
   2Kappamubar = 0.1105
   kappa = 0.170
