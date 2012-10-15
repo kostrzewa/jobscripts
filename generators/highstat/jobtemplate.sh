@@ -59,6 +59,9 @@ case ${BASENAME} in
     cp ${ITOPDIR}/normierungLocal.dat ${ODIR}
     cp ${ITOPDIR}/Square_root_BR_roots.dat ${ODIR}
   ;;
+  *hmc_ndclover*)
+    cp ${ITOPDIR}/clover_roots.dat ${ODIR}
+  ;;  
 esac 
 
 case ${ADDON} in

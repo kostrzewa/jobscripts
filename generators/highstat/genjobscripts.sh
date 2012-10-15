@@ -3,13 +3,14 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_more_openmp_1"
+SD="highstat_csw"
 
 TEMPLATE="jobtemplate.sh"
-SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
-EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
+SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
+#EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
+EXECS="hybrid serial"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_more_openmp"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_ndclover"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
@@ -32,7 +33,7 @@ NMEAS=100000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=1
+SEED=452135
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -171,7 +172,11 @@ create_input ()
     sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
     sed -i "s/initialstorecounter=I/initialstorecounter=0/g" ${INPUT}
   else
-    # when we continue we read in InitialStoreCounter 
+    # when we continue we read in InitialStoreCounter
+    # and set the seed to the same value it was set for the beginning of the run
+    # InitialStoreCounter makes sure that the seed that is actually used will
+    # not be the one set here but one modified by nstore
+    sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
     sed -i "s/initialstorecounter=I/initialstorecounter=readin/g" ${INPUT}
   fi
@@ -254,7 +259,7 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
       else
-        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
 
       export NP=2
@@ -273,7 +278,7 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore"
       else
-        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
 
       export OMPNUMTHREADS=8
@@ -303,13 +308,13 @@ for e in ${EXECS}; do
         esac
       ;;
       # the current polynomial for hmc2 breaks with 8 mpi processes, we skip this one!
-      *hmc2*)
-        case ${e} in
-          *mpi*)
-            continue
-          ;;
-        esac
-      ;;
+      #*hmc2*)
+      #  case ${e} in
+      #    *mpi*)
+      #      continue
+      #    ;;
+      #  esac
+      #;;
     esac
     
     echo
@@ -325,8 +330,9 @@ for e in ${EXECS}; do
       if [[ ${name} = ${e} ]]; then
         TIME=${!s}
         if [[ $DEBUG -eq 1 ]]; then
-          echo "For ${s} with ${e} 1000 iterations take ${TIME} hours."
+          echo "For ${s} with ${e} ${REFMEAS} iterations take ${TIME} hours."
         fi
+        break
       fi
     done < runtimes.dat
 
