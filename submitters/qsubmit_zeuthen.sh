@@ -13,31 +13,43 @@
 
 # NOTE: this is currently broken for # > 9
 
-for i in ${1}/*/*.sh; do
+for i in ${1}/*/s_*.sh; do
+  case ${i} in
+    *serial*):
+      eval `/etc/site/ini.pl -b -d pax`
+    ;;
+    *):
+      eval `/etc/site/ini.pl -b pax`
+    ;;
+  esac
+  echo "Submitting start job ${i}"
+  # qsub ${i}
+done
+
+for i in ${1}/*/c*_*.sh; do  
+  case ${i} in
+    *serial*):
+      eval `/etc/site/ini.pl -b -d pax`
+    ;;
+    *):
+      eval `/etc/site/ini.pl -b pax`
+    ;;
+  esac
   BASE=`echo ${i} | awk -F'/' '{print $NF}'`
   echo "Base is ${BASE}"
   DEP=""
   case ${BASE} in
-    s_*):
-      echo "Submitting start job ${i}"
-      qsub ${i}
+    c1*):
+      export DEP=`echo ${BASE} | sed 's/c1/s/g'`
     ;;
-    c*):
-      case ${BASE} in
-        c1*):
-          export DEP=`echo ${BASE} | sed 's/c1/s/g'`
-        ;;
-        *):
-          NUM=`echo ${BASE} | awk -F'_' '{print $1}'`
-          NUM=`echo ${NUM} | sed 's/c//g'`
-          let NUM=${NUM}-1
-          # print all fields starting from field 2 to the end
-          export DEP="c${NUM}_`echo ${BASE} | cut -f2- -d '_'`"
-        ;;
-      esac
-      echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
-      qsub ${i} -hold_jid ${DEP}
+    *):
+      NUM=`echo ${BASE} | awk -F'_' '{print $1}'`
+      NUM=`echo ${NUM} | sed 's/c//g'`
+      let NUM=${NUM}-1
+      # print all fields starting from field 2 to the end
+      export DEP="c${NUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-
+    echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
+    #qsub -hold_jid ${DEP} ${i}
 done
