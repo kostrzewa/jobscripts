@@ -17,6 +17,7 @@
 #$ -m bae
 # queue name and number of cores
 #$ -pe QUEUE NCORES
+#$ -P etmc
 
 # number of mpi processes
 NPROCS=NP
@@ -59,20 +60,30 @@ case ${BASENAME} in
     cp ${ITOPDIR}/normierungLocal.dat ${ODIR}
     cp ${ITOPDIR}/Square_root_BR_roots.dat ${ODIR}
   ;;
-  *hmc_ndclover*)
+  *ndclover*)
     cp ${ITOPDIR}/clover_roots.dat ${ODIR}
   ;;  
 esac 
 
 case ${ADDON} in
-  *mpi*) export NPN=8;;
-  *hybrid*) export NPN=2;;
+  *mpi*) 
+    export NPN=8
+    export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core -report-bindings"
+  ;;
+  *hybrid*) 
+    export NPN=2
+    export BINDING="-cpus-per-proc 4 -npersocket 1 -bysocket -bind-to-socket -report-bindings"
+  ;;
+  *openmp*)
+    export NPN=1
+    export BINDINGS="-bynode -cpus-per-proc 8"
 esac
 
-MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN}"
+MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN} ${BINDING}"
 case ${ADDON} in
   *mpi*) MPIPREFIX=${MPIRUN};;
   *hybrid*) MPIPREFIX=${MPIRUN};;
+  *openmp*) MPIPREFIX=${MPIRUN};;
 esac
 
 ${MPIPREFIX} ${EFILE} -f ${IFILE}
