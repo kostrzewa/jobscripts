@@ -13,26 +13,41 @@
 
 # NOTE: this is currently broken for # > 9
 
+export PAX=1
+eval `/etc/site/ini.pl -b pax`
+
 for i in ${1}/*/s_*.sh; do
   case ${i} in
     *serial*):
-      eval `/etc/site/ini.pl -b -d pax`
+      if [[ $PAX -ne 0 ]]; then
+        eval `/etc/site/ini.pl -b -d pax`
+        export PAX=0
+      fi
     ;;
     *):
-      eval `/etc/site/ini.pl -b pax`
+      if [[ $PAX -ne 1 ]]; then
+        eval `/etc/site/ini.pl -b pax`
+        export PAX=1
+      fi
     ;;
   esac
   echo "Submitting start job ${i}"
-  # qsub ${i}
+  qsub ${i}
 done
 
 for i in ${1}/*/c*_*.sh; do  
   case ${i} in
     *serial*):
-      eval `/etc/site/ini.pl -b -d pax`
+      if [[ $PAX -ne 0 ]]; then
+        eval `/etc/site/ini.pl -b -d pax`
+        export PAX=0
+      fi
     ;;
     *):
-      eval `/etc/site/ini.pl -b pax`
+      if [[ $PAX -ne 1 ]]; then
+        eval `/etc/site/ini.pl -b pax`
+        export PAX=1
+      fi
     ;;
   esac
   BASE=`echo ${i} | awk -F'/' '{print $NF}'`
@@ -51,5 +66,5 @@ for i in ${1}/*/c*_*.sh; do
     ;;
   esac
     echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
-    #qsub -hold_jid ${DEP} ${i}
+    qsub -hold_jid ${DEP} ${i}
 done
