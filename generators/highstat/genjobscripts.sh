@@ -3,12 +3,18 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_csw"
+SD="highstat_csw_full_04"
 
 TEMPLATE="jobtemplate.sh"
-SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_cloverdet hmc_tmcloverdet hmc_tmcloverdetratio"
-#EXECS="5.1.6_mpi 5.1.6_serial serial mpi openmp hybrid"
-EXECS="hybrid serial"
+
+# the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
+# underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
+# should be written in front of this shared part
+#   e.g. : hmc_tmcloverdet   and   hmc_nocsw_tmcloverdet 
+SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nosplit_ndclover hmc_nocsw_ndclover \
+          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
+          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
+EXECS="serial serial_hs mpi mpi_hs openmp openmp_hs hybrid hybrid_hs"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
 EDIR="${HOME}/tmLQCD/execs/hmc_tm_csw"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
@@ -18,10 +24,10 @@ JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
 # PAX=1 -> use the pax cluster to run!
-# for all mpi jobs the queue will be set to "pax"
-# while for hybrid jobs the "pax-2ppn" queue will be used
+# all hybrid and openmp jobs will be sent to the "pax-2ppn" queue
 # note that serial jobs will have to be submitted separately
 # in the default farm
+# mpi jobs always run on pax
 PAX=1
 
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
@@ -33,7 +39,7 @@ NMEAS=100000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=452135
+SEED=45201
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -261,17 +267,11 @@ for e in ${EXECS}; do
       else
         export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
-
       export NP=2
       export OMPNUMTHREADS=4
     ;;
-    # the multicore-mpi machines run an mpi job locally on two processors
-    # the mpi queue uses processors from different machines
     *mpi*)
-      if [[ ! ${PAX} -eq 1 ]]; then
-        export QUEUE="multicore-mpi"
-      fi
-    
+      export QUEUE="pax"   
       export NP=8
     ;;
     *openmp*)
@@ -280,7 +280,6 @@ for e in ${EXECS}; do
       else
         export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
-
       export OMPNUMTHREADS=8
     ;;
     *serial*)
@@ -307,14 +306,6 @@ for e in ${EXECS}; do
           ;;
         esac
       ;;
-      # the current polynomial for hmc2 breaks with 8 mpi processes, we skip this one!
-      #*hmc2*)
-      #  case ${e} in
-      #    *mpi*)
-      #      continue
-      #    ;;
-      #  esac
-      #;;
     esac
     
     echo
@@ -373,7 +364,7 @@ for e in ${EXECS}; do
         # from the total time in each iteration
         export i=1
         while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
-           export JFILE="${JDIR}/${e}/${state}${i}_${e}_${s}_${SD}.sh"
+           export JFILE="${JDIR}/${e}/${state}${i}_${s}_${e}_${SD}.sh"
            export JOBLIMIT=0
            calc_joblimit ${TIME}
            if [[ ${JOBLIMIT} -eq 0 ]]; then
@@ -394,7 +385,7 @@ for e in ${EXECS}; do
            let i=${i}+1
         done
       elif [[ $state = "s" ]]; then
-        export JFILE="${JDIR}/${e}/${state}_${e}_${s}_${SD}.sh"
+        export JFILE="${JDIR}/${e}/${state}_${s}_${e}_${SD}.sh"
         if [[ ${NEEDCONTINUE} -eq 1 ]]; then
           export TIME=`echo "scale=6;a=${TOTALTIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
           calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
