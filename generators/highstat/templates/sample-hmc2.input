@@ -46,6 +46,9 @@ BeginMonomial DET
 EndMonomial
 
 BeginMonomial NDPOLY
+  2Kappamubar = 0.1105
+  2Kappaepsbar = 0.0935
+  Kappa=0.17
   Timescale = 1
   StildeMin = 0.013577
   StildeMax = 3.096935
@@ -53,6 +56,7 @@ BeginMonomial NDPOLY
   DegreeOfMDPolynomial = 48
   PrecisionHfinal = 1.e-10
   ComputeEVFreq = 10000
+  LocNormConst = 3.3394134092406311254
 EndMonomial
 
 BeginIntegrator 
