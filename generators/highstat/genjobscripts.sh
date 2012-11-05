@@ -3,7 +3,7 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_csw_full_04"
+SD="highstat_csw_full_06"
 
 TEMPLATE="jobtemplate.sh"
 
@@ -33,13 +33,13 @@ PAX=1
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
 MAXJOBLENGTH=47
 
-# a ratio REFMEAS = 100 means that the times in runtimes.dat
+# a ratio REFMEAS = 100 means that the times in runtimes.csv
 # refer to timings of runs with 100 trajectories
 NMEAS=100000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=45201
+SEED=123123
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -311,12 +311,12 @@ for e in ${EXECS}; do
     echo
     echo "Making a script for" ${e} ${s}
    
-    # read runtimes.dat 
+    # read runtimes.csv 
     # SAMPLES will be the names of the indirect variables of the while loop
     # ${!s} is a variable with the variable name set to the sample currently
     # being processed, it thus corresponds to e.g. hmc0 and ${!s} is $hmc0
     # which therefore references the relevant column in the table
-    # runtimes.dat
+    # runtimes.csv
     while read name ${SAMPLES}; do
       if [[ ${name} = ${e} ]]; then
         TIME=${!s}
@@ -325,7 +325,7 @@ for e in ${EXECS}; do
         fi
         break
       fi
-    done < runtimes.dat
+    done < runtimes.csv
 
     # the time measurements in runtimes.dat refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS

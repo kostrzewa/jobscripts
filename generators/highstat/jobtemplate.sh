@@ -68,15 +68,15 @@ esac
 case ${ADDON} in
   *mpi*) 
     export NPN=8
-    export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core -report-bindings"
+    export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core"
   ;;
   *hybrid*) 
     export NPN=2
-    export BINDING="-cpus-per-proc 4 -npersocket 1 -bysocket -bind-to-socket -report-bindings"
+    export BINDING="-cpus-per-proc 4 -npersocket 1 -bysocket -bind-to-socket"
   ;;
   *openmp*)
     export NPN=1
-    export BINDINGS="-bynode -cpus-per-proc 8"
+    export BINDING="-bynode -cpus-per-proc 8"
 esac
 
 MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN} ${BINDING}"
@@ -85,6 +85,8 @@ case ${ADDON} in
   *hybrid*) MPIPREFIX=${MPIRUN};;
   *openmp*) MPIPREFIX=${MPIRUN};;
 esac
+
+cp ${IFILE} ${ODIR}
 
 ${MPIPREFIX} ${EFILE} -f ${IFILE}
 
