@@ -23,6 +23,12 @@ TIDIR="templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
 
+# table with reference time measurements for different runs of the various samples
+# in columns and the various executables in rows
+# note that the table colums must be ordered as the SAMPLES variable
+# the rows can be in any order
+REFTFILE="runtimes_csw.csv"
+
 # PAX=1 -> use the pax cluster to run!
 # all hybrid and openmp jobs will be sent to the "pax-2ppn" queue
 # note that serial jobs will have to be submitted separately
@@ -36,7 +42,7 @@ MAXJOBLENGTH=47
 # whether to compute correlators or not (increases runtime by ~10%)
 CORRELATORS=1
 
-# a ratio REFMEAS = 100 means that the times in runtimes.csv
+# a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
 NMEAS=400000
 REFMEAS=1000
@@ -103,7 +109,11 @@ create_script ()
   NCONT=""
   if [[ ${11} = "c" ]]; then
     export NCONT=${13}
-    export PREFIX=${11}${13}
+    if [[ $NCONT -le 9 ]]; then 
+      export PREFIX="${11}0${13}"
+    else
+      export PREFIX=${11}${13}
+    fi
   else
     export PREFIX=${11}
   fi
@@ -328,13 +338,21 @@ for e in ${EXECS}; do
     echo
     echo "Making a script for" ${e} ${s}
    
-    # read runtimes.csv 
+    # read table of reference times ${REFTFILE} 
     # SAMPLES will be the names of the indirect variables of the while loop
     # ${!s} is a variable with the variable name set to the sample currently
     # being processed, it thus corresponds to e.g. hmc0 and ${!s} is $hmc0
     # which therefore references the relevant column in the table
-    # runtimes.csv
+    # note that the table colums must be ordered as the SAMPLES variable
+    # the rows can be in any order
+    headerflag=0
     while read name ${SAMPLES}; do
+      # skip the header
+      if [[ $headerflag -eq 0 ]]; then
+        let headerflag=1
+        continue
+      fi
+
       if [[ ${name} = ${e} ]]; then
         TIME=${!s}
         if [[ $DEBUG -eq 1 ]]; then
@@ -342,9 +360,9 @@ for e in ${EXECS}; do
         fi
         break
       fi
-    done < runtimes.csv
+    done < ${REFTFILE}
 
-    # the time measurements in runtimes.dat refer to REFMEAS trajectories
+    # the time measurements in the table ${REFTFILE} refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
     # when correlators are being measured we need about 10% more time
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
@@ -386,25 +404,29 @@ for e in ${EXECS}; do
         # from the total time in each iteration
         export i=1
         while [[ `echo "a=${TIME};r=1;if(a<0) r=0;r"|bc` -eq 1 ]]; do
-           export JFILE="${JDIR}/${e}/${state}${i}_${s}_${e}_${SD}.sh"
-           export JOBLIMIT=0
-           calc_joblimit ${TIME}
-           if [[ ${JOBLIMIT} -eq 0 ]]; then
-             export JOBLIMIT=${MAXJOBLENGTH}
-           fi 
-           if [[ `echo "scale=6;a=${TIME};r=1;if(a<${MAXJOBLENGTH}) r=0;r"|bc` -eq 1 ]];then
-             calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
-           else
-             calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
-           fi
-           convert_time ${JOBLIMIT}
-           create_input ${ST} ${i} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
-           create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
-           export TIME=`echo "scale=6;a=${TIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
-           if [[ ${DEBUG} -eq 1 ]]; then
-             echo "${TIME} remaining out of ${TOTALTIME}"
-           fi 
-           let i=${i}+1
+          j="${i}"
+          if [[ i -le 9 ]]; then
+            j="0${j}"
+          fi
+          export JFILE="${JDIR}/${e}/${state}${j}_${s}_${e}_${SD}.sh"
+          export JOBLIMIT=0
+          calc_joblimit ${TIME}
+          if [[ ${JOBLIMIT} -eq 0 ]]; then
+            export JOBLIMIT=${MAXJOBLENGTH}
+          fi 
+          if [[ `echo "scale=6;a=${TIME};r=1;if(a<${MAXJOBLENGTH}) r=0;r"|bc` -eq 1 ]];then
+            calc_nmeas_part ${TOTALTIME} ${JOBLIMIT} ${NMEAS}
+          else
+            calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
+          fi
+          convert_time ${JOBLIMIT}
+          create_input ${ST} ${j} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
+          create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i}
+          export TIME=`echo "scale=6;a=${TIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
+          if [[ ${DEBUG} -eq 1 ]]; then
+            echo "${TIME} remaining out of ${TOTALTIME}"
+          fi 
+          let i=${i}+1
         done
       elif [[ $state = "s" ]]; then
         export JFILE="${JDIR}/${e}/${state}_${s}_${e}_${SD}.sh"
