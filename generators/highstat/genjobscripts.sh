@@ -14,7 +14,7 @@ TEMPLATE="jobtemplate.sh"
 SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nosplit_ndclover hmc_nocsw_ndclover \
           hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
           hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
-EXECS="serial serial_hs mpi mpi_hs openmp openmp_hs hybrid hybrid_hs"
+EXECS="serial mpi_hs 4D_MPI_hs openmp hybrid_hs"
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
 EDIR="${HOME}/tmLQCD/execs/hmc_tm_csw"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
@@ -33,9 +33,12 @@ PAX=1
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
 MAXJOBLENGTH=47
 
+# whether to compute correlators or not (increases runtime by ~10%)
+CORRELATORS=1
+
 # a ratio REFMEAS = 100 means that the times in runtimes.csv
 # refer to timings of runs with 100 trajectories
-NMEAS=100000
+NMEAS=400000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -146,6 +149,10 @@ create_input ()
   cp ${TINPUT} ${INPUT} 
  
   case ${4} in
+    *4D_MPI*)
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;; 
     *mpi*)
       # prepend mpi stuff
       echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
@@ -188,6 +195,11 @@ create_input ()
   fi
 
   sed -i "s/measurements=N/measurements=${5}/g" ${INPUT}
+
+  # when doing the correlators measurement we need to add the line to the input file
+  if [[ ${CORRELATORS} -eq 1 ]]; then
+    echo -e "\nBeginMeasurement CORRELATORS\n  Frequency = 4\nEndMeasurement\n" >> ${INPUT}
+  fi
 }
 
 # $1 total expected runtime
@@ -265,11 +277,16 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
       else
-        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
       fi
       export NP=2
       export OMPNUMTHREADS=4
     ;;
+    *4D_MPI*)
+      export QUEUE="pax"
+      export NP=16
+      export NCORES=16
+    ;;  
     *mpi*)
       export QUEUE="pax"   
       export NP=8
@@ -278,7 +295,7 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore"
       else
-        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
       fi
       export OMPNUMTHREADS=8
     ;;
@@ -329,8 +346,13 @@ for e in ${EXECS}; do
 
     # the time measurements in runtimes.dat refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
-    NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc` 
-    TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
+    # when correlators are being measured we need about 10% more time
+    NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
+    if [[ ${CORRELATORS} -eq 1 ]]; then 
+      TOTALTIME=`echo "scale=6;1.1 * ${NTIMES} * ${TIME}"| bc`
+    else
+      TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
+    fi
 
     # determine correct job length
     calc_joblimit ${TOTALTIME}

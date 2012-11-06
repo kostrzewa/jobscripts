@@ -13,9 +13,9 @@ seed=D
 L=4
 T=4
 StartCondition = hot
-2KappaMu = 0.01
+2KappaMu = 0.0
 2Kappamubar = 0.1105
-2Kappaepsbar = 0.0935
+2Kappaepsbar = 0.0
 kappa = 0.170
 NSave = 10000
 ThetaT = 1
@@ -33,16 +33,6 @@ BeginMonomial GAUGE
   Timescale = 0
 EndMonomial
 
-BeginMonomial DET
-  Timescale = 1
-  2KappaMu = 0.01
-  kappa = 0.170
-  AcceptancePrecision =  1e-20
-  ForcePrecision = 1e-12
-  Name = det
-  Solver = CG
-EndMonomial
-
 BeginMonomial NDCLOVER
   Timescale = 1
   StildeMin = 0.01225
@@ -52,10 +42,10 @@ BeginMonomial NDCLOVER
   DegreeOfMDPolynomial = 48
   PrecisionHfinal = 1e-10
   ComputeEVFreq = 0
-  2KappaEpsBar = 0.0935
+  2KappaEpsBar = 0.0
   2Kappamubar = 0.1105
   kappa = 0.170
-  CSW = 1.0
+  CSW = 0.0
   RootsFile = "clover_roots.dat"
 EndMonomial
 

@@ -66,6 +66,10 @@ case ${BASENAME} in
 esac 
 
 case ${ADDON} in
+  *4D_MPI*)
+    export NPN=8
+    export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core"
+  ;;
   *mpi*) 
     export NPN=8
     export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core"
@@ -76,19 +80,21 @@ case ${ADDON} in
   ;;
   *openmp*)
     export NPN=1
-    export BINDING="-bynode -cpus-per-proc 8"
+    #export BINDING="-cpus-per-proc 8 -bynode"
 esac
 
 MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN} ${BINDING}"
 case ${ADDON} in
-  *mpi*) MPIPREFIX=${MPIRUN};;
-  *hybrid*) MPIPREFIX=${MPIRUN};;
-  *openmp*) MPIPREFIX=${MPIRUN};;
+  *4D_MPI*) export MPIPREFIX=${MPIRUN};;
+  *mpi*) export MPIPREFIX=${MPIRUN};;
+  *hybrid*) export MPIPREFIX=${MPIRUN};;
+  *openmp*) export MPIPREFIX=${MPIRUN};;
 esac
 
 cp ${IFILE} ${ODIR}
 
-${MPIPREFIX} ${EFILE} -f ${IFILE}
+time ${MPIPREFIX} ${EFILE} -f ${IFILE}
 
 cp ${TMPDIR}/std* ${ODIR}
-
+tar -cf om.tar onlinemeas.*
+rm -f onlinemeas.*

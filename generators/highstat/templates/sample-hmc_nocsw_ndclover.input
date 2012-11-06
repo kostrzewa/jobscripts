@@ -55,7 +55,7 @@ BeginMonomial NDCLOVER
   2KappaEpsBar = 0.0935
   2Kappamubar = 0.1105
   kappa = 0.170
-  CSW = 1.0
+  CSW = 0.0
   RootsFile = "clover_roots.dat"
 EndMonomial
 
