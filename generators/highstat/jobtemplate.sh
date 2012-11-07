@@ -96,5 +96,3 @@ cp ${IFILE} ${ODIR}
 /usr/bin/time -p ${MPIPREFIX} ${EFILE} -f ${IFILE}
 
 cp ${TMPDIR}/std* ${ODIR}
-tar -cf om.tar onlinemeas.*
-rm -f onlinemeas.*
