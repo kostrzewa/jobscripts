@@ -31,6 +31,8 @@ SAMPLES=`head -n1 ${1}`
 readrefheaderflag=0
 readheaderflag=0
 
+missingvalues=""
+
 while read refname ${REFSAMPLES}; do
   if [[ readrefheaderflag -eq 0 ]]; then
     let readrefheaderflag=1
@@ -48,7 +50,7 @@ while read refname ${REFSAMPLES}; do
     if [[ $refname = $name ]]; then
       for i in ${SAMPLES}; do
         if [[ -z ${!i} || ${!i} = "NA" ]]; then
-          echo "The $name run of $i has an empty time measurement. The set is probably not complete!"
+          missingvalues="${missingvalues} \n `echo "The $name run of $i has an empty time measurement (${!i}). The set is probably not complete!"`"
           continue
         fi
         for j in ${REFSAMPLES}; do
@@ -63,3 +65,6 @@ while read refname ${REFSAMPLES}; do
     fi
   done < ${1}
 done < ${REFTFILE}
+
+# print error messages for empty measurements at the end
+echo -e $missingvalues
