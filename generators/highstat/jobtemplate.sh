@@ -93,7 +93,7 @@ esac
 
 cp ${IFILE} ${ODIR}
 
-time ${MPIPREFIX} ${EFILE} -f ${IFILE}
+/usr/bin/time -p ${MPIPREFIX} ${EFILE} -f ${IFILE}
 
 cp ${TMPDIR}/std* ${ODIR}
 tar -cf om.tar onlinemeas.*
