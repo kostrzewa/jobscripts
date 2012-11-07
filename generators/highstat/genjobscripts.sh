@@ -3,7 +3,7 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_csw_full_06"
+SD="highstat_csw_full_timelong"
 
 TEMPLATE="jobtemplate.sh"
 
@@ -27,7 +27,12 @@ JFILE=""
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_csw.csv"
+REFTFILE="runtimes_csw_test.csv"
+# read names of columns in reference table and prepend a "ref" to each
+TREFSAMPLES=`head -n1 ${REFTFILE}`
+for i in ${TREFSAMPLES}; do
+  REFSAMPLES="${REFSAMPLES} ref${i}"
+done
 
 # PAX=1 -> use the pax cluster to run!
 # all hybrid and openmp jobs will be sent to the "pax-2ppn" queue
@@ -44,7 +49,7 @@ CORRELATORS=1
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=400000
+NMEAS=10000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -343,10 +348,9 @@ for e in ${EXECS}; do
     # ${!s} is a variable with the variable name set to the sample currently
     # being processed, it thus corresponds to e.g. hmc0 and ${!s} is $hmc0
     # which therefore references the relevant column in the table
-    # note that the table colums must be ordered as the SAMPLES variable
-    # the rows can be in any order
     headerflag=0
-    while read name ${SAMPLES}; do
+    foundreftime=0
+    while read name ${REFSAMPLES}; do
       # skip the header
       if [[ $headerflag -eq 0 ]]; then
         let headerflag=1
@@ -354,13 +358,28 @@ for e in ${EXECS}; do
       fi
 
       if [[ ${name} = ${e} ]]; then
-        TIME=${!s}
-        if [[ $DEBUG -eq 1 ]]; then
-          echo "For ${s} with ${e} ${REFMEAS} iterations take ${TIME} hours."
-        fi
+        for i in ${REFSAMPLES}; do
+          if [[ ${i} = "ref"${s} ]]; then
+            foundreftime=1
+            TIME=${!i}
+            if [[ $DEBUG -eq 1 ]]; then
+              echo "For ${s} with ${e} ${REFMEAS} iterations take ${TIME} hours."
+            fi
+            # break out of for loop as we've matched the reference measurement to the current sample
+            break
+          fi
+        done
+      fi
+      # when the correct reference time has been found, break out of the while loop 
+      if [[ $foundreftime -eq 1 ]]; then
         break
       fi
     done < ${REFTFILE}
+
+    if [[ $foundreftime -eq 0 ]]; then
+      echo "##### No reference time found for ${e} run of ${s}! Skipping! #####"
+      continue
+    fi
 
     # the time measurements in the table ${REFTFILE} refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
