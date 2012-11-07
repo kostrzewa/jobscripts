@@ -14,7 +14,7 @@
 # currently the comparison of partial runtime output is not supported because 
 # of the aforementioned importance of ordering
 
-REFTFILE="../runtimes_csw.csv"
+REFTFILE="../runtimes.csv" #_csw_timelong.csv"
 
 # read the column names (sample names) and their order from the runtimes file
 TREFSAMPLES=`head -n1 ${REFTFILE}`
@@ -48,14 +48,14 @@ while read refname ${REFSAMPLES}; do
     if [[ $refname = $name ]]; then
       for i in ${SAMPLES}; do
         if [[ -z ${!i} || ${!i} = "NA" ]]; then
-          echo "The $name run of sample $i has an empty time measurement. The set is probably not complete!"
+          echo "The $name run of $i has an empty time measurement. The set is probably not complete!"
           continue
         fi
         for j in ${REFSAMPLES}; do
           # if in a given run
           if [[ ${j} = "ref"${i} ]]; then
-            if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.05) out=1;out" | bc` -eq 1 ]]; then
-              echo "The $name run of sample $i took longer than the reference time: ${!i} > ${!j} !"
+            if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.001) out=1;out" | bc` -eq 1 ]]; then
+              echo "The $name run of $i took longer than the reference time: ${!i} > ${!j} !"
             fi
           fi
         done
