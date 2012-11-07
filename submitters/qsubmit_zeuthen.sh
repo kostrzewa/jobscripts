@@ -1,3 +1,4 @@
+#!/bin/bash
 # qsubmit_zeuthen is a batch submitter for the zeuthen batch system
 # provided with a directory which contains one level of 
 # subdirectories with jobscripts, it will
@@ -12,6 +13,8 @@
 # or, when # > 1, the preceding continue script
 
 # NOTE: this is currently broken for # > 99
+
+
 
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
@@ -32,8 +35,15 @@ for i in ${1}/*/s_*.sh; do
     ;;
   esac
   echo "Submitting start job ${i}"
-  #qsub ${i}
+  qsub ${i}
 done
+
+# array only supported with bash!
+cfiles=(${1}/*/c*_*.sh)
+
+if [[ ! -e ${cfiles[1]} ]]; then
+  exit
+fi
 
 for i in ${1}/*/c*_*.sh; do  
   case ${i} in
@@ -51,7 +61,6 @@ for i in ${1}/*/c*_*.sh; do
     ;;
   esac
   BASE=`echo ${i} | awk -F'/' '{print $NF}'`
-  echo "Base is ${BASE}"
   DEP=""
   case ${BASE} in
     c01*):
@@ -75,5 +84,5 @@ for i in ${1}/*/c*_*.sh; do
     ;;
   esac
     echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
-    #qsub -hold_jid ${DEP} ${i}
+    qsub -hold_jid ${DEP} ${i}
 done
