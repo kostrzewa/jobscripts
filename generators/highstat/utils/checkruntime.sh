@@ -57,7 +57,7 @@ while read refname ${REFSAMPLES}; do
         for j in ${REFSAMPLES}; do
           # if in a given run
           if [[ ${j} = "ref"${i} ]]; then
-            if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.001) out=1;out" | bc` -eq 1 ]]; then
+            if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.01) out=1;out" | bc` -eq 1 ]]; then
               echo "The $name run of $i took longer than the reference time: ${!i} > ${!j} !"
             fi
           fi
