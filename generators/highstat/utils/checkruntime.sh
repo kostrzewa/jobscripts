@@ -14,7 +14,8 @@
 # currently the comparison of partial runtime output is not supported because 
 # of the aforementioned importance of ordering
 
-REFTFILE="../runtimes.csv" #_csw_timelong.csv"
+REFTFILE="../runtimes_csw_timelong.csv"
+#REFTFILE="../runtimes.csv"
 
 # read the column names (sample names) and their order from the runtimes file
 TREFSAMPLES=`head -n1 ${REFTFILE}`
@@ -31,7 +32,7 @@ SAMPLES=`head -n1 ${1}`
 readrefheaderflag=0
 readheaderflag=0
 
-missingvalues=""
+missingvalues="\n"
 
 while read refname ${REFSAMPLES}; do
   if [[ readrefheaderflag -eq 0 ]]; then
@@ -50,7 +51,7 @@ while read refname ${REFSAMPLES}; do
     if [[ $refname = $name ]]; then
       for i in ${SAMPLES}; do
         if [[ -z ${!i} || ${!i} = "NA" ]]; then
-          missingvalues="${missingvalues} \n `echo "The $name run of $i has an empty time measurement (${!i}). The set is probably not complete!"`"
+          missingvalues="${missingvalues}`echo "The $name run of $i has an empty time measurement (${!i}). The set is probably not complete!\n"`"
           continue
         fi
         for j in ${REFSAMPLES}; do
@@ -67,4 +68,4 @@ while read refname ${REFSAMPLES}; do
 done < ${REFTFILE}
 
 # print error messages for empty measurements at the end
-echo -e $missingvalues
+echo -n -e $missingvalues
