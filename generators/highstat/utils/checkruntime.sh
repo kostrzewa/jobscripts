@@ -16,6 +16,7 @@
 
 REFTFILE="../runtimes_csw.csv"
 
+# read the column names (sample names) and their order from the runtimes file
 TREFSAMPLES=`head -n1 ${REFTFILE}`
 
 # prepend "ref" to each name in TREFSAMPLES
@@ -23,6 +24,7 @@ for i in $TREFSAMPLES; do
   REFSAMPLES="${REFSAMPLES} ref${i}"
 done
 
+# read the columne names and their order from the file to be analyzed
 SAMPLES=`head -n1 ${1}`
 
 # skip the headers in the files
@@ -42,6 +44,7 @@ while read refname ${REFSAMPLES}; do
       continue
     fi
 
+    # if a given run exists in both files, do a comparison
     if [[ $refname = $name ]]; then
       for i in ${SAMPLES}; do
         if [[ -z ${!i} || ${!i} = "NA" ]]; then
@@ -49,6 +52,7 @@ while read refname ${REFSAMPLES}; do
           continue
         fi
         for j in ${REFSAMPLES}; do
+          # if in a given run
           if [[ ${j} = "ref"${i} ]]; then
             if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.05) out=1;out" | bc` -eq 1 ]]; then
               echo "The $name run of sample $i took longer than the reference time: ${!i} > ${!j} !"
