@@ -1,4 +1,4 @@
-name hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nocsw_ndclover hmc_nosplit_ndclover hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio
+ hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nocsw_ndclover hmc_nosplit_ndclover hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio
 5.1.6_mpi 0.024 0.044 0.3 0.186 NA NA NA NA NA NA NA NA NA
 5.1.6_serial 0.058 0.13 0.96 0.72 NA NA NA NA NA NA NA NA NA
 hybrid 0.028 0.0375 0.16 0.164 0.3 0.28 0.28 0.28 0.05 0.0322 0.04 0.0322 0.056
