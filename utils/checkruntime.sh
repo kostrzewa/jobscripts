@@ -66,7 +66,7 @@ while read refname ${REFSAMPLES}; do
             if [[ `echo "scale=4;out=0;if(${ratio}>1.05) out=1;out" | bc` -eq 1 ]]; then
               NMEAS=`grep "measurements" ${IFILE} | awk -F'=' '{print $2}'`
               TIME=`echo "scale=4; ${NMEAS}*${!i}/1000" | bc`
-              printf "%20s %45s    %-4.6s > %-4.6s   runtime %-4.4s hours   ratio %-4.5s\n" $name $i ${!i} ${!j} ${TIME} ${ratio}
+              printf "%20s %45s   ratio %-4.5s    runtime %-4.5s hours    %-4.6s > %-4.6s\n" $name $i $ratio $TIME ${!i} ${!j}
             fi
           fi
         done
