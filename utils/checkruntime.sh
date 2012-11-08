@@ -14,7 +14,9 @@
 # currently the comparison of partial runtime output is not supported because 
 # of the aforementioned importance of ordering
 
-REFTFILE="../runtimes_csw_timelong.csv"
+REFTFILE="${HOME}/jobscripts/generators/highstat/runtimes_csw_timelong.csv"
+TFILE="/lustre/fs4/group/etmc/kostrzew/plots/${1}/runtimes.csv"
+
 #REFTFILE="../runtimes.csv"
 
 # read the column names (sample names) and their order from the runtimes file
@@ -26,7 +28,9 @@ for i in $TREFSAMPLES; do
 done
 
 # read the columne names and their order from the file to be analyzed
-SAMPLES=`head -n1 ${1}`
+
+SAMPLES=`head -n1 ${TFILE}`
+IDIR="${HOME}/tmLQCD/inputfiles/highstat/${1}"
 
 # skip the headers in the files
 readrefheaderflag=0
@@ -57,15 +61,21 @@ while read refname ${REFSAMPLES}; do
         for j in ${REFSAMPLES}; do
           # if in a given run
           if [[ ${j} = "ref"${i} ]]; then
-            if [[ `echo "scale=6;out=0;r=${!i}/${!j};if(r>1.01) out=1;out" | bc` -eq 1 ]]; then
-              echo "The $name run of $i took longer than the reference time: ${!i} > ${!j} !"
+            IFILE="${IDIR}/${name}/s_${i}_${name}.input"
+            ratio=`echo "scale=3;${!i}/${!j}"|bc`
+            if [[ `echo "scale=4;out=0;if(${ratio}>1.05) out=1;out" | bc` -eq 1 ]]; then
+              NMEAS=`grep "measurements" ${IFILE} | awk -F'=' '{print $2}'`
+              TIME=`echo "scale=4; ${NMEAS}*${!i}/1000" | bc`
+              printf "%20s %45s    %-4.6s > %-4.6s   runtime %-4.4s hours   ratio %-4.5s\n" $name $i ${!i} ${!j} ${TIME} ${ratio}
             fi
           fi
         done
       done
     fi
-  done < ${1}
+  done < ${TFILE}
 done < ${REFTFILE}
 
 # print error messages for empty measurements at the end
-echo -n -e $missingvalues
+if [[ ${3} -eq 1 ]]; then
+  echo -n -e $missingvalues
+fi
