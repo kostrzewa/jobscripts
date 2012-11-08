@@ -14,12 +14,16 @@
 
 # NOTE: this is currently broken for # > 99
 
+NAME=${1}
+SAMPLE=${2}
+ADDON=${3}
 
+JOBDIR="${HOME}/jobscripts/${1}"
 
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
 
-for i in ${1}/*/s_*.sh; do
+for i in ${JOBDIR}/${ADDON}/s_${SAMPLE}_${ADDON}_${NAME}.sh; do
   case ${i} in
     *serial*):
       if [[ $PAX -ne 0 ]]; then
@@ -39,13 +43,13 @@ for i in ${1}/*/s_*.sh; do
 done
 
 # array only supported with bash!
-cfiles=(${1}/*/c*_*.sh)
+cfiles=(${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh)
 
 if [[ ! -e ${cfiles[1]} ]]; then
   exit
 fi
 
-for i in ${1}/*/c*_*.sh; do  
+for i in ${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh; do  
   case ${i} in
     *serial*)
       if [[ $PAX -ne 0 ]]; then
