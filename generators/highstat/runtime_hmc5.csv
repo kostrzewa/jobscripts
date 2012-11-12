@@ -1,0 +1,16 @@
+	hmc5
+mpi_hs	0.2
+openmp	0.3
+serial	1
+4D_MPI_hs	0.16
+3D_MPI_hs	0.16
+2D_MPI_hs	0.17
+1D_MPI_hs	0.18
+hybrid_hs	0.25
+mpi	NA
+openmp_hs	NA
+serial_hs	NA
+4D_MPI	NA
+hybrid	NA
+5.1.6_mpi	NA
+5.1.6_serial	NA

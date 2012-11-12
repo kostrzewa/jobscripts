@@ -45,7 +45,7 @@ done
 # array only supported with bash!
 cfiles=(${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh)
 
-if [[ ! -e ${cfiles[1]} ]]; then
+if [[ ! -e ${cfiles[0]} ]]; then
   exit
 fi
 
