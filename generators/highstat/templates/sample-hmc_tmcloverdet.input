@@ -16,7 +16,7 @@ T=4
 CSW = 1.76
 kappa = 0.138
 NSave = 5000
-writecheckpoints=no
+writecheckpoints=yes
 ThetaT = 1.0
 BCGstabMaxIter = 0
 CGMaxIter = 1000
@@ -25,7 +25,6 @@ ReversibilityCheck = yes
 ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 gaugeconfiginputfile=conf.save
-
 
 BeginMonomial GAUGE
   Type = Wilson

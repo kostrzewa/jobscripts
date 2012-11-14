@@ -22,6 +22,7 @@ ThetaT = 1
 BCGstabMaxIter = 0
 CGMaxIter = 1000
 GaugeConfigInputFile = conf.save
+writecheckpoints=yes
 UseEvenOdd = yes
 ReversibilityCheck = yes
 ReversibilityCheckIntervall = 10000
