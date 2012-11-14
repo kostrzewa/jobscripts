@@ -7,7 +7,7 @@ L=4
 T=32
 writecheckpoints=yes
 2KappaMu = 0.15
-kappa = 0.15
+kappa = 0.163260
 NSave = 5000
 ThetaT = 1
 BCGstabMaxIter = 1000
@@ -27,7 +27,7 @@ EndMonomial
 BeginMonomial DET
   Timescale = 1
   2KappaMu = 0.15
-  kappa = 0.15
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det1
@@ -37,7 +37,7 @@ EndMonomial
 BeginMonomial DET
   Timescale = 1
   2KappaMu = 0.15
-  kappa = 0.15
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det2
@@ -47,7 +47,7 @@ EndMonomial
 BeginMonomial DET
   Timescale = 1
   2KappaMu = 0.15
-  kappa = 0.15
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det3
@@ -57,7 +57,7 @@ EndMonomial
 BeginMonomial DET
   Timescale = 1
   2KappaMu = 0.15
-  kappa = 0.15
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det4
