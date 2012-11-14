@@ -83,6 +83,6 @@ for i in ${1}/*/c*_*.sh; do
       export DEP="c${TEXTNUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-    echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
+    echo -e "Submitting continue job ${i}\n   depending on ${DEP}\n"
     qsub -hold_jid ${DEP} ${i}
 done
