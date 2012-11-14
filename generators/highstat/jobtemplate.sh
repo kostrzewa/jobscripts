@@ -38,9 +38,6 @@ EFILE=EF
 IFILE=IF
 ITOPDIR=ITD
 
-# write stdout and stderr into tmp dir, will be copied to output at the end
-exec > ${TMPDIR}/stdout.txt.${JOB_ID} 2> ${TMPDIR}/stderr.txt.${JOB_ID}
-
 if [[ ${STATE} == "s" ]]; then
   if [[ ! -d ${ODIR} ]]; then
     mkdir -p ${ODIR}
@@ -55,6 +52,9 @@ fi
 
 cd ${ODIR}
 
+# write stdout and stderr into tmp dir, will be copied to output at the end
+exec > ${TMPDIR}/stdout.txt.${JOB_ID} 2> ${TMPDIR}/stderr.txt.${JOB_ID}
+
 case ${BASENAME} in
   *hmc2*)
     cp ${ITOPDIR}/normierungLocal.dat ${ODIR}
@@ -66,7 +66,7 @@ case ${BASENAME} in
 esac 
 
 case ${ADDON} in
-  *4D_MPI*)
+  *MPI*)
     export NPN=8
     export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core"
   ;;
@@ -80,12 +80,11 @@ case ${ADDON} in
   ;;
   *openmp*)
     export NPN=1
-    #export BINDING="-cpus-per-proc 8 -bynode"
 esac
 
 MPIRUN="/usr/lib64/openmpi/1.4-icc/bin/mpirun -wd ${ODIR} -np ${NPROCS} -npernode ${NPN} ${BINDING}"
 case ${ADDON} in
-  *4D_MPI*) export MPIPREFIX=${MPIRUN};;
+  *MPI*) export MPIPREFIX=${MPIRUN};;
   *mpi*) export MPIPREFIX=${MPIRUN};;
   *hybrid*) export MPIPREFIX=${MPIRUN};;
   *openmp*) export MPIPREFIX=${MPIRUN};;

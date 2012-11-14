@@ -3,7 +3,7 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="highstat_csw_full_timelong"
+SD="mpitest"
 
 TEMPLATE="jobtemplate.sh"
 
@@ -11,10 +11,14 @@ TEMPLATE="jobtemplate.sh"
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
 # should be written in front of this shared part
 #   e.g. : hmc_tmcloverdet   and   hmc_nocsw_tmcloverdet 
-SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nosplit_ndclover hmc_nocsw_ndclover \
-          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
-          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
-EXECS="serial mpi_hs 4D_MPI_hs openmp hybrid_hs"
+
+# SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nosplit_ndclover hmc_nocsw_ndclover \
+#          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
+#          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
+
+SAMPLES="hmc5 hmc6"
+EXECS="openmp 1D_MPI_hs 2D_MPI_hs 4D_MPI_hs MPI_8 MPI_16 MPI_32 MPI_64"
+
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
 EDIR="${HOME}/tmLQCD/execs/hmc_tm_csw"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
@@ -27,7 +31,8 @@ JFILE=""
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_csw_test.csv"
+REFTFILE="runtimes_hmc56.csv"
+
 # read names of columns in reference table and prepend a "ref" to each
 TREFSAMPLES=`head -n1 ${REFTFILE}`
 for i in ${TREFSAMPLES}; do
@@ -49,7 +54,7 @@ CORRELATORS=1
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=10000
+NMEAS=200000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -163,36 +168,83 @@ create_input ()
 
   cp ${TINPUT} ${INPUT} 
  
-  case ${4} in
-    *4D_MPI*)
-      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-      cp ${TEMP} ${INPUT}
-    ;; 
-    *mpi*)
-      # prepend mpi stuff
-      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-      cp ${TEMP} ${INPUT}
-    ;;
-    *hybrid*)
-    # prepend hybrid stuff
-      echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
-      cp ${TEMP} ${INPUT} 
-    ;;
-    *openmp*)
-      # prepend openmp stuff
-      echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
-      cp ${TEMP} ${INPUT} 
-    ;;
-    *serial*)
-      # no-op
-    ;;
-  esac
+  if [[ ${3} = *hmc5* || ${3} = *hmc6* ]]; then
+     case ${4} in
+      *4D_MPI*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *3D_MPI*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *2D_MPI*)
+        echo -e "NrXProcs=2\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *1D_MPI*)
+        echo -e "NrXProcs=1\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *MPI_8*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *MPI_16*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *MPI_32*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *MPI_64*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;; 
+      *hybrid*)
+      # prepend hybrid stuff
+        echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT} 
+      ;;
+      *openmp*)
+        # prepend openmp stuff
+        echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT} 
+      ;;
+      *serial*)
+        # no-op
+      ;;
+    esac
+  else
+    case ${4} in
+      *4D_MPI*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;; 
+      *mpi*)
+        # prepend mpi stuff
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      *hybrid*)
+      # prepend hybrid stuff
+        echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT} 
+      ;;
+      *openmp*)
+        # prepend openmp stuff
+        echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT} 
+      ;;
+      *serial*)
+        # no-op
+      ;;
+    esac
+  fi
 
   if [[ ${1} = "s" ]]; then
     case ${2} in
-      *hmc4*)
-        sed -i 's/startcondition=S/startcondition=cold/g' ${INPUT}
-      ;;
       *)
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
@@ -223,6 +275,10 @@ calc_joblimit ()
   # determine correct job length
   export JOBLIMIT=0
   for t in ${JOBLENGTHPARTITIONS}; do
+    # if the current joblength is longer than the maximum specified above, abort
+    if [[ $t -gt ${MAXJOBLENGTH} ]]; then
+      break
+    fi
     if [[ $JOBLIMIT -eq 0 ]]; then
       # add a buffer of one hour to make sure that the job runs through
       if [[ `echo "scale=6;a=$1+1;b=$t;r=0;if(a<b)r=1;r"|bc` -eq 1 ]]; then
@@ -292,16 +348,36 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
       else
-        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
       export NP=2
       export OMPNUMTHREADS=4
     ;;
-    *4D_MPI*)
+    *D_MPI*)
       export QUEUE="pax"
       export NP=16
       export NCORES=16
-    ;;  
+    ;;
+    *MPI_8*)
+      export QUEUE="pax"
+      export NP=8
+      export NCORES=8
+    ;;
+     *MPI_16*)
+      export QUEUE="pax"
+      export NP=16
+      export NCORES=16
+    ;;
+     *MPI_32*)
+      export QUEUE="pax"
+      export NP=32
+      export NCORES=32
+    ;;
+     *MPI_64*)
+      export QUEUE="pax"
+      export NP=64
+      export NCORES=64
+    ;;
     *mpi*)
       export QUEUE="pax"   
       export NP=8
@@ -310,7 +386,7 @@ for e in ${EXECS}; do
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore"
       else
-        export QUEUE="pax-2ppn" # use the new pax-2ppn queue for hybrid and openmp
+        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
       fi
       export OMPNUMTHREADS=8
     ;;
@@ -325,7 +401,7 @@ for e in ${EXECS}; do
   fi
 
   for s in ${SAMPLES}; do
-    
+
     export BN=${s}
 
     case ${s} in
@@ -337,6 +413,12 @@ for e in ${EXECS}; do
             continue 
           ;;
         esac
+      ;;
+      *hmc5*)
+        if [[ ${e} = *hybrid* ]]; then
+          export NCORES=16
+          export NP=4
+        fi
       ;;
     esac
     
@@ -386,9 +468,9 @@ for e in ${EXECS}; do
     # when correlators are being measured we need about 10% more time
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
     if [[ ${CORRELATORS} -eq 1 ]]; then 
-      TOTALTIME=`echo "scale=6;1.1 * ${NTIMES} * ${TIME}"| bc`
+      TOTALTIME=`echo "scale=6;1.6*${NTIMES}*${TIME}"| bc`
     else
-      TOTALTIME=`echo "scale=6;${NTIMES} * ${TIME}"| bc`
+      TOTALTIME=`echo "scale=6;1.5*${NTIMES}*${TIME}"| bc`
     fi
 
     # determine correct job length
