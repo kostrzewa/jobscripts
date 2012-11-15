@@ -6,7 +6,7 @@ seed=D
 L=4
 T=32
 writecheckpoints=yes
-2KappaMu = 0.15
+2KappaMu = 0.20
 kappa = 0.163260
 NSave = 5000
 ThetaT = 1
@@ -26,7 +26,7 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
+  2KappaMu = 0.20
   kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
@@ -36,7 +36,7 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
+  2KappaMu = 0.20
   kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
@@ -46,7 +46,7 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
+  2KappaMu = 0.20
   kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
@@ -56,7 +56,7 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
+  2KappaMu = 0.20
   kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
