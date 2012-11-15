@@ -1,0 +1,76 @@
+measurements=N
+startcondition=S
+initialstorecounter=I
+seed=D
+
+L=8
+T=8
+writecheckpoints=yes
+2KappaMu = 0.15
+kappa = 0.15
+NSave = 5000
+ThetaT = 1
+BCGstabMaxIter = 1000
+CGMaxIter = 10000
+GaugeConfigInputFile = conf.save
+UseEvenOdd = yes
+ReversibilityCheck = yes
+ReversibilityCheckIntervall = 10000
+DebugLevel = 0
+
+BeginMonomial GAUGE
+  Type = Wilson
+  beta = 6.0
+  Timescale = 0
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.15
+  kappa = 0.15
+  AcceptancePrecision =  1e-22
+  ForcePrecision = 1e-14
+  Name = det1
+  Solver = CG
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.15
+  kappa = 0.15
+  AcceptancePrecision =  1e-22
+  ForcePrecision = 1e-14
+  Name = det2
+  Solver = CG
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.15
+  kappa = 0.15
+  AcceptancePrecision =  1e-22
+  ForcePrecision = 1e-14
+  Name = det3
+  Solver = CG
+EndMonomial
+
+BeginMonomial DET
+  Timescale = 1
+  2KappaMu = 0.15
+  kappa = 0.15
+  AcceptancePrecision =  1e-22
+  ForcePrecision = 1e-14
+  Name = det4
+  Solver = CG
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 10
+  Tau = 1
+  Lambda0 = 0.19
+  Lambda1 = 0.21
+  NumberOfTimescales = 2
+EndIntegrator
