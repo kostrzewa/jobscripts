@@ -38,7 +38,7 @@ for i in ${JOBDIR}/${ADDON}/s_${SAMPLE}_${ADDON}_${NAME}.sh; do
       fi
     ;;
   esac
-  echo "Submitting start job ${i}"
+  echo -e "\nSubmitting start job ${i}"
   qsub ${i}
 done
 
@@ -87,6 +87,6 @@ for i in ${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh; do
       export DEP="c${TEXTNUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-    echo -e "Submitting continue job ${i}\n   depending on ${DEP}\n"
+    echo -e "\nSubmitting continue job ${i}\n   depending on ${DEP}"
     qsub -hold_jid ${DEP} ${i}
 done

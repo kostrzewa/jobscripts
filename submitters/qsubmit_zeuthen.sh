@@ -14,8 +14,6 @@
 
 # NOTE: this is currently broken for # > 99
 
-
-
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
 
@@ -34,7 +32,7 @@ for i in ${1}/*/s_*.sh; do
       fi
     ;;
   esac
-  echo "Submitting start job ${i}"
+  echo -e "\nSubmitting start job ${i}"
   qsub ${i}
 done
 
@@ -83,6 +81,6 @@ for i in ${1}/*/c*_*.sh; do
       export DEP="c${TEXTNUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-    echo -e "Submitting continue job ${i}\n   depending on ${DEP}\n"
+    echo -e "\nSubmitting continue job ${i}\n   depending on ${DEP}"
     qsub -hold_jid ${DEP} ${i}
 done
