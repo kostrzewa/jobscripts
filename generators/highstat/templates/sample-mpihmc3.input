@@ -68,7 +68,7 @@ BeginIntegrator
   Type0 = 2MN
   Type1 = 2MN
   IntegrationSteps0 = 1
-  IntegrationSteps1 = 8
+  IntegrationSteps1 = 12
   Tau = 1
   Lambda0 = 0.19
   Lambda1 = 0.21
