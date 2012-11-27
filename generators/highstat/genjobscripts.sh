@@ -3,7 +3,7 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="mpitest8888"
+SD="random_test"
 
 TEMPLATE="jobtemplate.sh"
 
@@ -17,11 +17,11 @@ TEMPLATE="jobtemplate.sh"
 #          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 
-SAMPLES="mpihmc3 mpihmc4"
-EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64"
+SAMPLES="hmc2"
+EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_blocking_128 4D_MPI_hs_persistent_128 4D_MPI_hs_256 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64"
 
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_csw"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_RAN"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
@@ -32,7 +32,7 @@ JFILE=""
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_mpihmc34.csv"
+REFTFILE="runtimes_csw.csv"
 
 # read names of columns in reference table and prepend a "ref" to each
 TREFSAMPLES=`head -n1 ${REFTFILE}`
@@ -55,7 +55,7 @@ CORRELATORS=0
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=100000
+NMEAS=400000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -87,6 +87,10 @@ fi
 # $14 EX (executable)
 create_script ()
 {
+  if [[ ! -d ${JDIR}/${9} ]]; then
+    mkdir -p ${JDIR}/${9}
+  fi
+
   if [[ ${DEBUG} -eq 1 ]]; then
     echo "CREATE_SCRIPT copying ${1} to ${2}"
   fi
@@ -171,6 +175,14 @@ create_input ()
   # special 32x4^3 modes
   if [[ ${3} = "mpihmc1" || ${3} = "mpihmc2" ]]; then
     case ${4} in
+      4D_MPI*_64)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      4D_MPI*_32)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
       4D_MPI*_16)
         echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
@@ -203,8 +215,25 @@ create_input ()
   fi
 
   # special 8^4 modes
-  if [[ ${3} = "mpihmc3" || ${3} = "mpihmc4" ]]; then
+  if [[ ${3} = mpihmc[3,4,7,8] ]]; then
+#|| ${3} = "mpihmc4" ]]; then
     case ${4} in
+      4D_MPI*_256)
+        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      4D_MPI*_128)
+        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      4D_MPI*_64)
+        echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+      4D_MPI*_32)
+        echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;; 
       4D_MPI*_16)
         echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
@@ -228,6 +257,16 @@ create_input ()
     esac
   fi
 
+  # special 12x6^3 modes
+  if [[ ${3} = "mpihmc5" || ${3} = "mpihmc6" ]]; then
+    case ${4} in
+      3D_MPI*)
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT}
+      ;;
+    esac
+  fi
+ 
   # common modes
   case ${4} in
     3D_MPI*_8)
@@ -351,27 +390,42 @@ for e in ${EXECS}; do
 
   # set some job parameters for which the executable type is important
   case ${e} in
-    *MPI*8)
+    *MPI*_8)
       export QUEUE="pax"
       export NP=8
       export NCORES=8
     ;;
-    *MPI*16)
+    *MPI*_16)
       export QUEUE="pax"
       export NP=16
       export NCORES=16
     ;;
-    *MPI*32)
+    *MPI*_24)
+      export QUEUE="pax"
+      export NP=24
+      export NCORES=24
+    ;;
+    *MPI*_32)
       export QUEUE="pax"
       export NP=32
       export NCORES=32
     ;;
-    *MPI*64)
+    *MPI*_64)
       export QUEUE="pax"
       export NP=64
       export NCORES=64
     ;;
-    *hybrid*4)
+    *MPI*_128)
+      export QUEUE="pax"
+      export NP=128
+      export NCORES=128
+    ;;
+    *MPI*_256)
+      export QUEUE="pax"
+      export NP=256
+      export NCORES=256
+    ;;
+    *hybrid*_4)
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
       else
@@ -380,7 +434,7 @@ for e in ${EXECS}; do
       export NP=4
       export OMPNUMTHREADS=4
     ;;
-    *hybrid*2)
+    *hybrid*_2)
       if [[ ! ${PAX} -eq 1 ]]; then
         export QUEUE="multicore-mpi"
       else
@@ -403,10 +457,6 @@ for e in ${EXECS}; do
     ;;
   esac
 
-  if [[ ! -d ${JDIR}/${e} ]]; then
-    mkdir ${JDIR}/${e}
-  fi
-
   for s in ${SAMPLES}; do
 
     export BN=${s}
@@ -422,14 +472,60 @@ for e in ${EXECS}; do
         esac
       ;;
       mpihmc[1,2])
-        case ${3} in
+        case ${e} in
+          4D_MPI*_128)
+            continue
+          ;;
+          4D_MPI*_256)
+            continue
+          ;;
+          3D_MPI*_24)
+            continue
+          ;;
           serial*)
             continue
           ;;
         esac
       ;;
-      mpihmc[3,4])
+      mpihmc[3,4,7,8])
         case ${e} in
+          1D_MPI*_16)
+            continue
+          ;;
+          3D_MPI*_24)
+            continue
+          ;;
+          serial*)
+            continue
+          ;;
+        esac
+      ;;
+      mpihmc[5,6])
+        case ${e} in
+          4D_MPI*_256)
+            continue
+          ;;
+          4D_MPI*_128)
+            continue
+          ;;
+          4D_MPI*_64)
+            continue
+          ;;
+          4D_MPI*_32)
+            continue
+          ;;
+          4D_MPI*_16)
+            continue
+          ;;
+          3D_MPI*_32)
+            continue
+          ;;
+          3D_MPI*_64)
+            continue
+          ;;
+          2D_MPI*_16)
+            continue
+          ;;
           1D_MPI*_16)
             continue
           ;;
@@ -441,7 +537,22 @@ for e in ${EXECS}; do
       # skip special MPI modes for standard 4^4 set
       hmc*)
         case ${e} in
+          4D_MPI*_256)
+            continue
+          ;;
+          4D_MPI*_128)
+            continue
+          ;;
+          4D_MPI*_64)
+            continue
+          ;;
+          4D_MPI*_32)
+            continue
+          ;;
           3D_MPI*_16)
+            continue
+          ;;
+          3D_MPI*_24)
             continue
           ;;
           3D_MPI*_32)
@@ -459,7 +570,7 @@ for e in ${EXECS}; do
         esac
       ;;
     esac
-    
+ 
     echo
     echo "Making a script for" ${e} ${s}
    
