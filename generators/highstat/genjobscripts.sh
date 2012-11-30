@@ -191,10 +191,6 @@ create_input ()
         echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
       ;;
-      4D_MPI*_16)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
       3D_MPI*_8)
         echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
@@ -242,10 +238,6 @@ create_input ()
         echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
       ;; 
-      4D_MPI*_16)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
       3D_MPI*_16)
         echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
