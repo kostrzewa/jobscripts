@@ -3,9 +3,31 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="random_test"
-
+SD="random_test_test"
 TEMPLATE="jobtemplate.sh"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_NDTC_RAN"
+
+# a ratio REFMEAS = 100 means that the times in ${REFTFILE}
+# refer to timings of runs with 100 trajectories
+NMEAS=400000
+REFMEAS=1000
+
+# set the random_seed variable in the hmc
+SEED=999
+# ranlux luxury level 0 to 4
+RLXDLEVEL=2
+# reproduce random numbers flag
+REPRO="no"
+
+
+# whether to compute correlators or not (increases runtime by ~10%)
+CORRELATORS=0
+
+# table with reference time measurements for different runs of the various samples
+# in columns and the various executables in rows
+# note that the table colums must be ordered as the SAMPLES variable
+# the rows can be in any order
+REFTFILE="runtimes_csw.csv"
 
 # the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
@@ -17,28 +39,17 @@ TEMPLATE="jobtemplate.sh"
 #          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 
-SAMPLES="hmc2"
-EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_blocking_128 4D_MPI_hs_persistent_128 4D_MPI_hs_256 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64"
+SAMPLES="hmc0"
+#EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64"
+
+EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_64 4D_MPI_hs_256"
 
 ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_RAN"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
 JDIR="${HOME}/jobscripts/${SD}"
 JFILE=""
-
-# table with reference time measurements for different runs of the various samples
-# in columns and the various executables in rows
-# note that the table colums must be ordered as the SAMPLES variable
-# the rows can be in any order
-REFTFILE="runtimes_csw.csv"
-
-# read names of columns in reference table and prepend a "ref" to each
-TREFSAMPLES=`head -n1 ${REFTFILE}`
-for i in ${TREFSAMPLES}; do
-  REFSAMPLES="${REFSAMPLES} ref${i}"
-done
 
 # PAX=1 -> use the pax cluster to run!
 # all hybrid and openmp jobs will be sent to the "pax-2ppn" queue
@@ -50,16 +61,13 @@ PAX=1
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
 MAXJOBLENGTH=47
 
-# whether to compute correlators or not (increases runtime by ~10%)
-CORRELATORS=0
+TEMPLATE="jobtemplate.sh"
 
-# a ratio REFMEAS = 100 means that the times in ${REFTFILE}
-# refer to timings of runs with 100 trajectories
-NMEAS=400000
-REFMEAS=1000
-
-# set the random_seed variable in the hmc
-SEED=123123
+# read names of columns in reference table and prepend a "ref" to each
+TREFSAMPLES=`head -n1 ${REFTFILE}`
+for i in ${TREFSAMPLES}; do
+  REFSAMPLES="${REFSAMPLES} ref${i}"
+done
 
 if [[ ! -d ${IDIR} ]]; then
   mkdir -p ${IDIR}
@@ -269,6 +277,12 @@ create_input ()
  
   # common modes
   case ${4} in
+    4D_MPI*_16)
+      if [[ ! ${3} = mpihmc[5,6] ]]; then
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        cp ${TEMP} ${INPUT} 
+      fi
+    ;;
     3D_MPI*_8)
       echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
@@ -294,17 +308,19 @@ create_input ()
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
-    sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
     sed -i "s/initialstorecounter=I/initialstorecounter=0/g" ${INPUT}
   else
     # when we continue we read in InitialStoreCounter
     # and set the seed to the same value it was set for the beginning of the run
     # InitialStoreCounter makes sure that the seed that is actually used will
     # not be the one set here but one modified by nstore
-    sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
     sed -i "s/initialstorecounter=I/initialstorecounter=readin/g" ${INPUT}
   fi
+
+  sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
+  sed -i "s/ranluxdlevel=L/ranluxdlevel=${RLXDLEVEL}/g" ${INPUT}
+  sed -i "s/reproducerandomnumbers=R/reproducerandomnumbers=${REPRO}/g" ${INPUT}
 
   sed -i "s/measurements=N/measurements=${5}/g" ${INPUT}
 

@@ -6,7 +6,8 @@ measurements=N
 startcondition=S
 initialstorecounter=I
 seed=D
-
+ranluxdlevel=L
+reproducerandomnumbers=R
 
 L=4
 T=4

@@ -5,8 +5,8 @@ seed=D
 ranluxdlevel=L
 reproducerandomnumbers=R
 
-L=4
-T=32
+L=6
+T=12
 writecheckpoints=yes
 2KappaMu = 0.15
 kappa = 0.15

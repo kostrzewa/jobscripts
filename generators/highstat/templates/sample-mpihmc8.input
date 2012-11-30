@@ -5,11 +5,11 @@ seed=D
 ranluxdlevel=L
 reproducerandomnumbers=R
 
-L=4
-T=32
+L=8
+T=8
 writecheckpoints=yes
-2KappaMu = 0.15
-kappa = 0.15
+2KappaMu = 0.50
+kappa = 0.136
 NSave = 5000
 ThetaT = 1
 BCGstabMaxIter = 1000
@@ -26,43 +26,48 @@ BeginMonomial GAUGE
   Timescale = 0
 EndMonomial
 
-BeginMonomial DET
+BeginMonomial CLOVERDET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.50
+  kappa = 0.136
+  rho = 0.0
+  CSW = 1.57551
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
-  Name = det1
+  Name = cloverdet1
   Solver = CG
 EndMonomial
-
-BeginMonomial DET
+BeginMonomial CLOVERDET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.50
+  kappa = 0.136
+  rho = 0.0
+  CSW = 1.57551
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
-  Name = det2
+  Name = cloverdet2
   Solver = CG
 EndMonomial
-
-BeginMonomial DET
+BeginMonomial CLOVERDET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.50
+  kappa = 0.136
+  rho = 0.0
+  CSW = 1.57551
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
-  Name = det3
+  Name = cloverdet3
   Solver = CG
 EndMonomial
-
-BeginMonomial DET
+BeginMonomial CLOVERDET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.50
+  kappa = 0.136
+  rho = 0.0
+  CSW = 1.57551
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
-  Name = det4
+  Name = cloverdet4
   Solver = CG
 EndMonomial
 
@@ -70,8 +75,8 @@ BeginIntegrator
   Type0 = 2MN
   Type1 = 2MN
   IntegrationSteps0 = 1
-  IntegrationSteps1 = 10
-  Tau = 1
+  IntegrationSteps1 = 12
+  Tau = 1.0
   Lambda0 = 0.19
   Lambda1 = 0.21
   NumberOfTimescales = 2

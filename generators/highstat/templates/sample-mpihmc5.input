@@ -5,11 +5,11 @@ seed=D
 ranluxdlevel=L
 reproducerandomnumbers=R
 
-L=4
-T=32
+L=6
+T=12
 writecheckpoints=yes
-2KappaMu = 0.15
-kappa = 0.15
+2KappaMu = 0.20
+kappa = 0.163260
 NSave = 5000
 ThetaT = 1
 BCGstabMaxIter = 1000
@@ -21,15 +21,15 @@ ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 
 BeginMonomial GAUGE
-  Type = Wilson
-  beta = 6.0
+  Type = Iwasaki
+  beta = 1.95
   Timescale = 0
 EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.20
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det1
@@ -38,8 +38,8 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.20
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det2
@@ -48,8 +48,8 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.20
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det3
@@ -58,8 +58,8 @@ EndMonomial
 
 BeginMonomial DET
   Timescale = 1
-  2KappaMu = 0.15
-  kappa = 0.15
+  2KappaMu = 0.20
+  kappa = 0.163260
   AcceptancePrecision =  1e-22
   ForcePrecision = 1e-14
   Name = det4
@@ -70,7 +70,7 @@ BeginIntegrator
   Type0 = 2MN
   Type1 = 2MN
   IntegrationSteps0 = 1
-  IntegrationSteps1 = 10
+  IntegrationSteps1 = 12
   Tau = 1
   Lambda0 = 0.19
   Lambda1 = 0.21
