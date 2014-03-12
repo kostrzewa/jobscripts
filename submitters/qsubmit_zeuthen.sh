@@ -14,6 +14,12 @@
 
 # NOTE: this is currently broken for # > 99
 
+if [[ -z ${1} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
+  echo "USAGE:"
+  echo "./qsubmit_zeuthen.sh DIRECTORY"
+  exit
+fi
+
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
 

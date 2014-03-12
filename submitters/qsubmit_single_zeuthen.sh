@@ -20,6 +20,12 @@ ADDON=${3}
 
 JOBDIR="${HOME}/jobscripts/${1}"
 
+if [[ -z ${1} || -z ${2} || -z ${3} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
+  echo "USAGE:"
+  echo "./qsubmit_single_zeuthen.sh NAME SAMPLE ADDON"
+  exit
+fi
+
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
 

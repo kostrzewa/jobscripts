@@ -14,12 +14,19 @@
 # currently the comparison of partial runtime output is not supported because 
 # of the aforementioned importance of ordering
 
-REFTFILE="${HOME}/jobscripts/generators/highstat/runtimes_hmc56.csv"
+if [[ -z ${1} ]]; then
+  echo "USAGE:"
+  echo "./checkruntime.sh NAME [1] (last argument optional to plot missing data)"
+  exit
+fi
+
+REFTFILE="${HOME}/jobscripts/generators/highstat/runtimes_mpihmc211.csv"
 TFILE="/lustre/fs4/group/etmc/kostrzew/plots/${1}/runtimes.csv"
 
 #REFTFILE="../runtimes.csv"
 
-# read the column names (sample names) and their order from the runtimes file
+# read the column names (sample names) and their order from the reference runtimes file
+# and save them in the remporary TREFSAMPLES
 TREFSAMPLES=`head -n1 ${REFTFILE}`
 
 # prepend "ref" to each name in TREFSAMPLES
