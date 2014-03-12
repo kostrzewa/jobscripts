@@ -14,12 +14,19 @@
 # currently the comparison of partial runtime output is not supported because 
 # of the aforementioned importance of ordering
 
-REFTFILE="${HOME}/jobscripts/generators/highstat/runtimes_csw_timelong.csv"
+if [[ -z ${1} ]]; then
+  echo "USAGE:"
+  echo "./checkruntime.sh NAME [1] (last argument optional to plot missing data)"
+  exit
+fi
+
+REFTFILE="${HOME}/jobscripts/generators/highstat/runtimes_mpihmc211.csv"
 TFILE="/lustre/fs4/group/etmc/kostrzew/plots/${1}/runtimes.csv"
 
 #REFTFILE="../runtimes.csv"
 
-# read the column names (sample names) and their order from the runtimes file
+# read the column names (sample names) and their order from the reference runtimes file
+# and save them in the remporary TREFSAMPLES
 TREFSAMPLES=`head -n1 ${REFTFILE}`
 
 # prepend "ref" to each name in TREFSAMPLES
@@ -38,14 +45,20 @@ readheaderflag=0
 
 missingvalues="\n"
 
-while read refname ${REFSAMPLES}; do
+symbols[1]=">"
+symbols[2]="<"
+
+while read name ${SAMPLES}; do
+  # skip the first line
   if [[ readrefheaderflag -eq 0 ]]; then
     let readrefheaderflag=1
     continue
   fi
 
   let readheaderflag=0
-  while read name ${SAMPLES}; do
+  foundref=0
+  while read refname ${REFSAMPLES}; do
+    # skip the first line
     if [[ readheaderflag -eq 0 ]]; then
       let readheaderflag=1
       continue
@@ -53,29 +66,42 @@ while read refname ${REFSAMPLES}; do
 
     # if a given run exists in both files, do a comparison
     if [[ $refname = $name ]]; then
+      foundref=1
       for i in ${SAMPLES}; do
         if [[ -z ${!i} || ${!i} = "NA" ]]; then
-          missingvalues="${missingvalues}`echo "The $name run of $i has an empty time measurement (${!i}). The set is probably not complete!\n"`"
+          missingvalues="${missingvalues}`echo "The $name run of $i has an empty time measurement (${!i}).\n"`"
           continue
         fi
         for j in ${REFSAMPLES}; do
+          
           # if in a given run
           if [[ ${j} = "ref"${i} ]]; then
+            if [[ -z ${!j} || ${!j} = "NA" ]]; then
+              missingvalues="${missingvalues}`echo "The $refname REFERENCE run of $j has an empty time measurement (${!j}).\n"`"
+              continue
+            fi
+
             IFILE="${IDIR}/${name}/s_${i}_${name}.input"
             ratio=`echo "scale=3;${!i}/${!j}"|bc`
-            if [[ `echo "scale=4;out=0;if(${ratio}>1.05) out=1;out" | bc` -eq 1 ]]; then
+            ratioflag=`echo "scale=4;out=0;if(${ratio}>1.05) out=1;if(${ratio}<0.95) out=2;out" | bc`
+            if [[ ${ratioflag} -eq 1 || ${ratioflag} -eq 2 ]]; then
               NMEAS=`grep "measurements" ${IFILE} | awk -F'=' '{print $2}'`
               TIME=`echo "scale=4; ${NMEAS}*${!i}/1000" | bc`
-              printf "%20s %45s   ratio %-4.5s    runtime %-4.5s hours    %-4.6s > %-4.6s\n" $name $i $ratio $TIME ${!i} ${!j}
+              printf "%20s %45s   ratio %-4.5s    runtime %-4.5s hours    %-4.6s %c %-4.6s\n" $name $i $ratio $TIME ${!i} ${symbols[$ratioflag]} ${!j}
             fi
           fi
         done
       done
     fi
-  done < ${TFILE}
-done < ${REFTFILE}
+  done < ${REFTFILE}
+  if [[ $foundref -eq 0 ]]; then
+    echo "No reference found for $name!"
+  fi 
+done < ${TFILE}
 
 # print error messages for empty measurements at the end
-if [[ ${3} -eq 1 ]]; then
+if [[ ${2} -eq 1 ]]; then
   echo -n -e $missingvalues
+else
+  echo "Not printing missing values. To enable, pass '1' as second argument."
 fi

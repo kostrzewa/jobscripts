@@ -1,0 +1,8 @@
+# mass name | bare mass [2*kappa*a*mu / 2*kappa*musigma;2*kappa*mudelta] | bg_size | wallclock time | solver precision | propagator storage precision
+# from to inversions_per_job step
+
+light 0.000574043 128 00:30:00 1e-16 32 350 534 1 2
+disc_light 0.000574043 128 00:30:00 1e-16 32 350 534 1 2
+nd_doublet 0.017432786;0.020031086 64 00:30:00 1e-24 64 350 534 5 2
+nd_doublet_test 0.017432786;0.020031086 64 00:30:00 1e-24 64 350 534 3 2
+

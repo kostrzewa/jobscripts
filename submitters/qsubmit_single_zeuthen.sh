@@ -20,6 +20,12 @@ ADDON=${3}
 
 JOBDIR="${HOME}/jobscripts/${1}"
 
+if [[ -z ${1} || -z ${2} || -z ${3} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
+  echo "USAGE:"
+  echo "./qsubmit_single_zeuthen.sh NAME SAMPLE ADDON"
+  exit
+fi
+
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
 
@@ -38,14 +44,14 @@ for i in ${JOBDIR}/${ADDON}/s_${SAMPLE}_${ADDON}_${NAME}.sh; do
       fi
     ;;
   esac
-  echo "Submitting start job ${i}"
+  echo -e "\nSubmitting start job ${i}"
   qsub ${i}
 done
 
 # array only supported with bash!
 cfiles=(${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh)
 
-if [[ ! -e ${cfiles[1]} ]]; then
+if [[ ! -e ${cfiles[0]} ]]; then
   exit
 fi
 
@@ -87,6 +93,6 @@ for i in ${JOBDIR}/*/c*_${SAMPLE}_${ADDON}_${NAME}.sh; do
       export DEP="c${TEXTNUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-    echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
+    echo -e "\nSubmitting continue job ${i}\n   depending on ${DEP}"
     qsub -hold_jid ${DEP} ${i}
 done

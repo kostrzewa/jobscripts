@@ -14,7 +14,11 @@
 
 # NOTE: this is currently broken for # > 99
 
-
+if [[ -z ${1} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
+  echo "USAGE:"
+  echo "./qsubmit_zeuthen.sh DIRECTORY"
+  exit
+fi
 
 export PAX=1
 eval `/etc/site/ini.pl -b pax`
@@ -34,7 +38,7 @@ for i in ${1}/*/s_*.sh; do
       fi
     ;;
   esac
-  echo "Submitting start job ${i}"
+  echo -e "\nSubmitting start job ${i}"
   qsub ${i}
 done
 
@@ -83,6 +87,6 @@ for i in ${1}/*/c*_*.sh; do
       export DEP="c${TEXTNUM}_`echo ${BASE} | cut -f2- -d '_'`"
     ;;
   esac
-    echo -e "Submitting continue job ${i}\n   depending on ${DEP}"
+    echo -e "\nSubmitting continue job ${i}\n   depending on ${DEP}"
     qsub -hold_jid ${DEP} ${i}
 done

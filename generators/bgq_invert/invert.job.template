@@ -1,0 +1,149 @@
+# @ shell = /bin/bash
+# @ job_name = 
+# @ error  = $(job_name).$(jobid).$(stepid).out
+# @ output = $(job_name).$(jobid).$(stepid).out
+# @ environment = COPY_ALL;
+# @ notification = always
+# @ notify_user = bartosz.kostrzewa@desy.de
+
+# @ step_name = inversion
+# @ wall_clock_limit = 00:30:00
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size = 
+# @ queue
+
+# @ step_name = archival
+# @ wall_clock_limit = 00:30:00
+# @ dependency = ( inversion == 0 )
+# @ job_type = serial
+# @ queue
+
+INPUTPREFIX=
+ODIR=
+WDIR=
+CONFS=
+ARCHDIR=
+
+## the output file
+	
+export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+
+echo OFILE=$OFILE
+
+date
+
+case $LOADL_STEP_NAME in
+archival )
+  date
+  if [ ! -d ${ARCHDIR}/propagators ]; then
+    mkdir -p ${ARCHDIR}/propagators
+  fi
+  echo "Archiving propagators into ${ARCHDIR}/propagators"
+  for ${NUMBER} in ${CONFS}; do
+    rsync -av ${WDIR}/../../propagators/source.${NUMBER}.*inverted ${ARCHDIR}/propagators
+  done
+  date
+  cp -v ${OFILE} ${ODIR}
+;;
+
+inversion )
+
+  export NP=$LOADL_BG_SIZE
+  export NPN=1
+  export OMP_NUM_THREADS=64
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $LOADL_BG_SIZE
+
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  ## determine optimal mapping to network topology
+  echo loadl shape is $LOADL_BG_SHAPE
+  # mapping for BG_SIZE=512 and 32
+  export MP=EABCDT
+	
+  case ${LOADL_BG_SHAPE} in
+  # mappings for BG_SIZE=1024
+    2x1x1x1 )
+      MP=EABCDT 
+    ;;
+    1x2x1x1 )
+      MP=EBACDT
+    ;;    
+    1x1x2x1 )
+      MP=ECABDT
+    ;;    
+    1x1x1x2 )
+      MP=EDABCT
+    ;;
+  # mappings for BG_SIZE=64
+    2x2x2x4x2 )
+      MP=EDABCT
+    ;;
+    2x2x4x2x2 )
+      MP=ECABDT
+    ;;
+    2x4x2x2x2 )
+      MP=EBACDT
+    ;;
+    4x2x2x2x2 )
+      MP=EABCDT
+    ;;
+  # mappings for bg_size=128
+    2x2x4x4x2 )
+      MP=CDABET
+    ;;
+    2x4x2x4x2 )
+      MP=BDACET
+    ;;
+    4x2x2x4x2 )
+      MP=ADBCET
+    ;;
+    2x4x4x2x2 )
+      MP=BCADET
+    ;;
+    4x2x4x2x2 )
+      MP=ACBDET
+    ;;
+    4x4x2x2 )
+      MP=ABCDET
+    ;;
+  esac
+
+  echo mapping is ${MP}
+
+  cd ${WDIR}
+  
+  RETVAL=1
+  for ${NUMBER} in ${CONFS}; do
+    date
+    INPUT="${INPUTPREFIX}.${NUMBER}.input"
+    runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${INPUT}"
+    
+    ## move everything in place if the inversion completed successfully
+    if [ $? -eq 0 ]; then
+      echo "Inversion for ${NUMBER} successful, moving propagators to ${WDIR}/../../propagators"
+      mv -v source.${NUMBER}.*inverted ${WDIR}/../../propagators
+      RETVAL=0
+    else
+      echo "WARNING: There was a problem with the ${NUMBER} inversion, non-zero return value received!"
+      echo "         Those propagators that exist, will remain in ${WDIR}"
+      RETVAL=$?
+    fi
+    date
+  done
+
+  cp -v ${OFILE} ${ODIR}
+  
+  exit $RETVAL
+;; # case statement "inversion"
+esac
+
+    
+
