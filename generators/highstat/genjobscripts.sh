@@ -3,31 +3,30 @@
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="random_test_test"
+SD="test_NDclover"
 TEMPLATE="jobtemplate.sh"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_NDTC_RAN"
+EDIR="${HOME}/tmLQCD/execs/hmc_tm_pax_icc_openmpi_lemon"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=400000
+NMEAS=50000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
-SEED=999
-# ranlux luxury level 0 to 4
+SEED=123456
+# ranlux luxury level 1 or 2
 RLXDLEVEL=2
 # reproduce random numbers flag
-REPRO="no"
-
+REPRO="yes"
 
 # whether to compute correlators or not (increases runtime by ~10%)
-CORRELATORS=0
+CORRELATORS=1
 
 # table with reference time measurements for different runs of the various samples
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_csw.csv"
+REFTFILE="runtimes_test_NDclover.csv"
 
 # the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
@@ -39,12 +38,14 @@ REFTFILE="runtimes_csw.csv"
 #          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 
-SAMPLES="hmc0"
+SAMPLES="test_NDclover_ndcloverrat test_NDclover_ndclover test_NDclover_problematic_ndclover test_NDclover_problematic_ndcloverrat"
 #EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64"
 
-EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_64 4D_MPI_hs_256"
+#EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-ODIR="/lustre/fs4/group/etmc/kostrzew/output/${SD}"
+EXECS="openmp 4D_MPI_hs_128"
+
+ODIR="/lustre/fs17/group/etmc/kostrzew/output/${SD}"
 IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
 ITOPDIR="${HOME}/tmLQCD/inputfiles"
 TIDIR="templates"
@@ -58,8 +59,10 @@ JFILE=""
 # mpi jobs always run on pax
 PAX=1
 
+# job lengths are either 1, 2, 5, ... or 47 hours
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
-MAXJOBLENGTH=47
+# the maximum job length that should be aimed for
+MAXJOBLENGTH=11
 
 TEMPLATE="jobtemplate.sh"
 
@@ -219,7 +222,7 @@ create_input ()
   fi
 
   # special 8^4 modes
-  if [[ ${3} = mpihmc[3,4,7,8] ]]; then
+  if [[ ${3} = mpihmc[3,4,7,8] || ${3} = "mpihmc211" || ${3} == "test_NDclover"* ]]; then
 #|| ${3} = "mpihmc4" ]]; then
     case ${4} in
       4D_MPI*_256)
@@ -227,7 +230,7 @@ create_input ()
         cp ${TEMP} ${INPUT}
       ;;
       4D_MPI*_128)
-        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
         cp ${TEMP} ${INPUT}
       ;;
       4D_MPI*_64)
@@ -310,7 +313,7 @@ create_input ()
     sed -i "s/initialstorecounter=I/initialstorecounter=readin/g" ${INPUT}
   fi
 
-  sed -i "s/seed=D/seed=${SEED}/g" ${INPUT}
+  sed -i "s/seed=S/seed=${SEED}/g" ${INPUT}
   sed -i "s/ranluxdlevel=L/ranluxdlevel=${RLXDLEVEL}/g" ${INPUT}
   sed -i "s/reproducerandomnumbers=R/reproducerandomnumbers=${REPRO}/g" ${INPUT}
 
@@ -318,7 +321,7 @@ create_input ()
 
   # when doing the correlators measurement we need to add the line to the input file
   if [[ ${CORRELATORS} -eq 1 ]]; then
-    echo -e "\nBeginMeasurement CORRELATORS\n  Frequency = 4\nEndMeasurement\n" >> ${INPUT}
+    echo -e "\nBeginMeasurement CORRELATORS\n  Frequency = 10\nEndMeasurement\n" >> ${INPUT}
   fi
 }
 
@@ -354,6 +357,9 @@ calc_nmeas_part ()
 {
   export NMEAS_PART=`echo "scale=6;a=${1};b=${2};r=(b/a)*${3};r"|bc`
   export NMEAS_PART=`echo "(${NMEAS_PART}+0.5)/1"|bc`
+  if [[ ${NMEAS_PART} -eq 0 ]]; then
+    export NMEAS_PART=1
+  fi
 
   if [[ ${DEBUG} -eq 1 ]]; then
     echo "NMEAS_PART = ${NMEAS_PART}"
@@ -429,7 +435,7 @@ for e in ${EXECS}; do
       export NCORES=128
     ;;
     *MPI*_256)
-      export QUEUE="pax"
+      export QUEUE="pax9"
       export NP=256
       export NCORES=256
     ;;
@@ -496,6 +502,19 @@ for e in ${EXECS}; do
         esac
       ;;
       mpihmc[3,4,7,8])
+        case ${e} in
+          1D_MPI*_16)
+            continue
+          ;;
+          3D_MPI*_24)
+            continue
+          ;;
+          serial*)
+            continue
+          ;;
+        esac
+      ;;
+      mpihmc211)
         case ${e} in
           1D_MPI*_16)
             continue

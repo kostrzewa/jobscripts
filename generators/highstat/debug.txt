@@ -1,0 +1,390 @@
+
+Making a script for serial hmc0
+For hmc0 with serial 1000 iterations take 0.03454684300037 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc0.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc0_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc0_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc1
+For hmc1 with serial 1000 iterations take 0.0666814241213467 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc1.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc1_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc1_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc2
+For hmc2 with serial 1000 iterations take 0.393113280799112 hours.
+CALC_JOBLIMIT joblimit =  8
+CREATE_INPUT copying templates/sample-hmc2.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc2_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc2_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc3
+For hmc3 with serial 1000 iterations take 0.292241302441731 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc3.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc3_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc3_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_ndclover
+For hmc_ndclover with serial 1000 iterations take 0.700073054753977 hours.
+CALC_JOBLIMIT joblimit =  11
+CREATE_INPUT copying templates/sample-hmc_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_ndclover_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_ndclover_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_nosplit_ndclover
+For hmc_nosplit_ndclover with serial 1000 iterations take 0.628136807251202 hours.
+CALC_JOBLIMIT joblimit =  8
+CREATE_INPUT copying templates/sample-hmc_nosplit_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_nosplit_ndclover_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_nosplit_ndclover_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_nocsw_ndclover
+For hmc_nocsw_ndclover with serial 1000 iterations take 0.622571387347392 hours.
+CALC_JOBLIMIT joblimit =  8
+CREATE_INPUT copying templates/sample-hmc_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_nocsw_ndclover_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_nocsw_ndclover_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_nosplit_nocsw_ndclover
+For hmc_nosplit_nocsw_ndclover with serial 1000 iterations take 0.600222783573807 hours.
+CALC_JOBLIMIT joblimit =  8
+CREATE_INPUT copying templates/sample-hmc_nosplit_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_nosplit_nocsw_ndclover_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_nosplit_nocsw_ndclover_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_cloverdet
+For hmc_cloverdet with serial 1000 iterations take 0.163982260414354 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_cloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_cloverdet_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_cloverdet_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_tmcloverdet
+For hmc_tmcloverdet with serial 1000 iterations take 0.0940427837587865 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_tmcloverdet_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_tmcloverdet_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_check_ndclover_tmcloverdet
+For hmc_check_ndclover_tmcloverdet with serial 1000 iterations take 0.194378636440991 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_check_ndclover_tmcloverdet_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_check_ndclover_tmcloverdet_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_check_ndclover_nocsw_tmcloverdet
+For hmc_check_ndclover_nocsw_tmcloverdet with serial 1000 iterations take 0.172367337476878 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_nocsw_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_check_ndclover_nocsw_tmcloverdet_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_check_ndclover_nocsw_tmcloverdet_serial_highstat_csw_full_timelong.sh
+
+Making a script for serial hmc_tmcloverdetratio
+For hmc_tmcloverdetratio with serial 1000 iterations take 0.137643318645949 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_tmcloverdetratio.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/serial/s_hmc_tmcloverdetratio_serial.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/serial/s_hmc_tmcloverdetratio_serial_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc0
+For hmc0 with mpi_hs 1000 iterations take 0.0134870790159083 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc0.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc0_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc0_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc1
+For hmc1 with mpi_hs 1000 iterations take 0.0252927853755087 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc1.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc1_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc1_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc2
+For hmc2 with mpi_hs 1000 iterations take 0.114845733518313 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc2.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc2_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc2_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc3
+For hmc3 with mpi_hs 1000 iterations take 0.140323503144654 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc3.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc3_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc3_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_ndclover
+For hmc_ndclover with mpi_hs 1000 iterations take 0.174994822419534 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_ndclover_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_ndclover_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_nosplit_ndclover
+For hmc_nosplit_ndclover with mpi_hs 1000 iterations take 0.245738700406955 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_nosplit_ndclover_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_nosplit_ndclover_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_nocsw_ndclover
+For hmc_nocsw_ndclover with mpi_hs 1000 iterations take 0.17627863281539 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_nocsw_ndclover_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_nocsw_ndclover_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_nosplit_nocsw_ndclover
+For hmc_nosplit_nocsw_ndclover with mpi_hs 1000 iterations take 0.152119082759896 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_nosplit_nocsw_ndclover_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_nosplit_nocsw_ndclover_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_cloverdet
+For hmc_cloverdet with mpi_hs 1000 iterations take 0.0675495354790973 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_cloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_cloverdet_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_cloverdet_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_tmcloverdet
+For hmc_tmcloverdet with mpi_hs 1000 iterations take 0.0258711843026267 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_tmcloverdet_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_tmcloverdet_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_check_ndclover_tmcloverdet
+For hmc_check_ndclover_tmcloverdet with mpi_hs 1000 iterations take 0.0690767072512024 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_check_ndclover_tmcloverdet_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_check_ndclover_tmcloverdet_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_check_ndclover_nocsw_tmcloverdet
+For hmc_check_ndclover_nocsw_tmcloverdet with mpi_hs 1000 iterations take 0.0356029817240104 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_nocsw_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for mpi_hs hmc_tmcloverdetratio
+For hmc_tmcloverdetratio with mpi_hs 1000 iterations take 0.0354505178098409 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdetratio.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/mpi_hs/s_hmc_tmcloverdetratio_mpi_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/mpi_hs/s_hmc_tmcloverdetratio_mpi_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc0
+For hmc0 with 4D_MPI_hs 1000 iterations take 0.0160616904772475 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc0.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc0_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc0_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc1
+For hmc1 with 4D_MPI_hs 1000 iterations take 0.029451510218276 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc1.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc1_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc1_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc2
+For hmc2 with 4D_MPI_hs 1000 iterations take 0.109494402774695 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc2.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc2_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc2_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc3
+For hmc3 with 4D_MPI_hs 1000 iterations take 0.0937314140954495 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc3.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc3_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc3_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_ndclover
+For hmc_ndclover with 4D_MPI_hs 1000 iterations take 0.158622988642249 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_ndclover_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_ndclover_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_nosplit_ndclover
+For hmc_nosplit_ndclover with 4D_MPI_hs 1000 iterations take 0.134187256603774 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nosplit_ndclover_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nosplit_ndclover_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_nocsw_ndclover
+For hmc_nocsw_ndclover with 4D_MPI_hs 1000 iterations take 0.248612089345172 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nocsw_ndclover_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nocsw_ndclover_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_nosplit_nocsw_ndclover
+For hmc_nosplit_nocsw_ndclover with 4D_MPI_hs 1000 iterations take 0.13450787872734 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nosplit_nocsw_ndclover_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_nosplit_nocsw_ndclover_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_cloverdet
+For hmc_cloverdet with 4D_MPI_hs 1000 iterations take 0.0454134908620052 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_cloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_cloverdet_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_cloverdet_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_tmcloverdet
+For hmc_tmcloverdet with 4D_MPI_hs 1000 iterations take 0.0264373221790603 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_tmcloverdet_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_tmcloverdet_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_check_ndclover_tmcloverdet
+For hmc_check_ndclover_tmcloverdet with 4D_MPI_hs 1000 iterations take 0.0394729128745838 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_check_ndclover_tmcloverdet_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_check_ndclover_tmcloverdet_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_check_ndclover_nocsw_tmcloverdet
+For hmc_check_ndclover_nocsw_tmcloverdet with 4D_MPI_hs 1000 iterations take 0.0337200104846467 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_nocsw_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for 4D_MPI_hs hmc_tmcloverdetratio
+For hmc_tmcloverdetratio with 4D_MPI_hs 1000 iterations take 0.0346210964890862 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdetratio.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_tmcloverdetratio_4D_MPI_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/4D_MPI_hs/s_hmc_tmcloverdetratio_4D_MPI_hs_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc0
+For hmc0 with openmp 1000 iterations take 0.0115445216426193 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc0.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc0_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc0_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc1
+For hmc1 with openmp 1000 iterations take 0.0234998183499815 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc1.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc1_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc1_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc2
+For hmc2 with openmp 1000 iterations take 0.158758208287088 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc2.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc2_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc2_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc3
+For hmc3 with openmp 1000 iterations take 0.112561109137995 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc3.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc3_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc3_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_ndclover
+For hmc_ndclover with openmp 1000 iterations take 0.204168364039956 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_ndclover_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_ndclover_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_nosplit_ndclover
+For hmc_nosplit_ndclover with openmp 1000 iterations take 0.173740384387717 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_nosplit_ndclover_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_nosplit_ndclover_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_nocsw_ndclover
+For hmc_nocsw_ndclover with openmp 1000 iterations take 0.314063839437662 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_nocsw_ndclover_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_nocsw_ndclover_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_nosplit_nocsw_ndclover
+For hmc_nosplit_nocsw_ndclover with openmp 1000 iterations take 0.188860543100259 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_nosplit_nocsw_ndclover_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_nosplit_nocsw_ndclover_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_cloverdet
+For hmc_cloverdet with openmp 1000 iterations take 0.0748200044395117 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_cloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_cloverdet_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_cloverdet_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_tmcloverdet
+For hmc_tmcloverdet with openmp 1000 iterations take 0.0284778568257492 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_tmcloverdet_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_tmcloverdet_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_check_ndclover_tmcloverdet
+For hmc_check_ndclover_tmcloverdet with openmp 1000 iterations take 0.0495919326674066 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_check_ndclover_tmcloverdet_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_check_ndclover_tmcloverdet_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_check_ndclover_nocsw_tmcloverdet
+For hmc_check_ndclover_nocsw_tmcloverdet with openmp 1000 iterations take 0.0413915860155383 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_nocsw_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_check_ndclover_nocsw_tmcloverdet_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_check_ndclover_nocsw_tmcloverdet_openmp_highstat_csw_full_timelong.sh
+
+Making a script for openmp hmc_tmcloverdetratio
+For hmc_tmcloverdetratio with openmp 1000 iterations take 0.0477595793562708 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdetratio.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/openmp/s_hmc_tmcloverdetratio_openmp.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/openmp/s_hmc_tmcloverdetratio_openmp_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc0
+For hmc0 with hybrid_hs 1000 iterations take 0.0188884842471328 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc0.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc0_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc0_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc1
+For hmc1 with hybrid_hs 1000 iterations take 0.0232061272142064 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc1.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc1_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc1_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc2
+For hmc2 with hybrid_hs 1000 iterations take 0.136272925231225 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc2.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc2_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc2_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc3
+For hmc3 with hybrid_hs 1000 iterations take 0.0912924823159452 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc3.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc3_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc3_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_ndclover
+For hmc_ndclover with hybrid_hs 1000 iterations take 0.208068611098779 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_ndclover_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_ndclover_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_nosplit_ndclover
+For hmc_nosplit_ndclover with hybrid_hs 1000 iterations take 0.189333139696633 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_nosplit_ndclover_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_nosplit_ndclover_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_nocsw_ndclover
+For hmc_nocsw_ndclover with hybrid_hs 1000 iterations take 0.212930900739919 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_nocsw_ndclover_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_nocsw_ndclover_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_nosplit_nocsw_ndclover
+For hmc_nosplit_nocsw_ndclover with hybrid_hs 1000 iterations take 0.18585029263781 hours.
+CALC_JOBLIMIT joblimit =  5
+CREATE_INPUT copying templates/sample-hmc_nosplit_nocsw_ndclover.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_nosplit_nocsw_ndclover_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_nosplit_nocsw_ndclover_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_cloverdet
+For hmc_cloverdet with hybrid_hs 1000 iterations take 0.0738001773954865 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_cloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_cloverdet_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_cloverdet_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_tmcloverdet
+For hmc_tmcloverdet with hybrid_hs 1000 iterations take 0.0260368532149464 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_tmcloverdet_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_tmcloverdet_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_check_ndclover_tmcloverdet
+For hmc_check_ndclover_tmcloverdet with hybrid_hs 1000 iterations take 0.0430723040325564 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_check_ndclover_tmcloverdet_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_check_ndclover_tmcloverdet_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_check_ndclover_nocsw_tmcloverdet
+For hmc_check_ndclover_nocsw_tmcloverdet with hybrid_hs 1000 iterations take 0.036732870736219 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_check_ndclover_nocsw_tmcloverdet.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_check_ndclover_nocsw_tmcloverdet_hybrid_hs_highstat_csw_full_timelong.sh
+
+Making a script for hybrid_hs hmc_tmcloverdetratio
+For hmc_tmcloverdetratio with hybrid_hs 1000 iterations take 0.0648189070292268 hours.
+CALC_JOBLIMIT joblimit =  2
+CREATE_INPUT copying templates/sample-hmc_tmcloverdetratio.input to /afs/ifh.de/user/k/kostrzew/tmLQCD/inputfiles/highstat/highstat_csw_full_timelong/hybrid_hs/s_hmc_tmcloverdetratio_hybrid_hs.input
+CREATE_SCRIPT copying jobtemplate.sh to /afs/ifh.de/user/k/kostrzew/jobscripts/highstat_csw_full_timelong/hybrid_hs/s_hmc_tmcloverdetratio_hybrid_hs_highstat_csw_full_timelong.sh

@@ -10,7 +10,7 @@
 measurements=N
 startcondition=S
 initialstorecounter=I
-seed=D
+seed=S
 ranluxdlevel=L
 reproducerandomnumbers=R
 
