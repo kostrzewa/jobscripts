@@ -40,7 +40,7 @@ archival )
     mkdir -p ${ARCHDIR}/propagators
   fi
   echo "Archiving propagators into ${ARCHDIR}/propagators"
-  for ${NUMBER} in ${CONFS}; do
+  for NUMBER in ${CONFS}; do
     rsync -av ${WDIR}/../../propagators/source.${NUMBER}.*inverted ${ARCHDIR}/propagators
   done
   date
@@ -121,7 +121,7 @@ inversion )
   cd ${WDIR}
   
   RETVAL=1
-  for ${NUMBER} in ${CONFS}; do
+  for NUMBER in ${CONFS}; do
     date
     INPUT="${INPUTPREFIX}.${NUMBER}.input"
     runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${INPUT}"

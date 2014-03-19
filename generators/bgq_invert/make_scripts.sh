@@ -6,6 +6,12 @@ if [ "$1" == "" ]; then
   exit 1
 fi
 
+grep $1 masses.txt > /dev/null
+
+if [ ! $? -eq 0 ]; then
+  echo "It seems that \"$1\" could not be found in masses.txt! Exiting."
+  exit 1
+fi
 
 RUNDIR=iwa_b2.33-L32T64-k0.151064-mu0.0019-musigma0.0577-mudelta0.0663
 GAUGEDIR=/work/hch02/hch028/confs_tmp
@@ -68,7 +74,8 @@ for outer_ctr in `seq ${FROM} ${OUTER_LOOP_STEP} ${TO}`; do
     echo "Processing gauge configuration ${inner_from}..."
     jobref=`printf %04d ${inner_from}`
   else
-    echo "Processing gauge configurations ${inner_from} to ${inner_to} in steps of ${STEP}"  
+    echo "Processing gauge configurations ${inner_from} to ${inner_to} in steps of ${STEP}"
+    echo "Doing ${INVERSIONS_PER_JOB} configurations per job script."  
     jobref=`printf "%04d_%02d_%04d" ${inner_from} ${STEP} ${inner_to}`
   fi
 
@@ -127,7 +134,7 @@ for outer_ctr in `seq ${FROM} ${OUTER_LOOP_STEP} ${TO}`; do
       sed -i -e "s/sourcetimeslice=/sourcetimeslice=${ts}/g" ${input}
     fi
 
-    sed -i -e "s/initialstorecounter=/initialstorecounter=${num}/g" ${input}
+    sed -i -e "s/initialstorecounter=/initialstorecounter=${number}/g" ${input}
     sed -i -e "s/propagatorprecision=/propagatorprecision=${PROP_PRECISION}/g" ${input}
     sed -i -e "s/solverprecision=/solverprecision=${SOLVER_PRECISION}/g" ${input}
   
