@@ -1,4 +1,9 @@
   echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
 
   IFILE=
   ODIR=
@@ -11,9 +16,6 @@
   echo OFILE=$OFILE
 
   date
-  export NP=$LOADL_BG_SIZE
-  export NPN=1
-  export OMP_NUM_THREADS=64
 
   echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
   echo LOADL_BG_SIZE = $LOADL_BG_SIZE
@@ -22,8 +24,6 @@
   echo OMP_NUM_THREADS = $OMP_NUM_THREADS
   echo NPN = $NPN 
   echo NP = $LOADL_BG_SIZE
-
-  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
 
   cd ${WDIR}
   

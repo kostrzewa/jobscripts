@@ -1,0 +1,74 @@
+This is a jobscript and input file generation script for combined inversions
+and contractions using tmLQCD 'invert' and cvc (using libcvcpp). Currently
+this is limited to machines of BG/Q type.
+
+The script is designed to create one job script per gauge configuration for all 
+steps relating to the computation of meson two-point functions. The resulting
+job script is a multi-step job which runs all the inversions in parallel (independently)
+and where the contraction step is dependent on all inversion steps.
+
+A common usage scenario would be the "Osterwalder-Seiler" analysis of light, strange
+and charmed mesons on a given gauge background.
+
+When run, the script completes and concatenates the various *.template files into the
+job script and input files. It also creates links to propagator sources and gauge
+configurations and creates the job working directories.
+
+To adjust it to a specific purpose the following steps need to be carried out:
+
+common.header.template
+  adjust notification e-mail address and possibly add other LOADLEVELER parameters
+  such as "account_no" on Fermi@CINECA
+
+common.job.template
+  if BG_SIZE other than 1024,512,256,128 or 64 is to be used, add some mappings
+  for this purpose
+
+inversion.job.template
+  If necessary, adjust NPN, OMP_NUM_THREADS and NPN, possibly also NP for special
+  geometries.
+  Adjust EXEC to point to the tmLQCD 'invert' application.
+
+invert.XXXX.input.template
+  The OS, ND and DISC input templates refer to inversions for Osterwalder-Seiler, 
+  Non-Degenerate and disconnected sources respectively. It is important to remember
+  that in order to do inversions with the clover term, one has to use the "[ND]CLOVER"
+  operator. Adjust these as necessary, paying attention to setting kappa correctly.
+  nr[x,y,z]procs, 2kappamu, solverprecision and propagatorprecision are adjusted
+  during jobscript generation by 'make_combo_scripts.sh',
+  Note that anything edited by 'make_combo_scripts.sh' needs to be written without
+  a space separating the name of the parameter and the equal sign. (e.g.: "2kappamu="
+  instead of "2kappamu =")
+
+masses.txt
+  This file defines how many steps the resulting job scripts will have. It also sets a
+  number of parameters which will be adjusted in the input file of the inverter.
+  Each line of this file contains a name, a bare mass (2kappamu), bg_size, a wallclock limit
+  a solver precision, a storage precision for the resulting propagators (32 or 64) and
+  finally a subdirectory in which the propagators will be stored.
+  Names of the form nd_* are for inversions involving non-degenerate doublets. The mass
+  for these must be given as 2kappamusigma;2kappamudelta (note the lack of spaces and the semicolon!).
+  Names of the form disc_* are for inversions for disconnected contributions using
+  volume sources (so far only degenerate supported).
+  See make_combo_scripts.sh for a more complete understanding of what these
+  parameters change.
+
+contraction.job.template
+  If necessary, adjust NPN (which is the number of processes per node used by CVC)
+  Adjust EXEC to point to the libcvcpp meson two-point executable!
+
+cvc.input.template
+  Adjust the parameters for CVC as appropriate for your analysis, 
+  refer to the libcvcpp-specific documentation for the format and meaing. 
+  Unlike for the inverter input file above, you must specify the masses here by hand!
+  (generally one would supply "amu").
+  Note that make_scripts.sh replaces _NS by the configuration number and _TS
+  by the source timeslice.
+
+make_combo_scripts.sh
+  START: startig configuration
+  END: last configuration
+  STEP: step between configurations
+  the various directories
+  CONTRACTIONS_BG_SIZE (bg_size for the contraction step)
+  CONTRACTIONS_WC_LIMIT (wallclock time limit for the contraction step)

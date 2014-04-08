@@ -2,6 +2,9 @@ contraction )
   # verify mapping
   echo "Mapping is ${MP}"
   
+  EXEC=${HOME}/code/cvc.nd/libcvcpp/test_libcvcpp
+  export NPN=16
+  
   IFILE=
   ODIR=
   WDIR=
@@ -13,7 +16,6 @@ contraction )
   echo OFILE=$OFILE
 
   date
-  export NPN=16
   export NP=$((LOADL_BG_SIZE*NPN))
 
   echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
@@ -23,8 +25,6 @@ contraction )
   echo OMP_NUM_THREADS = $OMP_NUM_THREADS
   echo NPN = $NPN 
   echo NP = $LOADL_BG_SIZE
-
-  EXEC=${HOME}/code/cvc.nd/libcvcpp/test_libcvcpp
 
   cd ${WDIR}
   
