@@ -1,0 +1,127 @@
+# *******************************************************
+# * input parameters for cvc-code
+# *******************************************************
+
+debuglevel = 5
+T  = 96
+LX = 48
+LY = 48
+LZ = 48
+
+nrtprocs=32
+nrxprocs=8
+nryprocs=8
+
+gaugefilename_prefix = conf
+nconf = _NC
+
+Nlong = 5
+n_ape = 5
+alpha_ape = 0.4
+n_jacobi = -1
+kappa_jacobi = 0
+kappa = 0.13729
+
+BeginQuarkLine
+  name = sp
+  kappa = 0.13729
+  masses = 0.0245; 0.0252
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = strange
+  type = up
+  source_type = timeslice
+  first_mass_index=0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLine
+  name = cp
+  kappa = 0.13729
+  masses = 0.2940; 0.3058
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = charm
+  type = up
+  source_type = timeslice
+  first_mass_index=0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLine
+  name = u
+  kappa = 0.13729
+  masses = 0.0009
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = light
+  type = up
+  source_type = timeslice
+  first_mass_index = 0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLine
+  name = d
+  kappa = 0.13729
+  masses = 0.0009
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = light
+  type = down
+  source_type = timeslice
+  first_mass_index = 0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLinePair
+  name = lc
+  quark_lines = u, cp
+  observables = charged_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ls
+  quark_lines = u, sp
+  observables = charged_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = sc
+  quark_lines = sp, cp
+  observables = charged_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = lln
+  quark_lines = u, d
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = llc
+  quark_lines = u, u
+  observables = charged_conn_meson_20
+EndQuarkLinePair
+
+

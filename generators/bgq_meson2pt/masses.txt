@@ -1,0 +1,7 @@
+# mass name | bare mass [2*kappa*a*mu / 2*kappa*musigma;2*kappa*mudelta] | bg_size | wallclock time | solver precision | propagator storage precision |
+# subdirectory where the propagators will be stored ( the result will be subdir/mass_name )
+light_00 0.000247122 1024 00:30:00 1e-16 32 light
+strange_00 0.00672721 512 00:10:00 1e-19 32 strange
+strange_01 0.006919416 512 00:10:00 1e-19 32 strange
+charm_00 0.08072652 512 00:10:00 1e-22 64 charm
+charm_01 0.083966564 512 00:10:00 1e-22 64 charm

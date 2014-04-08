@@ -1,0 +1,39 @@
+  echo "Mapping is ${MP}"
+
+  IFILE=
+  ODIR=
+  WDIR=
+  OUTPUTID=
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+  export NP=$LOADL_BG_SIZE
+  export NPN=1
+  export OMP_NUM_THREADS=64
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $LOADL_BG_SIZE
+
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
+  
+  exit $RETVAL
+;;
+

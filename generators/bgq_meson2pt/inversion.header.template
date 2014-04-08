@@ -1,0 +1,7 @@
+##################################################################
+# @ step_name=
+# @ wall_clock_limit=
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size= 
+# @ queue

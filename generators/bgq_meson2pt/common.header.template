@@ -1,0 +1,7 @@
+######################################################################
+# @ job_name= 
+# @ error            = $(job_name).$(jobid).$(stepid).out
+# @ output           = $(job_name).$(jobid).$(stepid).out
+# @ environment      = COPY_ALL;
+# @ notification     = always
+# @ notify_user      = bartosz.kostrzewa@desy.de

@@ -1,0 +1,69 @@
+## determine optimal mapping to network topology
+echo loadl shape is $LOADL_BG_SHAPE
+
+# default mapping for BG_SIZE=512 and 32
+export MP=EABCDT
+
+case ${LOADL_BG_SHAPE} in
+  # mappings for BG_SIZE=1024 (16x4x4x4)
+  2x1x1x1 )
+    MP=EABCDT 
+  ;;
+  1x2x1x1 )
+    MP=EBACDT
+  ;;    
+  1x1x2x1 )
+    MP=ECABDT
+  ;;    
+  1x1x1x2 )
+    MP=EDABCT
+  ;;
+  # mappings for BG_SIZE=64 (8x2x2x2)
+  2x2x2x4x2 )
+    MP=EDABCT
+  ;;
+  2x2x4x2x2 )
+    MP=ECABDT
+  ;;
+  2x4x2x2x2 )
+    MP=EBACDT
+  ;;
+  4x2x2x2x2 )
+    MP=EABCDT
+  ;;
+  # mappings for bg_size=128 (16x2x2x2)
+  2x2x4x4x2 )
+    MP=CDABET
+  ;;
+  2x4x2x4x2 )
+    MP=BDACET
+  ;;
+  4x2x2x4x2 )
+    MP=ADBCET
+  ;;
+  2x4x4x2x2 )
+    MP=BCADET
+  ;;
+  4x2x4x2x2 )
+    MP=ACBDET
+  ;;
+  4x4x2x2 )
+    MP=ABCDET
+  ;;
+  # mappings for bg_size=256 (16x4x2x2)
+  2x4x4x4x2 )
+    MP=BCDAET # (16x4x2x2)
+  ;;
+  4x4x2x4x2 )
+    MP=ABDCET # (16x4x2x2)
+  ;;
+  4x2x4x4x2 )
+    MP=ACDBET # (16x4x2x2)
+  ;;
+  4x4x4x2x2 )
+    MP=ABCDET # (16x4x2x2)
+  ;;
+esac
+
+case $LOADL_STEP_NAME in
+

@@ -1,0 +1,37 @@
+L = 24
+T = 48
+nrxprocs=
+nryprocs=
+nrzprocs=
+ompnumthreads=64
+DebugLevel=2
+
+Measurements = 1
+initialstorecounter=
+
+reproducerandomnumbers=no
+ranluxdlevel=2
+seed=213131
+
+2kappamu=
+kappa = 0.151064
+UseEvenOdd = yes
+BCAngleT = 1.
+
+SplittedPropagator = yes
+UseRelativePrecision = yes
+UseSloppyPrecision = no
+SourceType = Volume
+ReadSource = no
+NoSamples = 48
+
+BeginOperator TMWILSON
+  kappa = 0.151064
+  2kappamu=
+  solverprecision=
+  propagatorprecision=
+  MaxSolverIterations = 50000
+  AddDownPropagator = no
+  solver = cg
+  solverrelativeprecision=yes
+EndOperator

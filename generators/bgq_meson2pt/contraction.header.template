@@ -1,0 +1,9 @@
+##################################################################
+# @ step_name=contraction
+# @ wall_clock_limit=
+# @ dependency=
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size= 
+# @ queue
+##################################################################

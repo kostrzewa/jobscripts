@@ -1,0 +1,35 @@
+L = 48
+T = 96
+nrxprocs=
+nryprocs=
+nrzprocs=
+ompnumthreads=64
+DebugLevel=2
+
+Measurements = 1
+initialstorecounter=
+
+2kappamu=
+kappa = 0.13729
+csw=1.57551
+UseEvenOdd = yes
+BCAngleT = 1.
+
+SplittedPropagator = yes
+UseRelativePrecision = yes
+UseSloppyPrecision = no
+SourceType = TimeSlice
+ReadSource = yes
+indices=0-7
+sourcetimeslice=
+
+BeginOperator CLOVER
+  csw=1.57551
+  kappa = 0.13729
+  2kappamu=
+  solverprecision=
+  propagatorprecision=
+  MaxSolverIterations = 50000
+  AddDownPropagator = yes
+  solverrelativeprecision=yes
+EndOperator
