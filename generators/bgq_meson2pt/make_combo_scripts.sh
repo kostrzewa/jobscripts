@@ -3,6 +3,7 @@ END=470
 STEP=2
 
 NAME="iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009_rep1"
+TASKNAME="conn_meson_analysis"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
 # on JuQueen, work==scratch
@@ -48,7 +49,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   # create job command file ("jobscript") 
   jcf=${JOBDIR}/meson_2pt_${c4num}.job
   cp common.header.template ${jcf}
-  sed -i "s/job_name=/job_name=${NAME}/g" ${jcf}
+  sed -i "s/job_name=/job_name=${TASKNAME}_${NAME}_${c4num}/g" ${jcf}
 
   # create the temporary file for the job body
   touch job.body.tmp
