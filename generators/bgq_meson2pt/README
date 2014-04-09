@@ -1,3 +1,7 @@
+***************
+* Description *
+***************
+
 This is a jobscript and input file generation script for combined inversions
 and contractions using tmLQCD 'invert' and cvc (using libcvcpp). Currently
 this is limited to machines of BG/Q type.
@@ -13,6 +17,20 @@ and charmed mesons on a given gauge background.
 When run, the script completes and concatenates the various *.template files into the
 job script and input files. It also creates links to propagator sources and gauge
 configurations and creates the job working directories.
+
+
+***********
+* RUNNING *
+***********
+
+To start the jobscript generation process, run it like this:
+
+  $ ./make_combo_scripts.sh masses.txt 
+
+
+*****************
+* CONFIGURATION *
+*****************
 
 To adjust it to a specific purpose the following steps need to be carried out:
 
