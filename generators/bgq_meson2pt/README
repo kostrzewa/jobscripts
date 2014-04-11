@@ -27,6 +27,13 @@ To start the jobscript generation process, run it like this:
 
   $ ./make_combo_scripts.sh masses.txt 
 
+The generator supports a mode for creating job scripts for the contraction only
+(assuming that all the directory structures from the inversions are already
+in place).
+
+  $ ./make_combo_scripts.sh masses.txt 1
+
+( see CONTRACTIONS_ONLY in make_combo_scripts.sh )
 
 *****************
 * CONFIGURATION *
