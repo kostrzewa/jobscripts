@@ -23,7 +23,7 @@
   echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
   echo OMP_NUM_THREADS = $OMP_NUM_THREADS
   echo NPN = $NPN 
-  echo NP = $LOADL_BG_SIZE
+  echo NP = $NP
 
   cd ${WDIR}
   
