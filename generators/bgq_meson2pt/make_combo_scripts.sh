@@ -107,7 +107,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
           # ampersand escaping for sed below
           contraction_dependencies="${contraction_dependencies} \\&\\& ${step_name} == 0"
         fi
-        if [ ${first_archival_dependency} -eq 1]; then
+        if [ ${first_archival_dependency} -eq 1 ]; then
           archival_dependencies="${archival_dependencies} ${step_name} == 0"
           first_archival_dependency=0
         else
