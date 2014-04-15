@@ -21,7 +21,7 @@ SOURCEDIR=${scratch}/sources/conn_meson/fuzzed/nf2/${NAME}
 JOBDIR=${WDIR}/jobscripts
 IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
-ARCHDIR=${ARCH}/${RUNDIR}
+ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 
 DEBUG=0
 DO_ARCHIVAL=1
