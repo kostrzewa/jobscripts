@@ -228,7 +228,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
     archival_dependencies="${archival_dependencies} )"
 
     # create jobscript header for archival
-    if [ $DO_ARCHIVE -eq 1 ]; then
+    if [ $DO_ARCHIVAL -ne 0 ]; then
       cp archival.header.template archival.header.template.tmp
       sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
       sed -i "s/dependency=/dependency=\ ${archival_dependencies}/g" archival.header.template.tmp
@@ -246,7 +246,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
       cat archival.job.template.tmp >> job.body.tmp
       rm archival.job.template.tmp
-    fi # DO_ARCHIVE
+    fi # DO_ARCHIVAL
 
   fi # CONTRACTION_ONLY
 
