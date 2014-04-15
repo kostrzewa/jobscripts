@@ -1,26 +1,35 @@
-START=352
-END=552
+# This script creates job scripts and input files for simultaneous inversions and
+# contractions using tmLQCD and CVC (using the libcvcpp library)
+# For customization details, see the README file.
+
+START=554
+END=554
 STEP=2
 
 NAME="iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009"
-TASKNAME="conn_meson_analysis"
+TASKNAME="meson_2pt_test"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
 # on JuQueen, work==scratch
 work=${WORK}
 scratch=${WORK}
 
-WDIR=${scratch}/conn_meson_analysis/nf2/${NAME}
+RUNDIR=${TASKNAME}/nf2/${NAME}
+WDIR=${scratch}/${RUNDIR}
 GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
 SOURCEDIR=${scratch}/sources/conn_meson/fuzzed/nf2/${NAME}
 JOBDIR=${WDIR}/jobscripts
 IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
+ARCHDIR=${ARCH}/${RUNDIR}
 
 DEBUG=0
+DO_ARCHIVAL=1
 
 CONTRACTIONS_BG_SIZE=128
 CONTRACTIONS_WC_LIMIT="00:30:00"
+
+ARCHIVAL_WC_LIMIT="00:30:00"
 
 if [ -z "$1" ]; then
   echo "You need to provide a filename with a list of inversions to prepare scripts for!"
@@ -71,8 +80,10 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   if [ $CONTRACTION_ONLY -ne 1 ]; then
     # read the inversions to be done one by one
     # keep in mind that there will be changes when CGMMS for nf2clover is ready!
-    dependencies="("
-    first_inversion_step=1
+    contraction_dependencies="("
+    archival_dependencies="("
+    first_archival_dependency=1
+    first_contraction_dependency=1
     while read line; do
       # skip empty lines
       [ -z "${line}" ] && continue
@@ -85,15 +96,29 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
       step_name=`echo ${line} | cut -d ' ' -f 1`
       
-      # we build the dependency chain for the contraction step
-      # it should not depend on any disconnected inversions that we do 
+      # we build the dependency chain for the archival and contraction steps bit by bit
+      # the contraction step should not depend on any disconnected inversions that we do
+      # whereas the archival step should 
       if [ -z "`echo ${line} | grep '^disc'`" ]; then
-        if [ ${first_inversion_step} -eq 1 ]; then
-          dependencies="${dependencies} ${step_name} == 0"
-          first_inversion_step=0
+        if [ ${first_contraction_dependency} -eq 1 ]; then
+          contraction_dependencies="${contraction_dependencies} ${step_name} == 0"
+          first_contraction_dependency=0
         else
           # ampersand escaping for sed below
-          dependencies="${dependencies} \\&\\& ${step_name} == 0"
+          contraction_dependencies="${contraction_dependencies} \\&\\& ${step_name} == 0"
+        fi
+        if [ ${first_archival_dependency} -eq 1]; then
+          archival_dependencies="${archival_dependencies} ${step_name} == 0"
+          first_archival_dependency=0
+        else
+          archival_dependencies="${archival_dependencies} \\&\\& ${step_name} == 0"
+        fi
+      else
+        if [ ${first_archival_dependency} -eq 1 ]; then
+          archival_dependencies="${archival_dependencies} ${step_name} == 0"
+          first_archival_dependency=0
+        else
+          archival_dependencies="${archival_dependencies} \\&\\& ${step_name} == 0"
         fi
       fi
 
@@ -199,14 +224,38 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       done
 
     done < ${1} # loop through file, see while read above
-    dependencies="${dependencies} )"
+    contraction_dependencies="${contraction_dependencies} )"
+    archival_dependencies="${archival_dependencies} )"
+
+    # create jobscript header for archival
+    if [ $DO_ARCHIVE -eq 1 ]; then
+      cp archival.header.template archival.header.template.tmp
+      sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
+      sed -i "s/dependency=/dependency=\ ${archival_dependencies}/g" archival.header.template.tmp
+      cat archival.header.template.tmp >> ${jcf}
+      rm archival.header.template.tmp
+
+      # archival job body
+      cp archival.job.template archival.job.template.tmp
+
+      # using @ as a separator because the filenames contain slashes and would otherwise confuse sed
+      sed -i "s@ODIR=@ODIR=${ODIR}@g" archival.job.template.tmp
+      sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
+      sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
+      sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
+
+      cat archival.job.template.tmp >> job.body.tmp
+      rm archival.job.template.tmp
+    fi # DO_ARCHIVE
+
   fi # CONTRACTION_ONLY
 
   # create jobscript header for contraction
   cp contraction.header.template contraction.header.template.tmp
   sed -i "s/bg_size=/bg_size=${CONTRACTIONS_BG_SIZE}/g" contraction.header.template.tmp
   sed -i "s/wall_clock_limit=/wall_clock_limit=${CONTRACTIONS_WC_LIMIT}/g" contraction.header.template.tmp
-  sed -i "s/dependency=/dependency=\ ${dependencies}/g" contraction.header.template.tmp
+  # if CONTRACTION_ONLY == 1; then contraction_dependencies is empty, but this is not a problem!
+  sed -i "s/dependency=/dependency=\ ${contraction_dependencies}/g" contraction.header.template.tmp
   cat contraction.header.template.tmp >> ${jcf}
   rm contraction.header.template.tmp
   
@@ -217,7 +266,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
   sed -i "s/_NC/${cnum}/g" ${cvc_ifile}
   sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
-  # job body
+  # contraction job body
   cp contraction.job.template contraction.job.template.tmp
 
   sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp

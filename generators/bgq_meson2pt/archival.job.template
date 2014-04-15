@@ -1,0 +1,43 @@
+archival )
+  
+  FROM_DIRS=(light/light_00 strange/strange_00 strange/strange_01 strange/strange_02 strange/strange_03 charm/charm_00 charm/charm_01 charm/charm_02 charm/charm_03)
+  TO_DIRS=(light_0.0009 strange_0.0238 strange_0.0245 stange_0.0252 strange_0.0259 charm_0.2822 charm_0.2940 charm_0.3058 charm_0.3176)
+  PROPAGATORS_PER_GAUGE=8
+  
+  C4NUM=
+  WDIR=
+  ODIR=
+  ARCHDIR=
+
+  ## the output file
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  RETVAL=0
+
+  date
+  for flavour in `seq 0 1 $(( ${#FROM_DIRS[*]} - 1 ))`; do
+    if [ ! -d ${ARCHDIR}/${TO_DIRS[$flavour]} ]; then
+      echo "Making directory ${ARCHDIR}/${TO_DIRS[$flavour]}"
+      mkdir -p ${ARCHDIR}/${TO_DIRS[$flavour]}
+    fi
+    # check for existence of files and record it:
+    num_files=`ls -1 ${SOURCEDIR}/${FROM_DIRS[$flavour]}/source.${C4NUM}.??.??.*inverted | wc | awk '{print $1}'`
+    if [ $num_files -lt $PROPAGATORS_PER_GAUGE ]; then
+      echo "${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}" >> ${WDIR}/missing_files.txt
+      RETVAL=1
+    else
+      echo "Doing transfer ${TO_DIRS[$flavour]} ${C4NUM}..." 
+      tar -cf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar ${SOURCEDIR}/${FROM_DIRS[$flavour]}/source.${C4NUM}.??.??.*inverted
+      if [ $? -ne 0 ]; then
+        RETVAL=1
+        echo "There was a failure for ${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}"
+      fi
+    fi    
+  done
+  
+  date
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${C4NUM}.out
+  exit $RETVAL
+;;
+ 

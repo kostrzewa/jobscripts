@@ -78,6 +78,14 @@ masses.txt
   See make_combo_scripts.sh for a more complete understanding of what these
   parameters change.
 
+prop_archive.job.template
+  After all inversions have been completed a serial job is launched which sends
+  the propagators off to an archival location. This file needs some manual work
+  in matching the directory names in the contraction working directory (i.e. names
+  like light/light_00, strange/strange_01 etc..) to more meaningful names
+  like light_0,0009, strange_0.0238, strange_0.0245. One needs to modify the two
+  bash arrays "FROM_DIRS" and "TO_DIRS" accordingly. 
+
 contraction.job.template
   If necessary, adjust NPN (which is the number of processes per node used by CVC)
   Adjust EXEC to point to the libcvcpp meson two-point executable!
