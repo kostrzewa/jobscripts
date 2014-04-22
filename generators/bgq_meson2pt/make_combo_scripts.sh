@@ -96,6 +96,34 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
       step_name=`echo ${line} | cut -d ' ' -f 1`
       
+      bg_size=`echo ${line} | cut -d ' ' -f 3`
+      wall_clock_limit=`echo ${line} | cut -d ' ' -f 4`
+      solver_prec=`echo ${line} | cut -d ' ' -f 5`
+      prop_prec=`echo ${line} | cut -d ' ' -f 6`
+      coll_name=`echo ${line} | cut -d ' ' -f 7`
+
+      twokappamu=0
+      twokappamubar=0
+      twokappaepsbar=0
+      if [ -z "`echo ${line} | grep '^nd'`" ]; then
+        twokappamu=`echo ${line} | cut -d ' ' -f 2`
+      else
+        twokappamusigma=`echo ${line} | cut -d ' ' -f 2 | cut -d ';' -f 1`
+        twokappamudelta=`echo ${line} | cut -d ' ' -f 2 | cut -d ';' -f 2`      
+      fi
+
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "step_name = $step_name"
+        echo "bg_size   = $bg_size"
+        echo "wall_clock_limit = $wall_clock_limit"
+        echo "solver_prec = $solver_prec"
+        echo "prop_prec = $prop_prec"
+        echo "coll_name = $coll_name"
+        echo "twokappamu = $twokappamu"
+        echo "twokappamusigma = $twokappamusigma"
+        echo "twokappamudelta = $twokappamudelta"
+      fi
+      
       # we build the dependency chain for the archival and contraction steps bit by bit
       # the contraction step should not depend on any disconnected inversions that we do
       # whereas the archival step should 
@@ -120,22 +148,6 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
         else
           archival_dependencies="${archival_dependencies} \\&\\& ${step_name} == 0"
         fi
-      fi
-
-      bg_size=`echo ${line} | cut -d ' ' -f 3`
-      wall_clock_limit=`echo ${line} | cut -d ' ' -f 4`
-      solver_prec=`echo ${line} | cut -d ' ' -f 5`
-      prop_prec=`echo ${line} | cut -d ' ' -f 6`
-      coll_name=`echo ${line} | cut -d ' ' -f 7`
-
-      twokappamu=0
-      twokappamubar=0
-      twokappaepsbar=0
-      if [ -z "`echo ${line} | grep '^nd'`" ]; then
-        twokappamu=`echo ${line} | cut -d ' ' -f 2`
-      else
-        twokappamusigma=`echo ${line} | cut -d ' ' -f 2 | cut -d ';' -f 1`
-        twokappamudelta=`echo ${line} | cut -d ' ' -f 2 | cut -d ';' -f 2`      
       fi
 
       # choose parallelization based on bg_size 
