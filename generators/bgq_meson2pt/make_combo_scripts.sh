@@ -244,11 +244,18 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
     # create jobscript header for archival
     if [ $DO_ARCHIVAL -ne 0 ]; then
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating header for archival"
+      fi
       cp archival.header.template archival.header.template.tmp
       sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
       sed -i "s/dependency=/dependency=\ ${archival_dependencies}/g" archival.header.template.tmp
       cat archival.header.template.tmp >> ${jcf}
       rm archival.header.template.tmp
+
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating job body for archival"
+      fi
 
       # archival job body
       cp archival.job.template archival.job.template.tmp
@@ -266,6 +273,9 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   fi # CONTRACTION_ONLY
 
   # create jobscript header for contraction
+  if [ ${DEBUG} -ne 0 ]; then
+    echo "Creating header for contraction"
+  fi
   cp contraction.header.template contraction.header.template.tmp
   sed -i "s/bg_size=/bg_size=${CONTRACTIONS_BG_SIZE}/g" contraction.header.template.tmp
   sed -i "s/wall_clock_limit=/wall_clock_limit=${CONTRACTIONS_WC_LIMIT}/g" contraction.header.template.tmp
@@ -276,12 +286,18 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   
   ## contraction job template and input file
   # contraction input file
+  if [ ${DEBUG} -ne 0 ]; then
+    echo "Creating input file for contraction"
+  fi  
   cvc_ifile=${IDIR}/cvc.${c4num}.input
   cp cvc.input.template ${cvc_ifile}
 
   sed -i "s/_NC/${cnum}/g" ${cvc_ifile}
   sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
   # contraction job body
+  if [ ${DEBUG} -ne 0 ]; then
+    echo "Creating job body for contraction"
+  fi
   cp contraction.job.template contraction.job.template.tmp
 
   sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
