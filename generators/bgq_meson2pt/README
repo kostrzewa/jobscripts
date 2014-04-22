@@ -78,7 +78,7 @@ masses.txt
   See make_combo_scripts.sh for a more complete understanding of what these
   parameters change.
 
-prop_archive.job.template
+archival.job.template
   After all inversions have been completed a serial job is launched which sends
   the propagators off to an archival location. This file needs some manual work
   in matching the directory names in the contraction working directory (i.e. names
