@@ -2,12 +2,12 @@
 # contractions using tmLQCD and CVC (using the libcvcpp library)
 # For customization details, see the README file.
 
-START=554
-END=554
+START=0
+END=602
 STEP=2
 
-NAME="iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009"
-TASKNAME="meson_2pt_test"
+NAME="iwa_b2.1-L24T48-csw1.57551-k0.1373-mul0.006_xeonphi"
+TASKNAME="meson_2pt"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
 # on JuQueen, work==scratch
@@ -17,16 +17,16 @@ scratch=${WORK}
 RUNDIR=${TASKNAME}/nf2/${NAME}
 WDIR=${scratch}/${RUNDIR}
 GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
-SOURCEDIR=${scratch}/sources/conn_meson/fuzzed/nf2/${NAME}
+SOURCEDIR=${scratch}/meson_2pt/nf2/${NAME}/sources
 JOBDIR=${WDIR}/jobscripts
 IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
 ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 
-DEBUG=0
+DEBUG=1
 DO_ARCHIVAL=1
 
-CONTRACTIONS_BG_SIZE=128
+CONTRACTIONS_BG_SIZE=32
 CONTRACTIONS_WC_LIMIT="00:30:00"
 
 ARCHIVAL_WC_LIMIT="00:30:00"
@@ -160,14 +160,23 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
         ln -s ${GAUGEDIR}/${cname} ${inv_wdir}
       fi
 
-      for source in ${SOURCEDIR}/source.${c4num}.??.??; do
-        source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
-        if [ ! -e ${source_link} ]; then
-          ln -s ${source} ${source_link}
+      # create links to the sources unless we're doing disconnected inversions
+      if [ -z "`echo ${line} | grep '^disc'`" ]; then 
+        if [ ${DEBUG} -ne 0 ]; then
+          echo "Creating links to sources in ${inv_wdir}"
         fi
-      done
+        for source in ${SOURCEDIR}/source.${c4num}.??.??; do
+          source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
+          if [ ! -e ${source_link} ]; then
+            ln -s ${source} ${source_link}
+          fi
+        done
+      fi
 
       # create jobscript header for this inversion
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating inversion header ${step_name}"
+      fi
       cp inversion.header.template inversion.header.template.tmp
       sed -i "s/step_name=/step_name=${step_name}/g" inversion.header.template.tmp
       sed -i "s/wall_clock_limit=/wall_clock_limit=${wall_clock_limit}/g" inversion.header.template.tmp
@@ -179,6 +188,9 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       ifile="${IDIR}/${step_name}.${c4num}.invert.input"
 
       # create job body for this inversion
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating job body for ${step_name}"
+      fi
       echo "${step_name} )" >> inversion.job.template.tmp
       cat inversion.job.template >> inversion.job.template.tmp
       # use @ as command separator because we're dealing with paths which contain '/'
@@ -194,7 +206,10 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       # degenerate doublet (resp. Osterwalder-Seiler) or non-degenerate doublet
       # inversions
       # a further differentiation comes from the calculation for disconnected loops
-      # using volume sources  
+      # using volume sources
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating input file for ${step_name}"
+      fi 
       if [ -z "`echo ${line} | grep '^nd'`" ]; then
         if [ -z "`echo ${line} | grep '^disc'`" ]; then
           echo "OS inversions"
