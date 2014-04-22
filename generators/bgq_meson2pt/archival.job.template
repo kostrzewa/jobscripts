@@ -29,7 +29,7 @@ archival )
     else
       echo "Doing transfer ${TO_DIRS[$flavour]} ${C4NUM}..."
       cd ${WDIR}/${FROM_DIRS[$flavour]} 
-      tar -cf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar source.${C4NUM}.*inverted
+      tar -vcf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar source.${C4NUM}.*inverted
       if [ $? -ne 0 ]; then
         RETVAL=1
         echo "There was a failure for ${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}"
