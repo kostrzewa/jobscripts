@@ -22,14 +22,14 @@ archival )
       mkdir -p ${ARCHDIR}/${TO_DIRS[$flavour]}
     fi
     # check for existence of files and record it:
-    num_files=`ls -1 ${WDIR}/${FROM_DIRS[$flavour]}/source.${C4NUM}.??.??.*inverted | wc | awk '{print $1}'`
+    num_files=`ls -1 ${WDIR}/${FROM_DIRS[$flavour]}/source.${C4NUM}.*inverted | wc | awk '{print $1}'`
     if [ $num_files -lt $PROPAGATORS_PER_GAUGE ]; then
       echo "${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}" >> ${WDIR}/missing_files.txt
       RETVAL=1
     else
       echo "Doing transfer ${TO_DIRS[$flavour]} ${C4NUM}..."
       cd ${WDIR}/${FROM_DIRS[$flavour]} 
-      tar -cf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar source.${C4NUM}.??.??.*inverted
+      tar -cf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar source.${C4NUM}.*inverted
       if [ $? -ne 0 ]; then
         RETVAL=1
         echo "There was a failure for ${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}"
