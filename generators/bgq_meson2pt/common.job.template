@@ -47,7 +47,7 @@ case ${LOADL_BG_SHAPE} in
   4x2x4x2x2 )
     MP=ACBDET
   ;;
-  4x4x2x2 )
+  4x4x2x2x2 )
     MP=ABCDET
   ;;
   # mappings for bg_size=256 (16x4x2x2)
