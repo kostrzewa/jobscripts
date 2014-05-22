@@ -1,0 +1,545 @@
+######################################################################
+# @ job_name=meson_2pt_iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009_0780 
+# @ error            = $(job_name).$(jobid).$(stepid).out
+# @ output           = $(job_name).$(jobid).$(stepid).out
+# @ environment      = COPY_ALL;
+# @ notification     = error
+# @ notify_user      = bartosz.kostrzewa@desy.de
+# @ user_priority         = 100
+##################################################################
+# @ step_name=light
+# @ wall_clock_limit=00:30:00
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size=1024 
+# @ queue
+##################################################################
+# @ step_name=strange
+# @ wall_clock_limit=00:30:00
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size=512 
+# @ queue
+##################################################################
+# @ step_name=charm
+# @ wall_clock_limit=00:30:00
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size=512 
+# @ queue
+##################################################################
+# @ step_name=archival
+# @ wall_clock_limit=00:45:00
+# @ dependency= ( light == 0 && strange == 0 && charm == 0 )
+# @ job_type         = serial
+# @ queue
+##################################################################
+##################################################################
+# @ step_name=contraction
+# @ wall_clock_limit=00:30:00
+# @ dependency= ( light == 0 && strange == 0 && charm == 0 )
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size=64 
+# @ queue
+##################################################################
+## determine optimal mapping to network topology
+echo loadl shape is $LOADL_BG_SHAPE
+
+# default mapping for BG_SIZE=512 and 32
+export MP=EABCDT
+
+case ${LOADL_BG_SHAPE} in
+  # mappings for BG_SIZE=1024 (16x4x4x4)
+  2x1x1x1 )
+    MP=EABCDT 
+  ;;
+  1x2x1x1 )
+    MP=EBACDT
+  ;;    
+  1x1x2x1 )
+    MP=ECABDT
+  ;;    
+  1x1x1x2 )
+    MP=EDABCT
+  ;;
+  # mappings for BG_SIZE=64 (8x2x2x2)
+  2x2x2x4x2 )
+    MP=EDABCT
+  ;;
+  2x2x4x2x2 )
+    MP=ECABDT
+  ;;
+  2x4x2x2x2 )
+    MP=EBACDT
+  ;;
+  4x2x2x2x2 )
+    MP=EABCDT
+  ;;
+  # mappings for bg_size=128 (16x2x2x2)
+  2x2x4x4x2 )
+    MP=CDABET
+  ;;
+  2x4x2x4x2 )
+    MP=BDACET
+  ;;
+  4x2x2x4x2 )
+    MP=ADBCET
+  ;;
+  2x4x4x2x2 )
+    MP=BCADET
+  ;;
+  4x2x4x2x2 )
+    MP=ACBDET
+  ;;
+  4x4x2x2 )
+    MP=ABCDET
+  ;;
+  # mappings for bg_size=256 (16x4x2x2)
+  2x4x4x4x2 )
+    MP=BCDAET # (16x4x2x2)
+  ;;
+  4x4x2x4x2 )
+    MP=ABDCET # (16x4x2x2)
+  ;;
+  4x2x4x4x2 )
+    MP=ACDBET # (16x4x2x2)
+  ;;
+  4x4x4x2x2 )
+    MP=ABCDET # (16x4x2x2)
+  ;;
+esac
+
+case $LOADL_STEP_NAME in
+
+light )
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/light_00.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/light/light_00
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
+  exit $RETVAL
+;;
+strange )
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/strange_00.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/strange/strange_00
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/strange_01.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/strange/strange_01
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/strange_02.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/strange/strange_02
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/strange_03.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/strange/strange_03
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
+  exit $RETVAL
+;;
+charm )
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/charm_00.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/charm/charm_00
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/charm_01.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/charm/charm_01
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/charm_02.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/charm/charm_02
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+
+#### sub step body begin  ####
+  echo "Mapping is ${MP}"
+  
+  export NPN=1
+  export NP=$(( LOADL_BG_SIZE * NPN ))
+  export OMP_NUM_THREADS=64
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/charm_03.0780.invert.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/charm/charm_03
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+#### sub step body end ####
+
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
+  exit $RETVAL
+;;
+archival )
+  
+  FROM_DIRS=(light/light_00 strange/strange_00 strange/strange_01 strange/strange_02 strange/strange_03 charm/charm_00 charm/charm_01 charm/charm_02 charm/charm_03)
+  TO_DIRS=(light_0.0009 strange_0.0238 strange_0.0245 stange_0.0252 strange_0.0259 charm_0.2822 charm_0.2940 charm_0.3058 charm_0.3176)
+  PROPAGATORS_PER_GAUGE=8
+  
+  C4NUM=0780
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  ARCHDIR=/arch/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/propagators
+
+  ## the output file
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  RETVAL=0
+
+  date
+  for flavour in `seq 0 1 $(( ${#FROM_DIRS[*]} - 1 ))`; do
+    if [ ! -d ${ARCHDIR}/${TO_DIRS[$flavour]} ]; then
+      echo "Making directory ${ARCHDIR}/${TO_DIRS[$flavour]}"
+      mkdir -p ${ARCHDIR}/${TO_DIRS[$flavour]}
+    fi
+    # check for existence of files and record it:
+    num_files=`ls -1 ${WDIR}/${FROM_DIRS[$flavour]}/source.${C4NUM}.??.??.*inverted | wc | awk '{print $1}'`
+    if [ $num_files -lt $PROPAGATORS_PER_GAUGE ]; then
+      echo "${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}" >> ${WDIR}/missing_files.txt
+      RETVAL=1
+    else
+      echo "Doing transfer ${TO_DIRS[$flavour]} ${C4NUM}..."
+      cd ${WDIR}/${FROM_DIRS[$flavour]} 
+      tar -cf ${ARCHDIR}/${TO_DIRS[$flavour]}/source.${C4NUM}.inverted.tar source.${C4NUM}.??.??.*inverted
+      if [ $? -ne 0 ]; then
+        RETVAL=1
+        echo "There was a failure for ${FROM_DIRS[$flavour]} ${TO_DIRS[$flavour]} ${C4NUM}"
+      fi
+    fi    
+  done
+  
+  date
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${C4NUM}.out
+  exit $RETVAL
+;;
+ 
+contraction )
+  # verify mapping
+  echo "Mapping is ${MP}"
+  
+  EXEC=${HOME}/code/cvc/libcvcpp/test_libcvcpp
+  export NPN=16
+  
+  IFILE=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/inputs/cvc.0780.input
+  ODIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009/outputs
+  WDIR=/work/hch02/hch028/meson_2pt/nf2/iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009
+  OUTPUTID=0780
+
+  ## the output file
+	
+  export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
+  echo OFILE=$OFILE
+
+  date
+  export NP=$((LOADL_BG_SIZE*NPN))
+
+  echo LOADL_STEP_CLASS = $LOADL_STEP_CLASS
+  echo LOADL_BG_SIZE = $LOADL_BG_SIZE
+  echo LOADL_STEP_ID = $LOADL_STEP_ID
+  echo LOADL_BG_SHAPE = $LOADL_BG_SHAPE
+  echo OMP_NUM_THREADS = $OMP_NUM_THREADS
+  echo NPN = $NPN 
+  echo NP = $NP
+
+  cd ${WDIR}
+  
+  date
+  runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
+  RETVAL=$?  
+  date
+
+  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
+  
+  exit $RETVAL
+;;
+
+
+esac

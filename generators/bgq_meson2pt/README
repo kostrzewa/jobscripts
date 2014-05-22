@@ -105,3 +105,82 @@ make_combo_scripts.sh
   the various directories
   CONTRACTIONS_BG_SIZE (bg_size for the contraction step)
   CONTRACTIONS_WC_LIMIT (wallclock time limit for the contraction step)
+
+***********
+* EXAMPLE *
+***********
+
+An example of a generated job script can be found in EXAMPLE.jcf. During generation,
+the header is accumulated directly into the jobscript while the body is accumulated
+in "job.body.tmp" and then concatenated with the header.
+
+In general, the structure of a generated script looks like this, for example 
+for inversions and contractions of three flavours with 3 2 and 4 masses each
+(with templates edited by the generator as necessary and then pasted together):
+
+################################################################
+
+###########
+common.header.template
+##########
+inversion.header.template
+#########
+inversion.header.template
+#########
+... (5 more inversion headers)
+########
+inversion.header.template
+########
+archival.header.template
+########
+contraction.header.template
+########
+
+common.job.template
+
+case $LOADL_STEP_NAME in
+
+flavour1 )
+
+inversion.job.template
+
+inversion.job.template
+
+inversion.job.template
+
+;;
+
+flavour2 )
+
+inversion.job.template
+
+inversion.job.template
+
+;;
+
+flavour3 )
+
+inversion.job.template
+
+inversion.job.template
+
+inversion.job.template
+
+inversion.job.template
+
+;;
+
+archival )
+
+archival.job.template
+
+;;
+
+contraction )
+
+contraction.job.template
+
+;;
+esac
+
+############################################################
