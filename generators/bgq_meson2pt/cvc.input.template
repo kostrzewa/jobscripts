@@ -191,12 +191,6 @@ BeginQuarkLinePair
 EndQuarkLinePair
 
 BeginQuarkLinePair
-  name = ssc
-  quark_lines = sp, sp
-  observables = charged_conn_meson_20
-EndQuarkLinePair
-
-BeginQuarkLinePair
   name = ssn
   quark_lines = sp, sm
   observables = neutral_conn_meson_20
@@ -207,13 +201,6 @@ BeginQuarkLinePair
   name = ssn
   quark_lines = sm, sp
   observables = neutral_conn_meson_20
-  mass_diagonal = yes
-EndQuarkLinePair
-
-BeginQuarkLinePair
-  name = ccc
-  quark_lines = cp, cp
-  observables = charged_conn_meson_20
   mass_diagonal = yes
 EndQuarkLinePair
 
