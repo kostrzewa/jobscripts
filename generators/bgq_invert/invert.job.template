@@ -3,7 +3,7 @@
 # @ error  = $(job_name).$(jobid).$(stepid).out
 # @ output = $(job_name).$(jobid).$(stepid).out
 # @ environment = COPY_ALL;
-# @ notification = always
+# @ notification = error
 # @ notify_user = bartosz.kostrzewa@desy.de
 
 # @ step_name = inversion
@@ -36,15 +36,23 @@ date
 case $LOADL_STEP_NAME in
 archival )
   date
+  RETVAL=0
   if [ ! -d ${ARCHDIR}/propagators ]; then
     mkdir -p ${ARCHDIR}/propagators
   fi
   echo "Archiving propagators into ${ARCHDIR}/propagators"
+  cd ${WDIR}/../../propagators
   for NUMBER in ${CONFS}; do
-    rsync -av ${WDIR}/../../propagators/source.${NUMBER}.*inverted ${ARCHDIR}/propagators
+    tar -vcf ${ARCHDIR}/propagators/source.${NUMBER}.inverted.tar source.${NUMBER}.*inverted
+    if [ $? -ne 0 ]; then
+      RETVAL=1
+      echo "There was a failure during archival for ${NUMBER}!"
+    fi
   done
+  cd ${WDIR}
   date
   cp -v ${OFILE} ${ODIR}
+  exit $RETVAL
 ;;
 
 inversion )
@@ -120,21 +128,22 @@ inversion )
 
   cd ${WDIR}
   
-  RETVAL=1
+  RETVAL=0
   for NUMBER in ${CONFS}; do
     date
     INPUT="${INPUTPREFIX}.${NUMBER}.input"
     runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${INPUT}"
-    
+    RETVAL=$?
+
     ## move everything in place if the inversion completed successfully
-    if [ $? -eq 0 ]; then
+    if [ $RETVAL -eq 0 ]; then
       echo "Inversion for ${NUMBER} successful, moving propagators to ${WDIR}/../../propagators"
       mv -v source.${NUMBER}.*inverted ${WDIR}/../../propagators
-      RETVAL=0
+      # if there is a problem with the move here, a non-zero return value will hint at that!
+      RETVAL=$?
     else
       echo "WARNING: There was a problem with the ${NUMBER} inversion, non-zero return value received!"
       echo "         Those propagators that exist, will remain in ${WDIR}"
-      RETVAL=$?
     fi
     date
   done
