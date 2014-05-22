@@ -2,11 +2,11 @@
 # contractions using tmLQCD and CVC (using the libcvcpp library)
 # For customization details, see the README file.
 
-START=0
-END=602
+START=780
+END=798
 STEP=2
 
-NAME="iwa_b2.1-L24T48-csw1.57551-k0.1373-mul0.006_xeonphi"
+NAME="iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009"
 TASKNAME="meson_2pt"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
@@ -17,7 +17,7 @@ scratch=${WORK}
 RUNDIR=${TASKNAME}/nf2/${NAME}
 WDIR=${scratch}/${RUNDIR}
 GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
-SOURCEDIR=${scratch}/meson_2pt/nf2/${NAME}/sources
+SOURCEDIR=${scratch}/sources/conn_meson/fuzzed/nf2/${NAME}
 JOBDIR=${WDIR}/jobscripts
 IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
@@ -26,10 +26,10 @@ ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 DEBUG=1
 DO_ARCHIVAL=1
 
-CONTRACTIONS_BG_SIZE=32
+CONTRACTIONS_BG_SIZE=64
 CONTRACTIONS_WC_LIMIT="00:30:00"
 
-ARCHIVAL_WC_LIMIT="00:30:00"
+ARCHIVAL_WC_LIMIT="00:45:00"
 
 if [ -z "$1" ]; then
   echo "You need to provide a filename with a list of inversions to prepare scripts for!"
@@ -84,6 +84,10 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
     archival_dependencies="("
     first_archival_dependency=1
     first_contraction_dependency=1
+    new_dependency=0
+    new_job_step=0
+    current_flavour=""
+    in_case_statement=0
     while read line; do
       # skip empty lines
       [ -z "${line}" ] && continue
@@ -94,13 +98,13 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
 
       # read parameters from line
 
-      step_name=`echo ${line} | cut -d ' ' -f 1`
+      mass_index=`echo ${line} | cut -d ' ' -f 1`
       
       bg_size=`echo ${line} | cut -d ' ' -f 3`
       wall_clock_limit=`echo ${line} | cut -d ' ' -f 4`
       solver_prec=`echo ${line} | cut -d ' ' -f 5`
       prop_prec=`echo ${line} | cut -d ' ' -f 6`
-      coll_name=`echo ${line} | cut -d ' ' -f 7`
+      flavour=`echo ${line} | cut -d ' ' -f 7`
 
       twokappamu=0
       twokappamubar=0
@@ -113,40 +117,54 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       fi
 
       if [ ${DEBUG} -ne 0 ]; then
-        echo "step_name = $step_name"
+        echo "mass_index = $mass_index"
         echo "bg_size   = $bg_size"
         echo "wall_clock_limit = $wall_clock_limit"
         echo "solver_prec = $solver_prec"
         echo "prop_prec = $prop_prec"
-        echo "coll_name = $coll_name"
+        echo "flavour = $flavour"
         echo "twokappamu = $twokappamu"
         echo "twokappamusigma = $twokappamusigma"
         echo "twokappamudelta = $twokappamudelta"
       fi
       
+      if [ "${flavour}" != "${current_flavour}" ]; then
+        current_flavour="${flavour}"
+        # if we are dealing with a new flavour, we need to add a new dependency
+        new_dependency=1
+        # a new header, case statement and footer for the previous case statement 
+        new_job_step=1
+      fi
+ 
       # we build the dependency chain for the archival and contraction steps bit by bit
       # the contraction step should not depend on any disconnected inversions that we do
       # whereas the archival step should 
       if [ -z "`echo ${line} | grep '^disc'`" ]; then
-        if [ ${first_contraction_dependency} -eq 1 ]; then
-          contraction_dependencies="${contraction_dependencies} ${step_name} == 0"
-          first_contraction_dependency=0
-        else
-          # ampersand escaping for sed below
-          contraction_dependencies="${contraction_dependencies} \\&\\& ${step_name} == 0"
+        if [ ${new_dependency} -eq 1 ]; then
+          if [ ${first_contraction_dependency} -eq 1 ]; then
+            contraction_dependencies="${contraction_dependencies} ${flavour} == 0"
+            first_contraction_dependency=0
+          else
+            # ampersand escaping for sed below
+            contraction_dependencies="${contraction_dependencies} \\&\\& ${flavour} == 0"
+          fi
+          if [ ${first_archival_dependency} -eq 1 ]; then
+            archival_dependencies="${archival_dependencies} ${flavour} == 0"
+            first_archival_dependency=0
+          else
+            archival_dependencies="${archival_dependencies} \\&\\& ${flavour} == 0"
+          fi
+          new_dependency=0
         fi
-        if [ ${first_archival_dependency} -eq 1 ]; then
-          archival_dependencies="${archival_dependencies} ${step_name} == 0"
-          first_archival_dependency=0
-        else
-          archival_dependencies="${archival_dependencies} \\&\\& ${step_name} == 0"
-        fi
-      else
-        if [ ${first_archival_dependency} -eq 1 ]; then
-          archival_dependencies="${archival_dependencies} ${step_name} == 0"
-          first_archival_dependency=0
-        else
-          archival_dependencies="${archival_dependencies} \\&\\& ${step_name} == 0"
+      else # this is disconnected now -> no contraction dependency
+        if [ ${new_dependency} -eq 1 ]; then
+          if [ ${first_archival_dependency} -eq 1 ]; then
+            archival_dependencies="${archival_dependencies} ${flavour} == 0"
+            first_archival_dependency=0
+          else
+            archival_dependencies="${archival_dependencies} \\&\\& ${flavour} == 0"
+          fi
+          new_dependency=0
         fi
       fi
 
@@ -159,11 +177,11 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       
       if [ ${DEBUG} -eq 1 ]; then
         echo $line
-        echo $step_name $bg_size $wall_clock_limit $solver_prec $prop_prec $coll_name $nr_xyz_procs $twokappamu $twokappamusigma $twokappamudelta 
+        echo $mass_index $bg_size $wall_clock_limit $solver_prec $prop_prec $flavour $nr_xyz_procs $twokappamu $twokappamusigma $twokappamudelta 
       fi
 
       # create working directory for this inversion
-      inv_wdir=${WDIR}/${coll_name}/${step_name}
+      inv_wdir=${WDIR}/${flavour}/${mass_index}
       if [ ! -d ${inv_wdir} ]; then
         mkdir -p ${inv_wdir}
       fi
@@ -185,25 +203,41 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
         done
       fi
 
-      # create jobscript header for this inversion
-      if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating inversion header ${step_name}"
+      # create jobscript header for this job step if it is new
+      if [ ${new_job_step} -eq 1 ]; then
+        if [ ${DEBUG} -ne 0 ]; then
+          echo "Creating inversion header for ${flavour}"
+        fi
+        cp inversion.header.template inversion.header.template.tmp
+        sed -i "s/step_name=/step_name=${flavour}/g" inversion.header.template.tmp
+        sed -i "s/wall_clock_limit=/wall_clock_limit=${wall_clock_limit}/g" inversion.header.template.tmp
+        sed -i "s/bg_size=/bg_size=${bg_size}/g" inversion.header.template.tmp
+        cat inversion.header.template.tmp >> ${jcf}
+        rm inversion.header.template.tmp
+
+        # besides the header, we also need to take care of the case statement in the job body
+        if [ ${DEBUG} -ne 0 ]; then
+          echo "Adding case statement for ${flavour}"
+        fi
+        # if we're currently in a case statement we need to add ";;" to the job body
+        if [ ${in_case_statement} -eq 1 ]; then
+          echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out' >> job.body.tmp
+          echo '  exit $RETVAL' >> job.body.tmp
+          echo ";;" >> job.body.tmp
+          in_case_statement=0
+        fi
+        echo "${flavour} )" >> job.body.tmp
+        in_case_statement=1
+        new_job_step=0
       fi
-      cp inversion.header.template inversion.header.template.tmp
-      sed -i "s/step_name=/step_name=${step_name}/g" inversion.header.template.tmp
-      sed -i "s/wall_clock_limit=/wall_clock_limit=${wall_clock_limit}/g" inversion.header.template.tmp
-      sed -i "s/bg_size=/bg_size=${bg_size}/g" inversion.header.template.tmp
-      cat inversion.header.template.tmp >> ${jcf}
-      rm inversion.header.template.tmp
     
       # create input file for this inversion
-      ifile="${IDIR}/${step_name}.${c4num}.invert.input"
+      ifile="${IDIR}/${mass_index}.${c4num}.invert.input"
 
       # create job body for this inversion
       if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating job body for ${step_name}"
+        echo "Creating job body for ${mass_index}"
       fi
-      echo "${step_name} )" >> inversion.job.template.tmp
       cat inversion.job.template >> inversion.job.template.tmp
       # use @ as command separator because we're dealing with paths which contain '/'
       sed -i "s@IFILE=@IFILE=${ifile}@g" inversion.job.template.tmp
@@ -220,7 +254,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       # a further differentiation comes from the calculation for disconnected loops
       # using volume sources
       if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating input file for ${step_name}"
+        echo "Creating input file for ${mass_index}"
       fi 
       if [ -z "`echo ${line} | grep '^nd'`" ]; then
         if [ -z "`echo ${line} | grep '^disc'`" ]; then
@@ -253,6 +287,14 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
     done < ${1} # loop through file, see while read above
     contraction_dependencies="${contraction_dependencies} )"
     archival_dependencies="${archival_dependencies} )"
+
+    # for the last inversion in the list we need to complete the case statement
+    if [ ${in_case_statement} -eq 1 ]; then
+      echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out' >> job.body.tmp
+      echo '  exit $RETVAL' >> job.body.tmp
+      echo ";;" >> job.body.tmp
+      in_case_statement=0
+    fi
 
     # create jobscript header for archival
     if [ $DO_ARCHIVAL -ne 0 ]; then

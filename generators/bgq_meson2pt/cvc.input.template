@@ -59,6 +59,42 @@ BeginQuarkLine
 EndQuarkLine
 
 BeginQuarkLine
+  name = sm
+  kappa = 0.13729
+  masses = 0.0238; 0.0245; 0.0252; 0.0259
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = strange
+  type = down
+  source_type = timeslice
+  first_mass_index=0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLine
+  name = cm
+  kappa = 0.13729
+  masses = 0.2822; 0.2940; 0.3058; 0.3176
+  splitted_propagator = yes
+  in_mms_file = no
+  n_c = 1
+  n_s = 4
+  no_smearing_combinations = 4
+  source_timeslice = _TS
+  propagator_basename = source
+  propagator_dirname = charm
+  type = down
+  source_type = timeslice
+  first_mass_index=0
+  delocalization_type = fuzzing
+EndQuarkLine
+
+BeginQuarkLine
   name = u
   kappa = 0.13729
   masses = 0.0009
@@ -119,9 +155,78 @@ BeginQuarkLinePair
 EndQuarkLinePair
 
 BeginQuarkLinePair
+  name = lln
+  quark_lines = d, u
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
   name = llc
   quark_lines = u, u
   observables = charged_conn_meson_20
 EndQuarkLinePair
 
+BeginQuarkLinePair
+  name = lcn
+  quark_lines = u, cm
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
 
+BeginQuarkLinePair
+  name = lcn
+  quark_lines = d, cp
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = lsn
+  quark_lines = u, sm
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = lsn
+  quark_lines = d, sp
+  observables = neutral_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ssc
+  quark_lines = sp, sp
+  observables = charged_conn_meson_20
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ssn
+  quark_lines = sp, sm
+  observables = neutral_conn_meson_20
+  mass_diagonal = yes
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ssn
+  quark_lines = sm, sp
+  observables = neutral_conn_meson_20
+  mass_diagonal = yes
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ccc
+  quark_lines = cp, cp
+  observables = charged_conn_meson_20
+  mass_diagonal = yes
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ccn
+  quark_lines = cp, cm
+  observables = neutral_conn_meson_20
+  mass_diagonal = yes
+EndQuarkLinePair
+
+BeginQuarkLinePair
+  name = ccn
+  quark_lines = cm, cp
+  observables = neutral_conn_meson_20
+  mass_diagonal = yes
+EndQuarkLinePair

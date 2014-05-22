@@ -1,3 +1,5 @@
+
+#### sub step body begin  ####
   echo "Mapping is ${MP}"
   
   export NPN=1
@@ -31,9 +33,5 @@
   runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
   RETVAL=$?  
   date
-
-  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
-  
-  exit $RETVAL
-;;
+#### sub step body end ####
 
