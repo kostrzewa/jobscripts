@@ -2,11 +2,11 @@
 # contractions using tmLQCD and CVC (using the libcvcpp library)
 # For customization details, see the README file.
 
-START=780
-END=798
+START=1078
+END=1078
 STEP=2
 
-NAME="iwa_b2.10-L48T96-csw1.57551-k0.137290-mu0.0009"
+NAME="iwa_b2.1-L24T48-csw1.57551-k0.1373-mul0.006_xeonphi"
 TASKNAME="meson_2pt"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
@@ -17,7 +17,7 @@ scratch=${WORK}
 RUNDIR=${TASKNAME}/nf2/${NAME}
 WDIR=${scratch}/${RUNDIR}
 GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
-SOURCEDIR=${scratch}/sources/conn_meson/fuzzed/nf2/${NAME}
+SOURCEDIR=${WDIR}/sources
 JOBDIR=${WDIR}/jobscripts
 IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
@@ -25,8 +25,15 @@ ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 
 DEBUG=1
 DO_ARCHIVAL=1
+DO_INVERSION=0
+DO_CONTRACTION=0
 
-CONTRACTIONS_BG_SIZE=64
+if [[ $DO_INVERSION -eq 0 && $DO_ARCHIVAL -eq 0 && $DO_CONTRACTION ]]; then
+  echo "You need to select at least one mode of operation from the DO_* variables in make_combo_scripts.sh"
+  exit 1
+fi
+
+CONTRACTIONS_BG_SIZE=32
 CONTRACTIONS_WC_LIMIT="00:30:00"
 
 ARCHIVAL_WC_LIMIT="00:45:00"
@@ -37,11 +44,20 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-CONTRACTION_ONLY=0
-if [ ! -z "$2" ]; then
-  echo "Creating jobs for contraction only!"
-  CONTRACTION_ONLY=1
-  TASKNAME="contraction"
+OPECHO="Preparing job scripts and input files for"
+ 
+# indicate in task name which steps are to be taken
+if [ $DO_INVERSION -eq 1 ]; then
+  TASKNAME="${TASKNAME}_inv"
+  OPECHO="${OPECHO} inversions"
+fi
+if [ $DO_ARCHIVAL -eq 1 ]; then
+  TASKNAME="${TASKNAME}_ar"
+  OPECHO="${OPECHO} archival"
+fi
+if [ $DO_CONTRACTION -eq 1 ]; then
+  TASKNAME="${TASKNAME}_con"
+  OPECHO="${OPECHO} contractions"
 fi
 
 for name in inputs outputs jobscripts; do
@@ -50,9 +66,11 @@ for name in inputs outputs jobscripts; do
   fi
 done
 
+echo $OPECHO
+
 # loop over configurations
 for cnum in `seq ${START} ${STEP} ${END}`; do
-  echo "Preparing scripts and input files for configuration ${cnum}"
+  echo "Configuration: ${cnum}"
 
   c4num=`printf "%04d" ${cnum}`
   cname="conf.${c4num}"
@@ -63,10 +81,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   fi
 
   # create job command file ("jobscript")
-  jcf=${JOBDIR}/meson_2pt_${c4num}.job
-  if [ $CONTRACTION_ONLY -eq 1 ]; then
-    jcf=${JOBDIR}/contraction_${c4num}.job
-  fi
+  jcf=${JOBDIR}/${TASKNAME}_${c4num}.job
   cp common.header.template ${jcf}
   sed -i "s/job_name=/job_name=${TASKNAME}_${NAME}_${c4num}/g" ${jcf}
 
@@ -76,8 +91,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
   source_ts=`ls ${SOURCEDIR}/source.${c4num}.??.00 | awk -F '/' '{print $NF}' | cut -d '.' -f 3`
   echo "Source Timeslice: ${source_ts}"
 
-  # 
-  if [ $CONTRACTION_ONLY -ne 1 ]; then
+  if [ $DO_INVERSION -eq 1 ]; then
     # read the inversions to be done one by one
     # keep in mind that there will be changes when CGMMS for nf2clover is ready!
     contraction_dependencies="("
@@ -295,79 +309,84 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       echo ";;" >> job.body.tmp
       in_case_statement=0
     fi
+  fi # DO_INVERSION
 
+  if [ $DO_ARCHIVAL -eq 1 ]; then
     # create jobscript header for archival
-    if [ $DO_ARCHIVAL -ne 0 ]; then
-      if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating header for archival"
-      fi
-      cp archival.header.template archival.header.template.tmp
-      sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
-      sed -i "s/dependency=/dependency=\ ${archival_dependencies}/g" archival.header.template.tmp
-      cat archival.header.template.tmp >> ${jcf}
-      rm archival.header.template.tmp
+    if [ ${DEBUG} -ne 0 ]; then
+      echo "Creating header for archival"
+    fi
+    cp archival.header.template archival.header.template.tmp
+    sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
+    # in case there were no inversions the list of dependencies will be empty, this is fine
+    # because LoadLeveler knows how to deal with that
+    sed -i "s/dependency=/dependency=\ ${archival_dependencies}/g" archival.header.template.tmp
+    cat archival.header.template.tmp >> ${jcf}
+    rm archival.header.template.tmp
 
-      if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating job body for archival"
-      fi
+    if [ ${DEBUG} -ne 0 ]; then
+      echo "Creating job body for archival"
+    fi
 
-      # archival job body
-      cp archival.job.template archival.job.template.tmp
+    # archival job body
+    cp archival.job.template archival.job.template.tmp
 
-      # using @ as a separator because the filenames contain slashes and would otherwise confuse sed
-      sed -i "s@ODIR=@ODIR=${ODIR}@g" archival.job.template.tmp
-      sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
-      sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
-      sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
+    # using @ as a separator because the filenames contain slashes and would otherwise confuse sed
+    sed -i "s@ODIR=@ODIR=${ODIR}@g" archival.job.template.tmp
+    sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
+    sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
+    sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
 
-      cat archival.job.template.tmp >> job.body.tmp
-      rm archival.job.template.tmp
-    fi # DO_ARCHIVAL
+    cat archival.job.template.tmp >> job.body.tmp
+    rm archival.job.template.tmp
+  fi # DO_ARCHIVAL
 
-  fi # CONTRACTION_ONLY
-
-  # create jobscript header for contraction
-  if [ ${DEBUG} -ne 0 ]; then
-    echo "Creating header for contraction"
-  fi
-  cp contraction.header.template contraction.header.template.tmp
-  sed -i "s/bg_size=/bg_size=${CONTRACTIONS_BG_SIZE}/g" contraction.header.template.tmp
-  sed -i "s/wall_clock_limit=/wall_clock_limit=${CONTRACTIONS_WC_LIMIT}/g" contraction.header.template.tmp
-  # if CONTRACTION_ONLY == 1; then contraction_dependencies is empty, but this is not a problem!
-  sed -i "s/dependency=/dependency=\ ${contraction_dependencies}/g" contraction.header.template.tmp
-  cat contraction.header.template.tmp >> ${jcf}
-  rm contraction.header.template.tmp
+  if [ $DO_CONTRACTION -eq 1 ]; then
+    # create jobscript header for contraction
+    if [ ${DEBUG} -ne 0 ]; then
+      echo "Creating header for contraction"
+    fi
+    cp contraction.header.template contraction.header.template.tmp
+    sed -i "s/bg_size=/bg_size=${CONTRACTIONS_BG_SIZE}/g" contraction.header.template.tmp
+    sed -i "s/wall_clock_limit=/wall_clock_limit=${CONTRACTIONS_WC_LIMIT}/g" contraction.header.template.tmp
+    # if there were no inversions then $contraction_dependencies is empty, but this is not a problem!
+    # LoadLeveler still knows how to deal with the job 
+    sed -i "s/dependency=/dependency=\ ${contraction_dependencies}/g" contraction.header.template.tmp
+    cat contraction.header.template.tmp >> ${jcf}
+    rm contraction.header.template.tmp
   
-  ## contraction job template and input file
-  # contraction input file
-  if [ ${DEBUG} -ne 0 ]; then
-    echo "Creating input file for contraction"
-  fi  
-  cvc_ifile=${IDIR}/cvc.${c4num}.input
-  cp cvc.input.template ${cvc_ifile}
+    ## contraction job template and input file
+    # contraction input file
+    if [ ${DEBUG} -ne 0 ]; then
+      echo "Creating input file for contraction"
+    fi  
+    cvc_ifile=${IDIR}/cvc.${c4num}.input
+    cp cvc.input.template ${cvc_ifile}
 
-  sed -i "s/_NC/${cnum}/g" ${cvc_ifile}
-  sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
-  # contraction job body
-  if [ ${DEBUG} -ne 0 ]; then
-    echo "Creating job body for contraction"
-  fi
-  cp contraction.job.template contraction.job.template.tmp
+    sed -i "s/_NC/${cnum}/g" ${cvc_ifile}
+    sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
+    
+    # contraction job body
+    if [ ${DEBUG} -ne 0 ]; then
+      echo "Creating job body for contraction"
+    fi
+    cp contraction.job.template contraction.job.template.tmp
 
-  sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
-  sed -i "s@ODIR=@ODIR=${ODIR}@g" contraction.job.template.tmp
-  sed -i "s@WDIR=@WDIR=${WDIR}@g" contraction.job.template.tmp
-  sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" contraction.job.template.tmp
+    sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
+    sed -i "s@ODIR=@ODIR=${ODIR}@g" contraction.job.template.tmp
+    sed -i "s@WDIR=@WDIR=${WDIR}@g" contraction.job.template.tmp
+    sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" contraction.job.template.tmp
 
-  cat contraction.job.template.tmp >> job.body.tmp
-  rm contraction.job.template.tmp
+    cat contraction.job.template.tmp >> job.body.tmp
+    rm contraction.job.template.tmp
+  
+  fi # DO_CONTRACTION
 
   # attach common portion to job command file, including case statement
   cat common.job.template >> ${jcf}
   # attach concatenation of job bodies
   cat job.body.tmp >> ${jcf}
   rm job.body.tmp
-
   echo >> ${jcf}
   echo esac >> ${jcf}
 
