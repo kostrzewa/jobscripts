@@ -28,7 +28,7 @@ DO_ARCHIVAL=1
 DO_INVERSION=0
 DO_CONTRACTION=0
 
-if [[ $DO_INVERSION -eq 0 && $DO_ARCHIVAL -eq 0 && $DO_CONTRACTION ]]; then
+if [[ $DO_INVERSION -eq 0 && $DO_ARCHIVAL -eq 0 && $DO_CONTRACTION -eq 0 ]]; then
   echo "You need to select at least one mode of operation from the DO_* variables in make_combo_scripts.sh"
   exit 1
 fi
