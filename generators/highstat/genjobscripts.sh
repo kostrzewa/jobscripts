@@ -23,7 +23,7 @@ REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=35000
+NMEAS=50000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -66,7 +66,7 @@ JFILE=""
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
 # the maximum job length that should be aimed for, taking this below 24 hours
 # is good for throughput
-MAXJOBLENGTH=11
+MAXJOBLENGTH=44
 
 # read names of columns in reference table and prepend a "ref" to each
 TREFSAMPLES=`head -n1 ${REFTFILE}`
@@ -210,7 +210,7 @@ OMPNUMTHREADS ${6}"
       cp ${TEMP} ${INPUT}
     ;;
     4D_MPI*_128)
-      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+      echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
     4D_MPI*_64)
