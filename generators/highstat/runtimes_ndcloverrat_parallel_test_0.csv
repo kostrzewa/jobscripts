@@ -1,0 +1,16 @@
+	2f_L8T8_ndcloverrat	8f_L8T8_ndcloverrat
+openmp	8	11
+serial	36 42
+1D_hybrid_hs_2	6	9
+2D_hybrid_hs_4	3.5	5
+2D_MPI_hs_16	3	6
+3D_MPI_hs_8	6	12
+3D_MPI_hs_16	3 6
+3D_MPI_hs_32	2	4
+3D_MPI_hs_64	2	4
+4D_hybrid_hs_16	4	8
+4D_MPI_hs_16	3	7
+4D_MPI_hs_32	2	6
+4D_MPI_hs_64	2	4
+4D_MPI_hs_128	2	4
+4D_MPI_hs_256	4	8

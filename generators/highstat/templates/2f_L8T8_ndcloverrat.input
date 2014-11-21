@@ -1,0 +1,89 @@
+# these settings will be modified by the jobscript generator
+measurements=N
+startcondition=S
+initialstorecounter=I
+seed=S
+ranluxdlevel=L
+reproducerandomnumbers=R
+
+# these settings are fixed
+L=8
+T=8
+kappa = 0.170
+csw=1.0
+2KappaMu = 0.01
+2KappaEpsBar = 0.0935
+2Kappamubar = 0.1105
+NSave = 30
+writecheckpoints=yes
+ThetaT = 1
+UseEvenOdd = yes
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+gaugeconfiginputfile=conf.save
+DebugLevel = 1
+saveranluxstate=yes
+
+# not sure if measuring this makes a lot of sense...
+BeginOperator CLOVER
+  2kappaMu = 0.01
+  kappa = 0.170
+  csw=1.0
+  Solver = CG
+  SolverPrecision = 1e-14
+  MaxSolverIterations = 1000
+EndOperator
+
+BeginMonomial GAUGE
+  Type = tlsym
+  beta = 3.30
+  Timescale = 0
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 1
+  kappa = 0.170
+  CSW = 1.0
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-12
+  StildeMin = 0.0035
+  StildeMax = 3.5
+  Name = ndrat
+  DegreeOfRational = 9
+  Cmin = 0
+  Cmax = 8
+# the eigenvalues are a useful check but there seems to be a random 
+# LAPACK problem, let's skip them for now
+  ComputeEVFreq = 0
+  2KappaEpsBar = 0.0935
+  2Kappamubar = 0.1105
+  AddTrLog = yes
+EndMonomial
+
+# correction monomial for approximation error
+BeginMonomial NDCLOVERRATCOR
+  Timescale = 1
+  kappa = 0.170
+  CSW = 1.0
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-12
+  StildeMin = 0.0035
+  StildeMax = 3.5
+  Name = ndratcor
+  DegreeOfRational = 9
+  ComputeEVFreq = 0
+  2KappaEpsBar = 0.0935
+  2Kappamubar = 0.1105
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  IntegrationSteps0 = 2
+  IntegrationSteps1 = 10
+  Tau = 1
+  Lambda0 = 0.19
+  Lambda1 = 0.20
+  NumberOfTimescales = 2
+EndIntegrator
+

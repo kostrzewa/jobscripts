@@ -2,21 +2,25 @@
 
 DEBUG=1
 
+# seed the shell RNG from the PID
+RANDOM=$$
+
 # subdirectory in output and jobscript directory
-SD="test_NDclover"
-TEMPLATE="jobtemplate.sh"
-EDIR="${HOME}/tmLQCD/execs/hmc_tm_pax_icc_openmpi_lemon"
+SD="ndcloverrat_parallel_test_timing"
+TEMPLATE="jobtemplate_ndcloverrat.sh"
+EDIR="${HOME}/execs/pax/tmLQCD/hmc_tm_icc_openmpi_lemon"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=50000
+NMEAS=1000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
 SEED=123456
 # ranlux luxury level 1 or 2
 RLXDLEVEL=2
-# reproduce random numbers flag
+# reproduce random numbers flag should be "yes" because we want the runs
+# to be maximally correlated, even if it is quite a bit slower
 REPRO="yes"
 
 # whether to compute correlators or not (increases runtime by ~10%)
@@ -26,7 +30,7 @@ CORRELATORS=1
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_test_NDclover.csv"
+REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
 
 # the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
@@ -38,33 +42,25 @@ REFTFILE="runtimes_test_NDclover.csv"
 #          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 
-SAMPLES="test_NDclover_ndcloverrat test_NDclover_ndclover test_NDclover_problematic_ndclover test_NDclover_problematic_ndcloverrat"
-#EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64"
+SAMPLES="2f_L8T8_ndcloverrat 8f_L8T8_ndcloverrat"
 
-#EXECS="openmp 1D_MPI_hs_16 2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_24 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-EXECS="openmp 4D_MPI_hs_128"
+EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-ODIR="/lustre/fs17/group/etmc/kostrzew/output/${SD}"
-IDIR="${HOME}/tmLQCD/inputfiles/highstat/${SD}"
-ITOPDIR="${HOME}/tmLQCD/inputfiles"
+BASEDIR="/lustre/fs17/group/etmc/kostrzew/highstat/${SD}"
+
+ODIR="${BASEDIR}/output"
+IDIR="${BASEDIR}/inputfiles"
+ITOPDIR="${BASEDIR}/inputfiles"
 TIDIR="templates"
-JDIR="${HOME}/jobscripts/${SD}"
+JDIR="${BASEDIR}/jobscripts"
 JFILE=""
-
-# PAX=1 -> use the pax cluster to run!
-# all hybrid and openmp jobs will be sent to the "pax-2ppn" queue
-# note that serial jobs will have to be submitted separately
-# in the default farm
-# mpi jobs always run on pax
-PAX=1
 
 # job lengths are either 1, 2, 5, ... or 47 hours
 JOBLENGTHPARTITIONS="1 2 5 8 11 14 17 20 23 26 29 32 35 38 41 44 47"
-# the maximum job length that should be aimed for
+# the maximum job length that should be aimed for, taking this below 24 hours
+# is good for throughput
 MAXJOBLENGTH=11
-
-TEMPLATE="jobtemplate.sh"
 
 # read names of columns in reference table and prepend a "ref" to each
 TREFSAMPLES=`head -n1 ${REFTFILE}`
@@ -93,11 +89,18 @@ fi
 # $9 AN (addon, such as "3D_MPI_hs_32")
 # $10 SD (subdir in output directory, e.g. highstat3)
 # $11 ST (state, "c" or "s" for continue or start)
-# $12 NP (no parallel environment, 0 or 1)
+# $12 NP (no parallel environment, 0 for parallel jobs or 1 for serial jobs)
 # $13 NC (number of continue script)
 # $14 EX (executable)
 create_script ()
 {
+  if [ ${DEBUG} -eq 1 ]; then
+    echo -e "create_script called with \n template file ${1} \n \
+destination ${2} \n H_RT ${3} \n S_RT ${4} \n QUEUE ${5} \n \
+NCORES ${6} \n NP ${7} \n BN ${8} \n AN ${9} \n SD ${10} \n \
+ST ${11} \n NP ${12} \n NC ${13} \n EX ${14}"
+  fi
+
   if [[ ! -d ${JDIR}/${9} ]]; then
     mkdir -p ${JDIR}/${9}
   fi
@@ -156,15 +159,26 @@ create_script ()
 # create input file from a given reference input
 # $1 state
 # $2 number of file if state = c
-# $3 sample name
+# $3 physical situation (sample) name
 # $4 executable type (openmp, mpi, hybrid etc..)
 # $5 how many measurements to do in this run
 # $6 ompnumthreads for openmp
 create_input ()
-{
-  TINPUT="${TIDIR}/sample-${3}.input"
+{ 
+  if [ ${DEBUG} -eq 1 ]; then
+    echo -e "create_input called with \n \
+STATE ${1} \n \
+NC ${2} \n \
+NAME ${3} \n \
+EX ${4} \n \
+NMEAS ${5} \n \
+OMPNUMTHREADS ${6}"
+  fi
+  TINPUT="${TIDIR}/${3}.input"
   TEMP="/tmp/Xo321sdTEMP"
 
+  # input files for continuation jobs are prefixed with "cN" where N is the nubmer of the job
+  # while for starting jobs the prefix will be s 
   if [[ ${1} = "c" ]]; then
     export PREFIX=${1}${2}
   else
@@ -183,108 +197,61 @@ create_input ()
 
   cp ${TINPUT} ${INPUT} 
 
-  # special 32x4^3 modes
-  if [[ ${3} = "mpihmc1" || ${3} = "mpihmc2" ]]; then
-    case ${4} in
-      4D_MPI*_64)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      4D_MPI*_32)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_8)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_16)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_32)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_64)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      2D_MPI*_16)
-        echo -e "NrXProcs=2\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      1D_MPI*_16)
-        echo -e "NrXProcs=1\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-    esac
-  fi
-
-  # special 8^4 modes
-  if [[ ${3} = mpihmc[3,4,7,8] || ${3} = "mpihmc211" || ${3} == "test_NDclover"* ]]; then
-#|| ${3} = "mpihmc4" ]]; then
-    case ${4} in
-      4D_MPI*_256)
-        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      4D_MPI*_128)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      4D_MPI*_64)
-        echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      4D_MPI*_32)
-        echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;; 
-      3D_MPI*_16)
-        echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_32)
-        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      3D_MPI*_64)        
-        echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-      2D_MPI*_16)
-        echo -e "NrXProcs=4\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-    esac
-  fi
-
-  # special 12x6^3 modes
-  if [[ ${3} = "mpihmc5" || ${3} = "mpihmc6" ]]; then
-    case ${4} in
-      3D_MPI*)
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT}
-      ;;
-    esac
-  fi
- 
-  # common modes
+  # define the various parallelizations in the input file
   case ${4} in
+    4D_MPI*_256)
+      echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    4D_MPI*_128)
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    4D_MPI*_64)
+      echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    4D_MPI*_32)
+      echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;; 
+    3D_MPI*_16)
+      echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    3D_MPI*_32)
+      echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    3D_MPI*_64)        
+      echo -e "NrXProcs=4\nNrYProcs=4\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
+    2D_MPI*_16)
+      echo -e "NrXProcs=4\nNrYProcs=1\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT}
+    ;;
     4D_MPI*_16)
-      if [[ ! ${3} = mpihmc[5,6] ]]; then
-        echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
-        cp ${TEMP} ${INPUT} 
-      fi
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT} 
     ;;
     3D_MPI*_8)
       echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
-    *hybrid*)
-    # prepend hybrid stuff
+    1D_hybrid*_2)
+    # prepend hybrid threads
       echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT} 
+    ;;
+    2D_hybrid*_4)
+    # prepend hybrid threads and 2D parallelization
+      echo -e "NrXProcs=2\nNrYProcs=1\nNrZProcs=1\nompnumthreads=${6}"|cat - ${INPUT} > ${TEMP}
+      cp ${TEMP} ${INPUT} 
+    ;;
+    4D_hybrid*_16)
+    # prepend hybrid threads and 4D parallelization
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=2\nompnumthreads=${6}"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT} 
     ;;
     *openmp*)
@@ -297,23 +264,30 @@ create_input ()
     ;;
   esac
 
-  if [[ ${1} = "s" ]]; then
+  if [[ "${1}" = "s" ]]; then
+    # we currently only support hot starts
     case ${2} in
       *)
         sed -i 's/startcondition=S/startcondition=hot/g' ${INPUT}
       ;;
     esac
     sed -i "s/initialstorecounter=I/initialstorecounter=0/g" ${INPUT}
+    sed -i "s/seed=S/seed=${SEED}/g" ${INPUT}
   else
-    # when we continue we read in InitialStoreCounter
-    # and set the seed to the same value it was set for the beginning of the run
-    # InitialStoreCounter makes sure that the seed that is actually used will
-    # not be the one set here but one modified by nstore
     sed -i "s/startcondition=S/startcondition=continue/g" ${INPUT}
     sed -i "s/initialstorecounter=I/initialstorecounter=readin/g" ${INPUT}
+    # these runs are set up such that the state of the RNG of process 0
+    # is stored at the end of each trajectory
+    # if we are using the reproducible random numbers mode
+    # we can initialize the RNG from this state and have reproducibility across
+    # multiple executions 
+    if [[ "${REPRO}" == "yes" ]]; then
+      sed -i "s/seed=S/seed=statefile/g" ${INPUT}
+    else 
+      sed -i "s/seed=S/seed=${SEED}/g" ${INPUT}
+    fi
   fi
 
-  sed -i "s/seed=S/seed=${SEED}/g" ${INPUT}
   sed -i "s/ranluxdlevel=L/ranluxdlevel=${RLXDLEVEL}/g" ${INPUT}
   sed -i "s/reproducerandomnumbers=R/reproducerandomnumbers=${REPRO}/g" ${INPUT}
 
@@ -328,6 +302,9 @@ create_input ()
 # $1 total expected runtime
 calc_joblimit ()
 {
+  if [ ${DEBUG} -eq 1 ]; then 
+    echo "calc_joblimit called with JOBLENGTH ${1}"
+  fi
   # determine correct job length
   export JOBLIMIT=0
   for t in ${JOBLENGTHPARTITIONS}; do
@@ -355,6 +332,13 @@ calc_joblimit ()
 # $3 total number of measurements to be done (NMEAS)
 calc_nmeas_part ()
 {
+  if [ ${DEBUG} -eq 1 ]; then
+
+    echo -e "calc_nmeas_part called with \n \
+TOTALTIME ${1} \n \
+JOBLIMIT ${2} \n \
+NMEAS ${3}"
+  fi
   export NMEAS_PART=`echo "scale=6;a=${1};b=${2};r=(b/a)*${3};r"|bc`
   export NMEAS_PART=`echo "(${NMEAS_PART}+0.5)/1"|bc`
   if [[ ${NMEAS_PART} -eq 0 ]]; then
@@ -370,6 +354,9 @@ calc_nmeas_part ()
 # job time such as "15" (in that case H_RT=14:59:00)
 convert_time ()
 {
+  if [ ${DEBUG} -eq 1 ]; then
+    echo "convert_time called with T ${1}"
+  fi
   let T=${1}
 
   # if the number is a single digit, prepend a zero 
@@ -381,6 +368,62 @@ convert_time ()
   export S_RT=${T}:55:00 
 }
 
+# we need to abide by the local rules regarding the scheduling of jobs
+# on different partitions of the pax cluster
+# jobs between 8 and 32 processes go on pax1-4
+# jobs with 64 or 128 processes go on pax5-7
+# jobs with 128 processes go on pax9
+# jobs with 256 processes go on pax9 only
+# we need to choose randomly between the different possibilities for
+# each job script that we create to minimize competition
+select_pax_blade()
+{
+  if [ ${DEBUG} -eq 1 ]; then
+    echo "select_pax_blade called with TYPE ${1}"
+  fi
+  case ${1} in
+    *openmp*)
+      n=$(( (RANDOM % 4) + 1 ))
+      export QUEUE="pax${n}"
+    ;;
+    *hybrid*_[2,4])
+      n=$(( (RANDOM % 4) + 1 ))
+      export QUEUE="pax${n}"
+    ;;
+    *MPI*_8)
+      n=$(( (RANDOM % 4) + 1 ))
+      export QUEUE="pax${n}"
+    ;;
+    *MPI*_16)
+      n=$(( (RANDOM % 4) + 1 ))
+      export QUEUE="pax${n}"
+    ;;
+    *MPI*_32)
+      n=$(( (RANDOM % 4) + 1 ))
+      export QUEUE="pax${n}"
+    ;;
+    *MPI*_64)
+      n=$(( (RANDOM % 3) + 5 ))
+      export QUEUE="pax${n}"
+    ;;
+    *hybrid*_16)
+      n=$(( (RANDOM % 3) + 5 ))
+      export QUEUE="pax${n}"
+    ;;
+    *MPI*_128)
+      n=$(( RANDOM % 2 )) 
+      if [ ${n} -eq 1 ]; then
+        export QUEUE="pax9"
+      else
+        n=$(( (RANDOM % 3) + 5 ))
+        export QUEUE="pax${n}"            
+      fi
+    ;;
+    *MPI*_256)
+      export QUEUE="pax9"
+    ;;
+  esac
+}
 
 ##############################
 # main part of the generator # 
@@ -395,74 +438,52 @@ for e in ${EXECS}; do
   export NOPE=0 
   export NCORES=8
   export OMPNUMTHREADS=1
-  export QUEUE=""
+  export QUEUE="NONE"
   export NP=1
 
-  if [[ ${PAX} -eq 1 ]]; then
-    export QUEUE="pax"
-  fi
-
   # set some job parameters for which the executable type is important
+
   case ${e} in
     *MPI*_8)
-      export QUEUE="pax"
       export NP=8
       export NCORES=8
     ;;
     *MPI*_16)
-      export QUEUE="pax"
       export NP=16
       export NCORES=16
     ;;
-    *MPI*_24)
-      export QUEUE="pax"
-      export NP=24
-      export NCORES=24
-    ;;
     *MPI*_32)
-      export QUEUE="pax"
       export NP=32
       export NCORES=32
     ;;
     *MPI*_64)
-      export QUEUE="pax"
       export NP=64
       export NCORES=64
     ;;
     *MPI*_128)
-      export QUEUE="pax"
       export NP=128
       export NCORES=128
     ;;
     *MPI*_256)
-      export QUEUE="pax9"
       export NP=256
       export NCORES=256
     ;;
     *hybrid*_4)
-      if [[ ! ${PAX} -eq 1 ]]; then
-        export QUEUE="multicore-mpi"
-      else
-        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
-      fi
       export NP=4
       export OMPNUMTHREADS=4
+      export NCORES=16
     ;;
     *hybrid*_2)
-      if [[ ! ${PAX} -eq 1 ]]; then
-        export QUEUE="multicore-mpi"
-      else
-        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
-      fi
       export NP=2
       export OMPNUMTHREADS=4
+      export NCORES=8
+    ;;
+    *hybrid*_16)
+      export NP=16
+      export OMPNUMTHREADS=4
+      export NCORES=64
     ;;
     *openmp*)
-      if [[ ! ${PAX} -eq 1 ]]; then
-        export QUEUE="multicore"
-      else
-        export QUEUE="pax" # use the new pax-2ppn queue for hybrid and openmp
-      fi
       export OMPNUMTHREADS=8
     ;;
     *serial*)
@@ -475,129 +496,6 @@ for e in ${EXECS}; do
 
     export BN=${s}
 
-    case ${s} in
-      # no clover term implemented in 5.1.6 so we skip the generation of
-      # those jobscripts
-      *clover*)
-        case ${e} in
-          *5.1.6*)
-            continue 
-          ;;
-        esac
-      ;;
-      mpihmc[1,2])
-        case ${e} in
-          4D_MPI*_128)
-            continue
-          ;;
-          4D_MPI*_256)
-            continue
-          ;;
-          3D_MPI*_24)
-            continue
-          ;;
-          serial*)
-            continue
-          ;;
-        esac
-      ;;
-      mpihmc[3,4,7,8])
-        case ${e} in
-          1D_MPI*_16)
-            continue
-          ;;
-          3D_MPI*_24)
-            continue
-          ;;
-          serial*)
-            continue
-          ;;
-        esac
-      ;;
-      mpihmc211)
-        case ${e} in
-          1D_MPI*_16)
-            continue
-          ;;
-          3D_MPI*_24)
-            continue
-          ;;
-          serial*)
-            continue
-          ;;
-        esac
-      ;;
-      mpihmc[5,6])
-        case ${e} in
-          4D_MPI*_256)
-            continue
-          ;;
-          4D_MPI*_128)
-            continue
-          ;;
-          4D_MPI*_64)
-            continue
-          ;;
-          4D_MPI*_32)
-            continue
-          ;;
-          4D_MPI*_16)
-            continue
-          ;;
-          3D_MPI*_32)
-            continue
-          ;;
-          3D_MPI*_64)
-            continue
-          ;;
-          2D_MPI*_16)
-            continue
-          ;;
-          1D_MPI*_16)
-            continue
-          ;;
-          serial*)
-            continue
-          ;;
-        esac
-      ;;
-      # skip special MPI modes for standard 4^4 set
-      hmc*)
-        case ${e} in
-          4D_MPI*_256)
-            continue
-          ;;
-          4D_MPI*_128)
-            continue
-          ;;
-          4D_MPI*_64)
-            continue
-          ;;
-          4D_MPI*_32)
-            continue
-          ;;
-          3D_MPI*_16)
-            continue
-          ;;
-          3D_MPI*_24)
-            continue
-          ;;
-          3D_MPI*_32)
-            continue
-          ;;
-          3D_MPI*_64)
-            continue
-          ;;
-          2D_MPI*_16)
-            continue
-          ;;
-          1D_MPI*_16)
-            continue
-          ;;
-        esac
-      ;;
-    esac
- 
     echo
     echo "Making a script for" ${e} ${s}
    
@@ -635,13 +533,14 @@ for e in ${EXECS}; do
     done < ${REFTFILE}
 
     if [[ $foundreftime -eq 0 ]]; then
-      echo "##### No reference time found for ${e} run of ${s}! Skipping! #####"
-      continue
+      echo "##### No reference time found for ${e} run of ${s}! Assuming default of 2 hours!"
+      TIME=2
     fi
 
     # the time measurements in the table ${REFTFILE} refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
     # when correlators are being measured we need about 10% more time
+    # the factor of 1.5 (or 1.5+0.1=1.6) is to account for performance flucutations
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
     if [[ ${CORRELATORS} -eq 1 ]]; then 
       TOTALTIME=`echo "scale=6;1.6*${NTIMES}*${TIME}"| bc`
@@ -696,6 +595,8 @@ for e in ${EXECS}; do
           else
             calc_nmeas_part ${TOTALTIME} ${TIME} ${NMEAS}
           fi
+          # choose the correct queue with random distribution across equivalent queues
+          select_pax_blade ${e}
           convert_time ${JOBLIMIT}
           create_input ${ST} ${j} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
           create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i} ${EF}
@@ -713,7 +614,8 @@ for e in ${EXECS}; do
         else
           export NMEAS_PART=${NMEAS}
         fi
-        
+        # choose the correct queue with random distribution across equivalent queues   
+        select_pax_blade ${e}
         convert_time ${JOBLIMIT} # writes H_RT and S_RT
         create_input  ${ST} 0 ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS}
         create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0 ${EF}
