@@ -1,5 +1,5 @@
 #!/bin/bash
-# qsubmit_zeuthen is a batch submitter for the zeuthen batch system
+# qsubmit is a batch submitter for the zeuthen batch system
 # provided with a directory which contains one level of 
 # subdirectories with jobscripts, it will
 # descend into the subdirectories and submit jobscripts
@@ -16,7 +16,7 @@
 
 if [[ -z ${1} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
   echo "USAGE:"
-  echo "./qsubmit_zeuthen.sh DIRECTORY"
+  echo "./qsubmitn.sh JOBDIR"
   exit
 fi
 

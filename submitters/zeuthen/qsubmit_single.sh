@@ -1,5 +1,5 @@
 #!/bin/bash
-# qsubmit_zeuthen is a batch submitter for the zeuthen batch system
+# qsubmit is a batch submitter for the zeuthen batch system
 # provided with a directory which contains one level of 
 # subdirectories with jobscripts, it will
 # descend into the subdirectories and submit jobscripts
@@ -14,6 +14,8 @@
 
 # NOTE: this is currently broken for # > 99
 
+# this is the special version for submitting a single addon of a single sample
+
 JOBDIR=${1}
 NAME=${2}
 SAMPLE=${3}
@@ -21,7 +23,7 @@ ADDON=${4}
 
 if [[ -z ${1} || -z ${2} || -z ${3} || -z ${4} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
   echo "USAGE:"
-  echo "./qsubmit_single_zeuthen.sh JOBDIR NAME SAMPLE ADDON"
+  echo "./qsubmit_single.sh JOBDIR NAME SAMPLE ADDON"
   exit
 fi
 
