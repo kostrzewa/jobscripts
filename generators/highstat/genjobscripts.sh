@@ -1,18 +1,29 @@
 #! /bin/sh
 
-DEBUG=1
-
 # seed the shell RNG from the PID
 RANDOM=$$
 
+##############################################################################################
+################################ START OF CONFIGURATION ######################################
+##############################################################################################
+
+DEBUG=1
+
 # subdirectory in output and jobscript directory
-SD="ndcloverrat_parallel_test_timing"
+SD="ndcloverrat_parallel_test"
 TEMPLATE="jobtemplate_ndcloverrat.sh"
-EDIR="${HOME}/execs/pax/tmLQCD/hmc_tm_icc_openmpi_lemon"
+EDIR="/afs/ifh.de/user/k/kostrzew/execs/pax/tmLQCD/hmc_tm_icc_openmpi_lemon"
+BASEDIR="/lustre/fs17/group/etmc/${USER}/highstat/${SD}"
+
+# table with reference time measurements for different runs of the various samples
+# in columns and the various executables in rows
+# note that the table colums must be ordered as the SAMPLES variable
+# the rows can be in any order
+REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=1000
+NMEAS=35000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -26,12 +37,6 @@ REPRO="yes"
 # whether to compute correlators or not (increases runtime by ~10%)
 CORRELATORS=1
 
-# table with reference time measurements for different runs of the various samples
-# in columns and the various executables in rows
-# note that the table colums must be ordered as the SAMPLES variable
-# the rows can be in any order
-REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
-
 # the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
 # should be written IN FRONT of this shared part
@@ -44,10 +49,11 @@ REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
 
 SAMPLES="2f_L8T8_ndcloverrat 8f_L8T8_ndcloverrat"
 
-
 EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-BASEDIR="/lustre/fs17/group/etmc/kostrzew/highstat/${SD}"
+##############################################################################################
+################################# END OF CONFIGURATION #######################################
+##############################################################################################
 
 ODIR="${BASEDIR}/output"
 IDIR="${BASEDIR}/inputfiles"
