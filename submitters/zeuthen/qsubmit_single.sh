@@ -14,15 +14,14 @@
 
 # NOTE: this is currently broken for # > 99
 
-NAME=${1}
-SAMPLE=${2}
-ADDON=${3}
+JOBDIR=${1}
+NAME=${2}
+SAMPLE=${3}
+ADDON=${4}
 
-JOBDIR="${HOME}/jobscripts/${1}"
-
-if [[ -z ${1} || -z ${2} || -z ${3} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
+if [[ -z ${1} || -z ${2} || -z ${3} || -z ${4} || ${1} = "--help" || ${1} = "-h" || ${1} = "-?" ]]; then
   echo "USAGE:"
-  echo "./qsubmit_single_zeuthen.sh NAME SAMPLE ADDON"
+  echo "./qsubmit_single_zeuthen.sh JOBDIR NAME SAMPLE ADDON"
   exit
 fi
 
