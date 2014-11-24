@@ -23,7 +23,7 @@ REFTFILE="runtimes_ndcloverrat_parallel_test_0.csv"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=50000
+NMEAS=35000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
