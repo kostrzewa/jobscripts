@@ -24,6 +24,10 @@ gaugeconfiginputfile=conf.save
 DebugLevel = 1
 saveranluxstate=yes
 
+BeginMeasurement ORIENTEDPLAQUETTES
+  Frequency = 1
+EndMeasurement
+
 # not sure if measuring this makes a lot of sense...
 BeginOperator CLOVER
   2kappaMu = 0.01
