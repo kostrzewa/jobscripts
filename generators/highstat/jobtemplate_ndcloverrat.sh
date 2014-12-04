@@ -58,32 +58,27 @@ case ${ADDON} in
   *MPI*)
     # special rules apply for pax9
     if [[ "$PENAME" == "pax9" ]]; then
-      export NPN=16
-      export BINDING="-cpus-per-proc 1 -npersocket 8 -bycore -bind-to-core"
+      export BINDING="--cpus-per-proc 1 --map-by ppr:16:node"
     else
-      export NPN=8
-      export BINDING="-cpus-per-proc 1 -npersocket 4 -bycore -bind-to-core"
+      export BINDING="--cpus-per-proc 1 --map-by ppr:8:node"
     fi
   ;;
   *hybrid*) 
     if [[ "$PENAME" == "pax9" ]]; then
-      export NPN=4
-      export BINDING="-cpus-per-proc 4 -npersocket 2 -bycore -bind-to-core"
+      export BINDING="--cpus-per-proc 4 --map-by ppr:2:socket"
     else
-      export NPN=2
-      export BINDING="-cpus-per-proc 4 -npersocket 1 -bysocket -bind-to-socket"
+      export BINDING="--cpus-per-proc 4 --map-by ppr:1:socket"
     fi
   ;;
   *openmp*)
-    export NPN=1
-    export BINDING="-cpus-per-proc 8 -bynode"
+    export BINDING="--cpus-per-proc 8 --map-by ppr:1:node"
   ;;
 esac
 
 # initialize all environment variables related to ICC
 . /opt/intel/2013/bin/iccvars.sh intel64
 
-MPIRUN="/usr/lib64/openmpi-intel/bin/mpirun -x LD_LIBRARY_PATH -wd ${ODIR} -np ${NPROCS} -npernode ${NPN} ${BINDING}"
+MPIRUN="/usr/lib64/openmpi-intel/bin/mpirun -x LD_LIBRARY_PATH -wd ${ODIR} -np ${NPROCS} ${BINDING}"
 case ${ADDON} in
   *MPI*) export MPIPREFIX=${MPIRUN};;
   *mpi*) export MPIPREFIX=${MPIRUN};;
