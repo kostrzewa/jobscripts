@@ -181,7 +181,7 @@ NMEAS ${5} \n \
 OMPNUMTHREADS ${6}"
   fi
   TINPUT="${TIDIR}/${3}.input"
-  TEMP="/tmp/Xo321sdTEMP"
+  TEMP="/tmp/${USER}Xo321sdTEMP"
 
   # input files for continuation jobs are prefixed with "cN" where N is the nubmer of the job
   # while for starting jobs the prefix will be s 
