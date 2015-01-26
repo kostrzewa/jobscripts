@@ -1,5 +1,5 @@
-archival )
-  
+
+  ## SUB STEP BEGIN
   FROM_DIRS=(light/light_00 strange/strange_00 strange/strange_01 strange/strange_02 strange/strange_03 charm/charm_00 charm/charm_01 charm/charm_02 charm/charm_03)
   TO_DIRS=(light_0.0009 strange_0.0238 strange_0.0245 stange_0.0252 strange_0.0259 charm_0.2822 charm_0.2940 charm_0.3058 charm_0.3176)
   PROPAGATORS_PER_GAUGE=8
@@ -36,9 +36,5 @@ archival )
       fi
     fi    
   done
+  ## SUB STEP END
   
-  date
-  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${C4NUM}.out
-  exit $RETVAL
-;;
- 

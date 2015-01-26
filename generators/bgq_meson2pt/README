@@ -46,7 +46,7 @@ common.header.template
   such as "account_no" on Fermi@CINECA
 
 common.job.template
-  if BG_SIZE other than 1024,512,256,128 or 64 is to be used, add some mappings
+  if BG_SIZE other than 1024,512,256,128,64 or 32 is to be used, add some mappings
   for this purpose
 
 inversion.job.template

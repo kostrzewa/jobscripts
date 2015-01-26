@@ -5,6 +5,7 @@
 START=1078
 END=1078
 STEP=2
+CONFS_PER_BUNCH=8
 
 NAME="iwa_b2.1-L24T48-csw1.57551-k0.1373-mul0.006_xeonphi"
 TASKNAME="meson_2pt"
@@ -19,7 +20,7 @@ WDIR=${scratch}/${RUNDIR}
 GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
 SOURCEDIR=${WDIR}/sources
 JOBDIR=${WDIR}/jobscripts
-IDIR=${WDIR}/inputs
+# IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
 ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 
@@ -68,28 +69,36 @@ done
 
 echo $OPECHO
 
-# loop over configurations
-for cnum in `seq ${START} ${STEP} ${END}`; do
-  echo "Configuration: ${cnum}"
+# loop over configurations in bunches
+for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
+  echo "Starting configuration for this bunch: ${start_bunch}"
 
-  c4num=`printf "%04d" ${cnum}`
-  cname="conf.${c4num}"
+  # create list of configurations for this bunch
+  start_bunch4=`printf %04d ${start_bunch}`
+  end_bunch=$(( cnum + STEP * CONFS_PER_BUNCH ))
+  confs_in_bunch4=""
+  for conf in `seq ${start_bunch} ${step} ${ens_bunch}`; do
+    confs_in_bunch4="${confs_in_bunch4} `printf %04d ${conf}`"
+  done
 
-  if [ ! -f ${WDIR}/${cname} ]; then
-    echo "Making link ${WDIR}/${cname} to ${GAUGEDIR}/${cname}"
-    ln -s ${GAUGEDIR}/${cname} ${WDIR}/${cname}
-  fi
+  # make links to gauge configurations
+  for c4num in ${confs_in_bunch4}; do
+    cname="conf.${c4num}"
+    if [ ! -f ${WDIR}/${cname} ]; then
+      echo "Making link ${WDIR}/${cname} to ${GAUGEDIR}/${cname}"
+      ln -s ${GAUGEDIR}/${cname} ${WDIR}/${cname}
+    fi
+  done
 
   # create job command file ("jobscript")
-  jcf=${JOBDIR}/${TASKNAME}_${c4num}.job
+  jcf=${JOBDIR}/${TASKNAME}_${start_bunch4}.job
   cp common.header.template ${jcf}
-  sed -i "s/job_name=/job_name=${TASKNAME}_${NAME}_${c4num}/g" ${jcf}
+  sed -i "s/job_name=/job_name=${TASKNAME}_${NAME}_${start_bunch4}/g" ${jcf}
 
   # create the temporary file for the job body
   touch job.body.tmp
 
-  source_ts=`ls ${SOURCEDIR}/source.${c4num}.??.00 | awk -F '/' '{print $NF}' | cut -d '.' -f 3`
-  echo "Source Timeslice: ${source_ts}"
+
 
   if [ $DO_INVERSION -eq 1 ]; then
     # read the inversions to be done one by one
@@ -180,7 +189,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
           fi
           new_dependency=0
         fi
-      fi
+      fi # if "disc"
 
       # choose parallelization based on bg_size 
       # note that this currently only works for 32, 64, 128, 512 and 1024 and NOT for 256
@@ -191,6 +200,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       
       if [ ${DEBUG} -eq 1 ]; then
         echo $line
+        echo '$mass_index $bg_size $wall_clock_limit $solver_prec $prop_prec $flavour $nr_xyz_procs $twokappamu $twokappamusigma $twokappamudelta'
         echo $mass_index $bg_size $wall_clock_limit $solver_prec $prop_prec $flavour $nr_xyz_procs $twokappamu $twokappamusigma $twokappamudelta 
       fi
 
@@ -209,12 +219,13 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
         if [ ${DEBUG} -ne 0 ]; then
           echo "Creating links to sources in ${inv_wdir}"
         fi
-        for source in ${SOURCEDIR}/source.${c4num}.??.??; do
-          source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
-          if [ ! -e ${source_link} ]; then
-            ln -s ${source} ${source_link}
-          fi
-        done
+        for c4num in ${confs_in_bunch4}; do
+          for source in ${SOURCEDIR}/source.${c4num}.??.??; do
+            source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
+            if [ ! -e ${source_link} ]; then
+              ln -s ${source} ${source_link}
+            fi
+          done
       fi
 
       # create jobscript header for this job step if it is new
@@ -233,72 +244,80 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
         if [ ${DEBUG} -ne 0 ]; then
           echo "Adding case statement for ${flavour}"
         fi
-        # if we're currently in a case statement we need to add ";;" to the job body
+        # if we're currently in the case statement of the previous step,
+        # so we need to add ";;" to the job body and have the output file of the previous step
+        # copied to the "outputs" directory
         if [ ${in_case_statement} -eq 1 ]; then
           echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out' >> job.body.tmp
           echo '  exit $RETVAL' >> job.body.tmp
           echo ";;" >> job.body.tmp
           in_case_statement=0
         fi
+        # and now we start and a new job step
         echo "${flavour} )" >> job.body.tmp
         in_case_statement=1
         new_job_step=0
-      fi
-    
-      # create input file for this inversion
-      ifile="${IDIR}/${mass_index}.${c4num}.invert.input"
+      fi # new_job_step
 
-      # create job body for this inversion
-      if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating job body for ${mass_index}"
-      fi
-      cat inversion.job.template >> inversion.job.template.tmp
-      # use @ as command separator because we're dealing with paths which contain '/'
-      sed -i "s@IFILE=@IFILE=${ifile}@g" inversion.job.template.tmp
-      sed -i "s@ODIR=@ODIR=${ODIR}@g" inversion.job.template.tmp
-      sed -i "s@WDIR=@WDIR=${inv_wdir}@g" inversion.job.template.tmp
-      sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" inversion.job.template.tmp
-      # attach this case statement to the final job body
-      cat inversion.job.template.tmp >> job.body.tmp
-      rm inversion.job.template.tmp
-
-      # the input file templates are different depending on whether we are doing
-      # degenerate doublet (resp. Osterwalder-Seiler) or non-degenerate doublet
-      # inversions
-      # a further differentiation comes from the calculation for disconnected loops
-      # using volume sources
-      if [ ${DEBUG} -ne 0 ]; then
-        echo "Creating input file for ${mass_index}"
-      fi 
-      if [ -z "`echo ${line} | grep '^nd'`" ]; then
-        if [ -z "`echo ${line} | grep '^disc'`" ]; then
-          echo "OS inversions"
-          cp invert.OS.input.template ${ifile}
-        else
-          echo "DISC inversions"
-          cp invert.DISC.input.template ${ifile}
+      for c4num in ${confs_in_bunch4}; do
+        # create input file for this inversion
+        ifile="${IDIR}/${mass_index}.${c4num}.invert.input"
+        # create job body for this inversion
+        if [ ${DEBUG} -ne 0 ]; then
+          echo "Creating job body for ${mass_index}"
         fi
-        sed -i -e "s/2kappamu=/2kappamu=${twokappamu}/g" ${ifile}
-      else
-        echo "ND inversions"
-        cp invert.ND.input.template ${ifile}
-        sed -i -e "s/2kappamubar=/2kappamubar=${twokappamusigma}/g" ${ifile}
-        sed -i -e "s/2kappaepsbar=/2kappaepsbar=${twokappamudelta}/g" ${ifile}
-      fi
+        cat inversion.job.template >> inversion.job.template.tmp
+        # use @ as command separator because we're dealing with paths which contain '/'
+        sed -i "s@IFILE=@IFILE=${ifile}@g" inversion.job.template.tmp
+        sed -i "s@ODIR=@ODIR=${ODIR}@g" inversion.job.template.tmp
+        sed -i "s@WDIR=@WDIR=${inv_wdir}@g" inversion.job.template.tmp
+        sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" inversion.job.template.tmp
+        # attach this case statement to the final job body
+        cat inversion.job.template.tmp >> job.body.tmp
+        rm inversion.job.template.tmp
 
-      if [ -z `echo $1 | grep '^disc'` ]; then
-        sed -i -e "s/sourcetimeslice=/sourcetimeslice=${source_ts}/g" ${ifile}
-      fi
+        source_ts=`ls ${SOURCEDIR}/source.${c4num}.??.00 | awk -F '/' '{print $NF}' | cut -d '.' -f 3`
+        echo "Source Timeslice for conf ${c4num}: ${source_ts}"
 
-      sed -i -e "s/initialstorecounter=/initialstorecounter=${cnum}/g" ${ifile}
-      sed -i -e "s/propagatorprecision=/propagatorprecision=${prop_prec}/g" ${ifile}
-      sed -i -e "s/solverprecision=/solverprecision=${solver_prec}/g" ${ifile}
-  
-      for direction in x y z; do
-        sed -i -e "s/nr${direction}procs=/nr${direction}procs=${nr_xyz_procs}/g" ${ifile}
-      done
+        # the input file templates are different depending on whether we are doing
+        # degenerate doublet (resp. Osterwalder-Seiler) or non-degenerate doublet
+        # inversions
+        # a further differentiation comes from the calculation for disconnected loops
+        # using volume sources
+        if [ ${DEBUG} -ne 0 ]; then
+          echo "Creating input file for ${mass_index}"
+        fi
+        if [ -z "`echo ${line} | grep '^nd'`" ]; then
+          if [ -z "`echo ${line} | grep '^disc'`" ]; then
+            echo "OS inversions"
+            cp invert.OS.input.template ${ifile}
+          else
+            echo "DISC inversions"
+            cp invert.DISC.input.template ${ifile}
+          fi
+          sed -i -e "s/2kappamu=/2kappamu=${twokappamu}/g" ${ifile}
+        else
+          echo "ND inversions"
+          cp invert.ND.input.template ${ifile}
+          sed -i -e "s/2kappamubar=/2kappamubar=${twokappamusigma}/g" ${ifile}
+          sed -i -e "s/2kappaepsbar=/2kappaepsbar=${twokappamudelta}/g" ${ifile}
+        fi
 
-    done < ${1} # loop through file, see while read above
+        if [ -z `echo $1 | grep '^disc'` ]; then
+          sed -i -e "s/sourcetimeslice=/sourcetimeslice=${source_ts}/g" ${ifile}
+        fi
+
+        sed -i -e "s/initialstorecounter=/initialstorecounter=${cnum}/g" ${ifile}
+        sed -i -e "s/propagatorprecision=/propagatorprecision=${prop_prec}/g" ${ifile}
+        sed -i -e "s/solverprecision=/solverprecision=${solver_prec}/g" ${ifile}
+
+        for direction in x y z; do
+          sed -i -e "s/nr${direction}procs=/nr${direction}procs=${nr_xyz_procs}/g" ${ifile}
+        done
+
+      done # loop over configurations in bunch
+
+    done < ${1} # loop through file, see "while read" above
     contraction_dependencies="${contraction_dependencies} )"
     archival_dependencies="${archival_dependencies} )"
 
@@ -316,6 +335,7 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
     if [ ${DEBUG} -ne 0 ]; then
       echo "Creating header for archival"
     fi
+
     cp archival.header.template archival.header.template.tmp
     sed -i "s/wall_clock_limit=/wall_clock_limit=${ARCHIVAL_WC_LIMIT}/g" archival.header.template.tmp
     # in case there were no inversions the list of dependencies will be empty, this is fine
@@ -328,18 +348,32 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
       echo "Creating job body for archival"
     fi
 
-    # archival job body
-    cp archival.job.template archival.job.template.tmp
+    # add archival case label to job body
+    echo "archival )" >> job.body.tmp
 
-    # using @ as a separator because the filenames contain slashes and would otherwise confuse sed
-    sed -i "s@ODIR=@ODIR=${ODIR}@g" archival.job.template.tmp
-    sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
-    sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
-    sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
+    for c4num in ${confs_in_bunch4}; do
+      # archival job body
+      cp archival.job.template archival.job.template.tmp
 
-    cat archival.job.template.tmp >> job.body.tmp
-    rm archival.job.template.tmp
+      # using @ as a separator because the filenames contain slashes and would otherwise confuse sed
+      sed -i "s@ODIR=@ODIR=${ODIR}@g" archival.job.template.tmp
+      sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
+      sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
+      sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
+
+      cat archival.job.template.tmp >> job.body.tmp
+      rm archival.job.template.tmp
+    done
+
+    # and finish up case statement
+    echo '  date' >> job.body.tmp
+    echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${C4NUM}.out' >> job.body.tmp
+    echo '  exit $RETVAL' >> job.body.tmp
+    echo ';;' >> job.body.tmp
+
   fi # DO_ARCHIVAL
+
+  # in addition to the job script, the contraction code requires input files..
 
   if [ $DO_CONTRACTION -eq 1 ]; then
     # create jobscript header for contraction
@@ -354,31 +388,43 @@ for cnum in `seq ${START} ${STEP} ${END}`; do
     sed -i "s/dependency=/dependency=\ ${contraction_dependencies}/g" contraction.header.template.tmp
     cat contraction.header.template.tmp >> ${jcf}
     rm contraction.header.template.tmp
-  
-    ## contraction job template and input file
-    # contraction input file
-    if [ ${DEBUG} -ne 0 ]; then
-      echo "Creating input file for contraction"
-    fi  
-    cvc_ifile=${IDIR}/cvc.${c4num}.input
-    cp cvc.input.template ${cvc_ifile}
 
-    sed -i "s/_NC/${cnum}/g" ${cvc_ifile}
-    sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
-    
-    # contraction job body
-    if [ ${DEBUG} -ne 0 ]; then
-      echo "Creating job body for contraction"
-    fi
-    cp contraction.job.template contraction.job.template.tmp
+    echo "contraction )" >> job.body.tmp
+    for c4num in ${confs_in_bunch4}; do
+      source_ts=`ls ${SOURCEDIR}/source.${c4num}.??.00 | awk -F '/' '{print $NF}' | cut -d '.' -f 3`
+      echo "Source Timeslice for conf ${c4num}: ${source_ts}"
 
-    sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
-    sed -i "s@ODIR=@ODIR=${ODIR}@g" contraction.job.template.tmp
-    sed -i "s@WDIR=@WDIR=${WDIR}@g" contraction.job.template.tmp
-    sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" contraction.job.template.tmp
+      ## contraction job template and input file
+      # contraction input file
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating input file for contraction ${c4num}"
+      fi
+      cvc_ifile=${IDIR}/cvc.${c4num}.input
+      cp cvc.input.template ${cvc_ifile}
 
-    cat contraction.job.template.tmp >> job.body.tmp
-    rm contraction.job.template.tmp
+      sed -i "s/_NC/${c4num}/g" ${cvc_ifile}
+      sed -i "s/_TS/${source_ts}/g" ${cvc_ifile}
+
+      # contraction job body
+      if [ ${DEBUG} -ne 0 ]; then
+        echo "Creating job body for contraction"
+      fi
+      cp contraction.job.template contraction.job.template.tmp
+
+      sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
+      sed -i "s@ODIR=@ODIR=${ODIR}@g" contraction.job.template.tmp
+      sed -i "s@WDIR=@WDIR=${WDIR}@g" contraction.job.template.tmp
+      sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" contraction.job.template.tmp
+
+      cat contraction.job.template.tmp >> job.body.tmp
+      rm contraction.job.template.tmp
+    done # loop over configurations in bunch
+
+    # finish up contraction job body
+    echo '  date' >> job.body.tmp
+    echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out' >> job.body.tmp
+    echo '  exit $RETVAL' >> job.body.tmp
+    echo ';;' >> job.body.tmp
   
   fi # DO_CONTRACTION
 

@@ -1,4 +1,5 @@
-contraction )
+
+  ## SUB STEP BEGIN
   # verify mapping
   echo "Mapping is ${MP}"
   
@@ -32,9 +33,4 @@ contraction )
   runjob --mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" --ranks-per-node ${NPN} --np ${NP} --cwd ${WDIR} --exe ${EXEC} --args "-f${IFILE}"
   RETVAL=$?  
   date
-
-  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out
-  
-  exit $RETVAL
-;;
-
+  ## SUB STEP END
