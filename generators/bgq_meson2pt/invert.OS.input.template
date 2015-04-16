@@ -1,5 +1,5 @@
-L = 48
-T = 96
+L = 32
+T = 64
 nrxprocs=
 nryprocs=
 nrzprocs=
@@ -10,7 +10,7 @@ Measurements = 1
 initialstorecounter=
 
 2kappamu=
-kappa = 0.13729
+kappa = 0.1373
 csw=1.57551
 UseEvenOdd = yes
 BCAngleT = 1.
@@ -25,7 +25,7 @@ sourcetimeslice=
 
 BeginOperator CLOVER
   csw=1.57551
-  kappa = 0.13729
+  kappa = 0.1373
   2kappamu=
   solverprecision=
   propagatorprecision=

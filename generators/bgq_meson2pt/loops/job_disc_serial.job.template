@@ -1,0 +1,35 @@
+# @ job_name= disc_iwa_b2.1-L32T64-csw1.57551-k0.1373-mul0.006_combined_NC
+# @ error = $(job_name).$(jobid).$(stepid).out
+# @ output = $(job_name).$(jobid).$(stepid).out
+# @ environment = COPY_ALL;
+# @ notification = error
+# @ notify_user = bartosz.kostrzewa@desy.de
+# @ job_type = serial
+# @ wall_clock_limit = 00:45:00
+# @ queue
+
+### this is the path to the executable
+EXEC=$HOME/code/contractions_bgq_frontend_current/disc/disc
+
+### physics parameters
+L=32
+T=64
+kappa=0.1373
+csw=1.57551
+mu=0.006
+
+date
+
+cd /work/hch02/hch028/meson_2pt/nf2/iwa_b2.1-L32T64-csw1.57551-k0.1373-mul0.006_combined/loops
+N=NC
+echo config ${N}
+
+if test -e ./conf.${N} ; then  
+  if test -e ./source.${N}.00023.inverted ; then
+    OMP_NUM_THREADS=4 $EXEC -L ${L} -T ${T} -C ${csw} -N ${N} -k ${kappa} -m ${mu} -f -l 5 -s 48 -a 0.4 -i 5 -v
+  fi
+fi
+
+date
+
+cp -v ${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT} /work/hch02/hch028/meson_2pt/nf2/iwa_b2.1-L32T64-csw1.57551-k0.1373-mul0.006_combined/outputs/loops.${N}.out

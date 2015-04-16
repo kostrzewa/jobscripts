@@ -5,7 +5,7 @@
   export NPN=1
   export NP=$(( LOADL_BG_SIZE * NPN ))
   export OMP_NUM_THREADS=64
-  EXEC=$HOME/bgq_bin/invert_4D_hybrid_INDTC_IOAttempt
+  EXEC=$HOME/bgq_bin/invert_4D_hybrid_hs_QPX_SPI_INDTC
 
   IFILE=
   ODIR=

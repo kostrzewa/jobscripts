@@ -6,10 +6,11 @@ This is a jobscript and input file generation script for combined inversions
 and contractions using tmLQCD 'invert' and cvc (using libcvcpp). Currently
 this is limited to machines of BG/Q type.
 
-The script is designed to create one job script per gauge configuration for all 
+The script is designed to create one job script per X gauge configurations for all 
 steps relating to the computation of meson two-point functions. The resulting
 job script is a multi-step job which runs all the inversions in parallel (independently)
-and where the contraction step is dependent on all inversion steps.
+and where the contraction and archival steps are dependent on all inversion steps.
+The archival step involves the archival of the propagators ONLY!
 
 A common usage scenario would be the "Osterwalder-Seiler" analysis of light, strange
 and charmed mesons on a given gauge background.
@@ -27,19 +28,19 @@ To start the jobscript generation process, run it like this:
 
   $ ./make_combo_scripts.sh masses.txt 
 
-The generator supports a mode for creating job scripts for the contraction only
-(assuming that all the directory structures from the inversions are already
-in place).
-
-  $ ./make_combo_scripts.sh masses.txt 1
-
-( see CONTRACTIONS_ONLY in make_combo_scripts.sh )
+For cases where one of the steps in a job script was unable to complete because
+of failures or because it ran into the wallclock limit, the job script
+generator can be configured to produce only inversion, only contraction
+or only archival jobs (or any combination thereof). Of course, when doing
+contractions or archivals, all the propagators should already be in place!
 
 *****************
 * CONFIGURATION *
 *****************
 
-To adjust it to a specific purpose the following steps need to be carried out:
+The configuration of the jobscript generator is not quite as streamlined as it
+should be but and requires some attention to detail. To adjust it to a specific 
+purpose the following steps need to be carried out:
 
 common.header.template
   adjust notification e-mail address and possibly add other LOADLEVELER parameters
@@ -99,10 +100,10 @@ cvc.input.template
   by the source timeslice.
 
 make_combo_scripts.sh
+  the various directories
   START: startig configuration
   END: last configuration
   STEP: step between configurations
-  the various directories
   CONTRACTIONS_BG_SIZE (bg_size for the contraction step)
   CONTRACTIONS_WC_LIMIT (wallclock time limit for the contraction step)
 

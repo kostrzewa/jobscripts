@@ -2,12 +2,12 @@
 # contractions using tmLQCD and CVC (using the libcvcpp library)
 # For customization details, see the README file.
 
-START=1078
-END=1078
-STEP=2
-CONFS_PER_BUNCH=8
+START=5152
+END=5176
+STEP=8
+CONFS_PER_BUNCH=4
 
-NAME="iwa_b2.1-L24T48-csw1.57551-k0.1373-mul0.006_xeonphi"
+NAME="iwa_b2.1-L32T64-csw1.57551-k0.1373-mul0.006_combined"
 TASKNAME="meson_2pt"
 
 # for compatibility to fermi, set $scratch to $CINECA_SCRATCH
@@ -17,24 +17,24 @@ scratch=${WORK}
 
 RUNDIR=${TASKNAME}/nf2/${NAME}
 WDIR=${scratch}/${RUNDIR}
-GAUGEDIR=${work}/confs_tmp/nf2/${NAME}
+GAUGEDIR=${work}/runs/nf2/iwa_b2.1-L32T64-csw1.57551-k0.1373-mul0.006_combined
 SOURCEDIR=${WDIR}/sources
 JOBDIR=${WDIR}/jobscripts
-# IDIR=${WDIR}/inputs
+IDIR=${WDIR}/inputs
 ODIR=${WDIR}/outputs
 ARCHDIR=/arch/hch02/hch028/${RUNDIR}/propagators
 
-DEBUG=1
-DO_ARCHIVAL=1
+DEBUG=0
+DO_ARCHIVAL=0
 DO_INVERSION=0
-DO_CONTRACTION=0
+DO_CONTRACTION=1
 
 if [[ $DO_INVERSION -eq 0 && $DO_ARCHIVAL -eq 0 && $DO_CONTRACTION -eq 0 ]]; then
   echo "You need to select at least one mode of operation from the DO_* variables in make_combo_scripts.sh"
   exit 1
 fi
 
-CONTRACTIONS_BG_SIZE=32
+CONTRACTIONS_BG_SIZE=64
 CONTRACTIONS_WC_LIMIT="00:30:00"
 
 ARCHIVAL_WC_LIMIT="00:45:00"
@@ -70,20 +70,22 @@ done
 echo $OPECHO
 
 # loop over configurations in bunches
-for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
+for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) $(( END - STEP ))`; do
   echo "Starting configuration for this bunch: ${start_bunch}"
 
   # create list of configurations for this bunch
   start_bunch4=`printf %04d ${start_bunch}`
-  end_bunch=$(( cnum + STEP * CONFS_PER_BUNCH ))
-  confs_in_bunch4=""
-  for conf in `seq ${start_bunch} ${step} ${ens_bunch}`; do
-    confs_in_bunch4="${confs_in_bunch4} `printf %04d ${conf}`"
-  done
+  end_bunch=$(( start_bunch + STEP * CONFS_PER_BUNCH - STEP ))
+  confs_in_bunch=`seq ${start_bunch} ${STEP} ${end_bunch}`
+
+  OUTPUTID=`printf %04d ${start_bunch}`
+  if [ ${start_bunch} -ne ${end_bunch} ]; then
+    OUTPUTID=`printf %04d_%02d_%04d ${start_bunch} ${STEP} ${end_bunch}`
+  fi
 
   # make links to gauge configurations
-  for c4num in ${confs_in_bunch4}; do
-    cname="conf.${c4num}"
+  for cnum in ${confs_in_bunch}; do
+    cname=`printf "conf.%04d" ${cnum}`
     if [ ! -f ${WDIR}/${cname} ]; then
       echo "Making link ${WDIR}/${cname} to ${GAUGEDIR}/${cname}"
       ln -s ${GAUGEDIR}/${cname} ${WDIR}/${cname}
@@ -97,8 +99,6 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
 
   # create the temporary file for the job body
   touch job.body.tmp
-
-
 
   if [ $DO_INVERSION -eq 1 ]; then
     # read the inversions to be done one by one
@@ -210,24 +210,6 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
         mkdir -p ${inv_wdir}
       fi
       
-      if [ ! -e ${inv_wdir}/${cname} ]; then
-        ln -s ${GAUGEDIR}/${cname} ${inv_wdir}
-      fi
-
-      # create links to the sources unless we're doing disconnected inversions
-      if [ -z "`echo ${line} | grep '^disc'`" ]; then 
-        if [ ${DEBUG} -ne 0 ]; then
-          echo "Creating links to sources in ${inv_wdir}"
-        fi
-        for c4num in ${confs_in_bunch4}; do
-          for source in ${SOURCEDIR}/source.${c4num}.??.??; do
-            source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
-            if [ ! -e ${source_link} ]; then
-              ln -s ${source} ${source_link}
-            fi
-          done
-      fi
-
       # create jobscript header for this job step if it is new
       if [ ${new_job_step} -eq 1 ]; then
         if [ ${DEBUG} -ne 0 ]; then
@@ -259,7 +241,27 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
         new_job_step=0
       fi # new_job_step
 
-      for c4num in ${confs_in_bunch4}; do
+      for cnum in ${confs_in_bunch}; do
+        c4num=`printf %04d $cnum`
+        echo $c4num
+        cname="conf.${c4num}"
+        if [ ! -e ${inv_wdir}/${cname} ]; then
+          ln -s ${GAUGEDIR}/${cname} ${inv_wdir}
+        fi
+
+        # create links to the sources unless we're doing disconnected inversions
+        if [ -z "`echo ${line} | grep '^disc'`" ]; then
+          if [ ${DEBUG} -ne 0 ]; then
+            echo "Creating links to sources in ${inv_wdir}"
+          fi
+          for source in ${SOURCEDIR}/source.${c4num}.??.??; do
+            source_link=${inv_wdir}/`echo ${source} | awk -F '/' '{print $NF}'`
+            if [ ! -e ${source_link} ]; then
+              ln -s ${source} ${source_link}
+            fi
+          done
+        fi
+
         # create input file for this inversion
         ifile="${IDIR}/${mass_index}.${c4num}.invert.input"
         # create job body for this inversion
@@ -271,7 +273,7 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
         sed -i "s@IFILE=@IFILE=${ifile}@g" inversion.job.template.tmp
         sed -i "s@ODIR=@ODIR=${ODIR}@g" inversion.job.template.tmp
         sed -i "s@WDIR=@WDIR=${inv_wdir}@g" inversion.job.template.tmp
-        sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" inversion.job.template.tmp
+        sed -i "s@OUTPUTID=@OUTPUTID=${OUTPUTID}@g" inversion.job.template.tmp
         # attach this case statement to the final job body
         cat inversion.job.template.tmp >> job.body.tmp
         rm inversion.job.template.tmp
@@ -351,7 +353,8 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
     # add archival case label to job body
     echo "archival )" >> job.body.tmp
 
-    for c4num in ${confs_in_bunch4}; do
+    for cnum in ${confs_in_bunch}; do
+      c4num=`printf %04d $cnum`
       # archival job body
       cp archival.job.template archival.job.template.tmp
 
@@ -360,6 +363,7 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
       sed -i "s@WDIR=@WDIR=${WDIR}@g" archival.job.template.tmp
       sed -i "s@ARCHDIR=@ARCHDIR=${ARCHDIR}@g" archival.job.template.tmp
       sed -i "s@C4NUM=@C4NUM=${c4num}@g" archival.job.template.tmp
+      sed -i "s@OUTPUTID=@OUTPUTID=${OUTPUTID}@g" archival.job.template.tmp
 
       cat archival.job.template.tmp >> job.body.tmp
       rm archival.job.template.tmp
@@ -367,7 +371,7 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
 
     # and finish up case statement
     echo '  date' >> job.body.tmp
-    echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${C4NUM}.out' >> job.body.tmp
+    echo '  cp -v ${OFILE} ${ODIR}/${LOADL_STEP_NAME}.${OUTPUTID}.out' >> job.body.tmp
     echo '  exit $RETVAL' >> job.body.tmp
     echo ';;' >> job.body.tmp
 
@@ -390,7 +394,8 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
     rm contraction.header.template.tmp
 
     echo "contraction )" >> job.body.tmp
-    for c4num in ${confs_in_bunch4}; do
+    for cnum in ${confs_in_bunch}; do
+      c4num=`printf %04d $cnum`
       source_ts=`ls ${SOURCEDIR}/source.${c4num}.??.00 | awk -F '/' '{print $NF}' | cut -d '.' -f 3`
       echo "Source Timeslice for conf ${c4num}: ${source_ts}"
 
@@ -414,7 +419,7 @@ for start_bunch in `seq ${START} $(( STEP * CONFS_PER_BUNCH )) ${END}`; do
       sed -i "s@IFILE=@IFILE=${cvc_ifile}@g" contraction.job.template.tmp
       sed -i "s@ODIR=@ODIR=${ODIR}@g" contraction.job.template.tmp
       sed -i "s@WDIR=@WDIR=${WDIR}@g" contraction.job.template.tmp
-      sed -i "s@OUTPUTID=@OUTPUTID=${c4num}@g" contraction.job.template.tmp
+      sed -i "s@OUTPUTID=@OUTPUTID=${OUTPUTID}@g" contraction.job.template.tmp
 
       cat contraction.job.template.tmp >> job.body.tmp
       rm contraction.job.template.tmp

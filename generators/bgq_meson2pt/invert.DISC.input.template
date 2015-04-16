@@ -1,5 +1,5 @@
-L = 24
-T = 48
+L = 32
+T = 64
 nrxprocs=
 nryprocs=
 nrzprocs=
@@ -11,10 +11,10 @@ initialstorecounter=
 
 reproducerandomnumbers=no
 ranluxdlevel=2
-seed=213131
+seed=182721
 
 2kappamu=
-kappa = 0.151064
+kappa = 0.1373
 UseEvenOdd = yes
 BCAngleT = 1.
 
@@ -25,8 +25,9 @@ SourceType = Volume
 ReadSource = no
 NoSamples = 48
 
-BeginOperator TMWILSON
-  kappa = 0.151064
+BeginOperator CLOVER
+  kappa = 0.1373
+  csw=1.57551
   2kappamu=
   solverprecision=
   propagatorprecision=

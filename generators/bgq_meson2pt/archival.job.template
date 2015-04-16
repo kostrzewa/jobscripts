@@ -1,13 +1,20 @@
 
   ## SUB STEP BEGIN
-  FROM_DIRS=(light/light_00 strange/strange_00 strange/strange_01 strange/strange_02 strange/strange_03 charm/charm_00 charm/charm_01 charm/charm_02 charm/charm_03)
-  TO_DIRS=(light_0.0009 strange_0.0238 strange_0.0245 stange_0.0252 strange_0.0259 charm_0.2822 charm_0.2940 charm_0.3058 charm_0.3176)
+  FROM_DIRS=(light/light_00 disc_light/disc_light \
+             strange/strange_00 strange/strange_01 strange/strange_02 strange/strange_03 strange/strange_04 strange/strange_05 \
+             charm/charm_00 charm/charm_01 charm/charm_02 charm/charm_03 charm/charm_04 charm/charm_05)
+
+  TO_DIRS=(light_0.006 disc_light_0.006 \
+           strange_0.0224 strange_0.0231 strange_0.0238 strange_0.0245 stange_0.0252 strange_0.0259 \
+           charm_0.2586 charm_0.2704 charm_0.2822 charm_0.2940 charm_0.3058 charm_0.3176)
+
   PROPAGATORS_PER_GAUGE=8
   
   C4NUM=
   WDIR=
   ODIR=
   ARCHDIR=
+  OUTPUTID=
 
   ## the output file
   export OFILE=${LOADL_STEP_INITDIR}/${LOADL_STEP_OUT}
