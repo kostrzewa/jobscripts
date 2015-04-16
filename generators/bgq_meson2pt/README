@@ -13,7 +13,9 @@ and where the contraction and archival steps are dependent on all inversion step
 The archival step involves the archival of the propagators ONLY!
 
 A common usage scenario would be the "Osterwalder-Seiler" analysis of light, strange
-and charmed mesons on a given gauge background.
+and charmed mesons on a given gauge background. Another would be the computation
+of heavy doublet correlators using multiple mudelta and musigma paramters and
+possibily multiple light valence masses.
 
 When run, the script completes and concatenates the various *.template files into the
 job script and input files. It also creates links to propagator sources and gauge
@@ -47,11 +49,12 @@ common.header.template
   such as "account_no" on Fermi@CINECA
 
 common.job.template
-  if BG_SIZE other than 1024,512,256,128,64 or 32 is to be used, add some mappings
-  for this purpose
+  If BG_SIZE other than 1024,512,256,128,64 or 32 is to be used, add some mappings
+  for this purpose. On Fermi it may be necessary to disable the mapping
+  altogether.
 
 inversion.job.template
-  If necessary, adjust NPN, OMP_NUM_THREADS and NPN, possibly also NP for special
+  If necessary, adjust OMP_NUM_THREADS and NPN, possibly also NP for special
   geometries.
   Adjust EXEC to point to the tmLQCD 'invert' application.
 
@@ -62,13 +65,13 @@ invert.XXXX.input.template
   operator. Adjust these as necessary, paying attention to setting kappa correctly.
   nr[x,y,z]procs, 2kappamu, solverprecision and propagatorprecision are adjusted
   during jobscript generation by 'make_combo_scripts.sh',
-  Note that anything edited by 'make_combo_scripts.sh' needs to be written without
+  (!!!) Note that anything edited by 'make_combo_scripts.sh' needs to be written without
   a space separating the name of the parameter and the equal sign. (e.g.: "2kappamu="
   instead of "2kappamu =")
 
 masses.txt
   This file defines how many steps the resulting job scripts will have. It also sets a
-  number of parameters which will be adjusted in the input file of the inverter.
+  number of parameters which will be adjusted in the input files of the inverter.
   Each line of this file contains a name, a bare mass (2kappamu), bg_size, a wallclock limit
   a solver precision, a storage precision for the resulting propagators (32 or 64) and
   finally a subdirectory in which the propagators will be stored.
@@ -77,7 +80,7 @@ masses.txt
   Names of the form disc_* are for inversions for disconnected contributions using
   volume sources (so far only degenerate supported).
   See make_combo_scripts.sh for a more complete understanding of what these
-  parameters change.
+  parameters change. See masses.txt for a complete example for all types.
 
 archival.job.template
   After all inversions have been completed a serial job is launched which sends
@@ -89,13 +92,16 @@ archival.job.template
 
 contraction.job.template
   If necessary, adjust NPN (which is the number of processes per node used by CVC)
-  Adjust EXEC to point to the libcvcpp meson two-point executable!
+  Adjust EXEC to point to the libcvcpp meson two-point executable! (which is currently still
+  called "test_libcvcpp"...) 
 
 cvc.input.template
   Adjust the parameters for CVC as appropriate for your analysis, 
-  refer to the libcvcpp-specific documentation for the format and meaing. 
+  refer to the libcvcpp-specific documentation for the format and meaning. 
   Unlike for the inverter input file above, you must specify the masses here by hand!
-  (generally one would supply "amu").
+  (generally one would supply "amu"). The mass values entered here are only used
+  to name the output directories and have no actual impact on the contraction
+  (unless the same mass is specified twice, in which case some overwiting might occur)
   Note that make_scripts.sh replaces _NS by the configuration number and _TS
   by the source timeslice.
 
@@ -104,8 +110,20 @@ make_combo_scripts.sh
   START: startig configuration
   END: last configuration
   STEP: step between configurations
-  CONTRACTIONS_BG_SIZE (bg_size for the contraction step)
-  CONTRACTIONS_WC_LIMIT (wallclock time limit for the contraction step)
+  CONFS_PER_BUNCH: how many configurations should be done in one job
+                   the most convenient setup is one configuration per job, but when the maximum number
+                   of jobs in the queue is severely limited, it might make sense to do more configurations
+                   per job. The danger is that if a job fails for some reason, it becomes more 
+                   difficult to recover because one can be forced to generate a new job script just for one
+                   configuration etc..
+  DEBUG: whether additional output should be shown which can help in debugging problems in the script
+  DO_ARCHIVAL: whether the archival part of the job should be generated
+  DO_INVERSION: whether inersions should be performed
+  DO_CONTRACTION: whether the contraction step should be performed
+  CONTRACTIONS_BG_SIZE: (bg_size for the contraction step)
+  CONTRACTIONS_WC_LIMIT: (wallclock time limit for the contraction step)
+  ARCHIVAL_WC_LIMIT: wallclock limit for the serial archival step (on JuQueen: maximum is 45 minutes!)
+  
 
 ***********
 * EXAMPLE *
