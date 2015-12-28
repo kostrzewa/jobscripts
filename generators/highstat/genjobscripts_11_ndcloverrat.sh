@@ -12,7 +12,7 @@ RANDOM=$$
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="ndcloverrat_211"
+SD="ndcloverrat_11"
 TEMPLATE="jobtemplate_ndcloverrat.sh"
 EDIR="/afs/ifh.de/user/k/kostrzew/execs/pax/tmLQCD/hmc_tm_icc_openmpi_lemon"
 #EDIR="/afs/ifh.de/user/k/kostrzew/execs/pax/tmLQCD/hmc_tm_swallbug"
@@ -22,12 +22,12 @@ BASEDIR="/lustre/fs17/group/etmc/${USER}/highstat/${SD}"
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_211_ndcloverrat.csv"
+REFTFILE="runtimes_11_ndcloverrat.csv"
 #REFTFILE="runtimes_mpihmc3478.cvs"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=10000
+NMEAS=50000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -52,11 +52,13 @@ CORRELATORS=0
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 #EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-SAMPLES="L16T32_ndcloverrat_211_9 L16T32_ndcloverrat_211_12 L16T32_ndcloverrat_211_9_tight"
+SAMPLES="L8T8_ndcloverrat_11_00"
+#SAMPLES="L8T8_ndcloverrat_2 L8T8_ndcloverrat_11_03 L8T8_ndcloverrat_11_05 L8T8_ndcloverrat_11_07 L8T8_ndcloverrat_11_10 
+#SAMPLES="L8T8_ndcloverrat_11_12 L8T8_ndcloverrat_2"
 #EXECS="openmp 1D_hybrid_hs_4_2 1D_hybrid_hs_2_4 3D_MPI_hs_32"
 
 #SAMPLES="mpihmc4"
-EXECS="4D_MPI_hs_128"
+EXECS="4D_MPI_hs_16"
 
 ##############################################################################################
 ################################# END OF CONFIGURATION #######################################
@@ -227,11 +229,11 @@ OMPNUMTHREADS ${6}"
       cp ${TEMP} ${INPUT}
     ;;
     4D_MPI*_32)
-      echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=2\n"|cat - ${INPUT} > ${TEMP}
+      echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=4\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;; 
     3D_MPI*_16)
-      echo -e "NrXProcs=4\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
+      echo -e "NrXProcs=2\nNrYProcs=4\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
     3D_MPI*_32)
@@ -386,7 +388,7 @@ convert_time ()
 # we need to abide by the local rules regarding the scheduling of jobs
 # on different partitions of the pax cluster
 # jobs between 8 and 32 processes go on pax1-4
-# jobs with 64 processes go on pax5-7
+# jobs with 64 processes go on pax5-6 (pax7 seems to be gone?!)
 # jobs with 128 processes go on pax9
 # jobs with 256 processes go on pax9 only
 # we need to choose randomly between the different possibilities for
@@ -410,7 +412,7 @@ select_pax_blade()
       export QUEUE="pax${n}"
     ;;
     *MPI*_16)
-      n=$(( (RANDOM % 4) + 1 ))
+      n=$(( (RANDOM % 6) + 1 ))
       export QUEUE="pax${n}"
     ;;
     *MPI*_32)
@@ -556,7 +558,7 @@ for e in ${EXECS}; do
     # the time measurements in the table ${REFTFILE} refer to REFMEAS trajectories
     # calculate the total runtime from the ratio NMEAS/REFMEAS
     # when correlators are being measured we need about 10% more time
-    # the factor of 1.5 (or 1.5+0.1=1.6) is to account for performance flucutations
+    # the factor of 1.05 (or 1.05+0.05=1.1) is to account for performance flucutations
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
     if [[ ${CORRELATORS} -eq 1 ]]; then 
       TOTALTIME=`echo "scale=6;1.1*${NTIMES}*${TIME}"| bc`

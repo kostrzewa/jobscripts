@@ -1,0 +1,96 @@
+measurements=N
+startcondition=S
+initialstorecounter=I
+seed=S
+ranluxdlevel=L
+reproducerandomnumbers=R
+
+L=8
+T=8
+
+2KappaMu = 0.054916
+2Kappamubar = 0.054916
+2KappaEpsBar = 0.0384412
+CSW = 1.57551
+kappa = 0.13729
+NSave = 20
+ThetaT = 1.0
+UseEvenOdd = yes
+userelativeprecision=yes
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+DebugLevel = 0
+
+BeginMonomial GAUGE
+  Type = Iwasaki
+  beta = 2.10
+  Timescale = 0
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 1
+  kappa = 0.13729
+  CSW = 1.57551
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-12
+  StildeMin = 0.001
+  StildeMax = 4.0
+  Name = ndrat1
+  DegreeOfRational = 6
+  Cmin = 0
+  Cmax = 2
+# the eigenvalues are a useful check but there seems to be a random 
+# LAPACK problem, let's skip them for now
+  ComputeEVFreq = 1
+  2Kappamubar = 0.054916
+  2KappaEpsBar = 0.0384412
+  AddTrLog = yes
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 2
+  kappa = 0.13729
+  CSW = 1.57551
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-12
+  StildeMin = 0.001
+  StildeMax = 4.0
+  Name = ndrat2
+  DegreeOfRational = 6
+  Cmin = 3
+  Cmax = 5
+  ComputeEVFreq = 0
+  2Kappamubar = 0.054916
+  2KappaEpsBar = 0.0384412
+  AddTrLog = no
+EndMonomial
+
+# correction monomial for approximation error
+BeginMonomial NDCLOVERRATCOR
+  Timescale = 1
+  kappa = 0.13729
+  CSW = 1.57551
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-12
+  StildeMin = 0.001
+  StildeMax = 4.0
+  Name = ndratcor
+  DegreeOfRational = 6
+  ComputeEVFreq = 0
+  2Kappamubar = 0.054916
+  2KappaEpsBar = 0.0384412
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  Type2 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 1
+  IntegrationSteps2 = 10
+  tau = 1.00
+  Lambda0 = 0.19
+  Lambda1 = 0.20
+  Lambda2 = 0.21
+  NumberOfTimescales = 3
+EndIntegrator

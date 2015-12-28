@@ -10,13 +10,11 @@ T=8
 writecheckpoints=yes
 2KappaMu = 0.15
 kappa = 0.15
-NSave = 5000
+NSave = 500000
 ThetaT = 1
-BCGstabMaxIter = 1000
-CGMaxIter = 10000
 GaugeConfigInputFile = conf.save
 UseEvenOdd = yes
-ReversibilityCheck = yes
+ReversibilityCheck = no
 ReversibilityCheckIntervall = 10000
 DebugLevel = 0
 

@@ -1,8 +1,6 @@
 #! /bin/sh
 
 # seed the shell RNG from the PID
-# the random number generator is required to select the pax nodes
-# for small jobs according to the policy established in mid 2014
 RANDOM=$$
 
 ##############################################################################################
@@ -12,22 +10,20 @@ RANDOM=$$
 DEBUG=1
 
 # subdirectory in output and jobscript directory
-SD="ndcloverrat_211"
+SD="ndcloverrat_parallel_test"
 TEMPLATE="jobtemplate_ndcloverrat.sh"
-EDIR="/afs/ifh.de/user/k/kostrzew/execs/pax/tmLQCD/hmc_tm_icc_openmpi_lemon"
-#EDIR="/afs/ifh.de/user/k/kostrzew/execs/pax/tmLQCD/hmc_tm_swallbug"
-BASEDIR="/lustre/fs17/group/etmc/${USER}/highstat/${SD}"
+EDIR="/afs/ifh.de/user/l/lamipa88/exec"
+BASEDIR="/lustre/fs17/group/etmc/kostrzew/tests2/jobscripts/generators/highstat"
 
 # table with reference time measurements for different runs of the various samples
 # in columns and the various executables in rows
 # note that the table colums must be ordered as the SAMPLES variable
 # the rows can be in any order
-REFTFILE="runtimes_211_ndcloverrat.csv"
-#REFTFILE="runtimes_mpihmc3478.cvs"
+REFTFILE="runtimes_ndcloverrat_parallel_test_1.csv"
 
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
-NMEAS=10000
+NMEAS=70000
 REFMEAS=1000
 
 # set the random_seed variable in the hmc
@@ -36,10 +32,10 @@ SEED=123456
 RLXDLEVEL=2
 # reproduce random numbers flag should be "yes" because we want the runs
 # to be maximally correlated, even if it is quite a bit slower
-REPRO="no"
+REPRO="yes"
 
 # whether to compute correlators or not (increases runtime by ~10%)
-CORRELATORS=0
+CORRELATORS=1
 
 # the samples should be named such that if any two samples share a part entirely enclosed in or preceded by
 # underscores, such as _tmcloverdet or _ndclover, all further qualifications of this sample
@@ -50,13 +46,10 @@ CORRELATORS=0
 # SAMPLES="hmc0 hmc1 hmc2 hmc3 hmc_ndclover hmc_nosplit_ndclover hmc_nocsw_ndclover \
 #          hmc_nosplit_nocsw_ndclover hmc_cloverdet hmc_tmcloverdet hmc_check_ndclover_tmcloverdet\
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
-#EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-SAMPLES="L16T32_ndcloverrat_211_9 L16T32_ndcloverrat_211_12 L16T32_ndcloverrat_211_9_tight"
-#EXECS="openmp 1D_hybrid_hs_4_2 1D_hybrid_hs_2_4 3D_MPI_hs_32"
+SAMPLES="2f_L8T8_ndcloverrat 8f_L8T8_ndcloverrat"
 
-#SAMPLES="mpihmc4"
-EXECS="4D_MPI_hs_128"
+EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
 ##############################################################################################
 ################################# END OF CONFIGURATION #######################################
@@ -66,7 +59,7 @@ ODIR="${BASEDIR}/output"
 IDIR="${BASEDIR}/inputfiles"
 ITOPDIR="${BASEDIR}/inputfiles"
 TIDIR="templates"
-JDIR="${BASEDIR}/jobscripts"
+JDIR="${BASEDIR}/jobscripts_3"
 JFILE=""
 
 # job lengths are either 1, 2, 5, ... or 47 hours
@@ -105,14 +98,13 @@ fi
 # $12 NP (no parallel environment, 0 for parallel jobs or 1 for serial jobs)
 # $13 NC (number of continue script)
 # $14 EX (executable)
-# $15 NT (number of threads)
 create_script ()
 {
   if [ ${DEBUG} -eq 1 ]; then
     echo -e "create_script called with \n template file ${1} \n \
 destination ${2} \n H_RT ${3} \n S_RT ${4} \n QUEUE ${5} \n \
 NCORES ${6} \n NP ${7} \n BN ${8} \n AN ${9} \n SD ${10} \n \
-ST ${11} \n NP ${12} \n NC ${13} \n EX ${14} \n NT ${15}"
+ST ${11} \n NP ${12} \n NC ${13} \n EX ${14}"
   fi
 
   if [[ ! -d ${JDIR}/${9} ]]; then
@@ -139,7 +131,6 @@ ST ${11} \n NP ${12} \n NC ${13} \n EX ${14} \n NT ${15}"
   sed -i "s/ADDON=AN/ADDON=${9}/g" ${2}
   sed -i "s/SUBDIR=SD/SUBDIR=${10}/g" ${2}
   sed -i "s/STATE=ST/STATE=${11}/g" ${2}
-  sed -i "s/OMP_NUM_THREADS=NT/OMP_NUM_THREADS=${15}/g" ${2}
 
   # need to escape slashes for passing to sed
   IN='\/'
@@ -254,7 +245,7 @@ OMPNUMTHREADS ${6}"
       echo -e "NrXProcs=2\nNrYProcs=2\nNrZProcs=1\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT}
     ;;
-    1D_hybrid*)
+    1D_hybrid*_2)
     # prepend hybrid threads
       echo -e "ompnumthreads=${6}\n"|cat - ${INPUT} > ${TEMP}
       cp ${TEMP} ${INPUT} 
@@ -386,7 +377,7 @@ convert_time ()
 # we need to abide by the local rules regarding the scheduling of jobs
 # on different partitions of the pax cluster
 # jobs between 8 and 32 processes go on pax1-4
-# jobs with 64 processes go on pax5-7
+# jobs with 64 or 128 processes go on pax5-7
 # jobs with 128 processes go on pax9
 # jobs with 256 processes go on pax9 only
 # we need to choose randomly between the different possibilities for
@@ -426,13 +417,13 @@ select_pax_blade()
       export QUEUE="pax${n}"
     ;;
     *MPI*_128)
-      #n=$(( RANDOM % 2 )) 
-      #if [ ${n} -eq 1 ]; then
-      export QUEUE="pax9"
-      #else
-      #  n=$(( (RANDOM % 3) + 5 ))
-      #  export QUEUE="pax${n}"            
-      #fi
+      n=$(( RANDOM % 2 )) 
+      if [ ${n} -eq 1 ]; then
+        export QUEUE="pax9"
+      else
+        n=$(( (RANDOM % 3) + 5 ))
+        export QUEUE="pax${n}"            
+      fi
     ;;
     *MPI*_256)
       export QUEUE="pax9"
@@ -447,8 +438,7 @@ select_pax_blade()
 for e in ${EXECS}; do
 
   export AN=${e}
-  # remove the numers at the end of the executable name 
-  export EF=`echo ${e} | sed 's/[_[0-9]*]*$//g'` 
+  export EF=`echo ${e} | sed 's/_[0-9]*$//g'` 
  
   # no parallel environment leads to the deletion of the -pe line in the jobscript template
   export NOPE=0 
@@ -484,12 +474,12 @@ for e in ${EXECS}; do
       export NP=256
       export NCORES=256
     ;;
-    *hybrid*_2_4)
+    *hybrid*_4)
       export NP=4
-      export OMPNUMTHREADS=2
-      export NCORES=8
+      export OMPNUMTHREADS=4
+      export NCORES=16
     ;;
-    *hybrid*_4_2)
+    *hybrid*_2)
       export NP=2
       export OMPNUMTHREADS=4
       export NCORES=8
@@ -559,9 +549,9 @@ for e in ${EXECS}; do
     # the factor of 1.5 (or 1.5+0.1=1.6) is to account for performance flucutations
     NTIMES=`echo "scale=6;${NMEAS}/${REFMEAS}"|bc`
     if [[ ${CORRELATORS} -eq 1 ]]; then 
-      TOTALTIME=`echo "scale=6;1.1*${NTIMES}*${TIME}"| bc`
-    else
       TOTALTIME=`echo "scale=6;1.05*${NTIMES}*${TIME}"| bc`
+    else
+      TOTALTIME=`echo "scale=6;1.1*${NTIMES}*${TIME}"| bc`
     fi
 
     # determine correct job length
@@ -615,7 +605,7 @@ for e in ${EXECS}; do
           select_pax_blade ${e}
           convert_time ${JOBLIMIT}
           create_input ${ST} ${j} ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS} 
-          create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i} ${EF} ${OMPNUMTHREADS}
+          create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} ${i} ${EF}
           export TIME=`echo "scale=6;a=${TIME};b=${MAXJOBLENGTH};r=a-b;r"|bc`
           if [[ ${DEBUG} -eq 1 ]]; then
             echo "${TIME} remaining out of ${TOTALTIME}"
@@ -634,7 +624,7 @@ for e in ${EXECS}; do
         select_pax_blade ${e}
         convert_time ${JOBLIMIT} # writes H_RT and S_RT
         create_input  ${ST} 0 ${s} ${e} ${NMEAS_PART} ${OMPNUMTHREADS}
-        create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0 ${EF} ${OMPNUMTHREADS}
+        create_script ${TEMPLATE} ${JFILE} ${H_RT} ${S_RT} ${QUEUE} ${NCORES} ${NP} ${BN} ${AN} ${SD} ${ST} ${NOPE} 0 ${EF}
       fi
     done
   done

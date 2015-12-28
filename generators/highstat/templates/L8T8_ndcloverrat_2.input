@@ -1,0 +1,68 @@
+measurements=N
+startcondition=S
+initialstorecounter=I
+seed=S
+ranluxdlevel=L
+reproducerandomnumbers=R
+
+L=8
+T=8
+
+2KappaMu = 0.054916
+CSW = 1.57551
+kappa = 0.13729
+NSave = 20
+ThetaT = 1.0
+UseEvenOdd = yes
+userelativeprecision=yes
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+DebugLevel = 0
+
+BeginMonomial GAUGE
+  Type = Iwasaki
+  beta = 2.10
+  Timescale = 0
+EndMonomial
+
+BeginMonomial CLOVERDET
+  Timescale = 1
+  2KappaMu = 0.054916
+  CSW = 1.57551
+  # nominator shift
+  rho = 0.5
+  kappa = 0.13729
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-12
+  Name = cloverdet
+  solver = CG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 2
+  2KappaMu = 0.054916
+  # nominator shift
+  rho = 0.0
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.5
+  CSW = 1.57551
+  kappa = 0.13729
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-12
+  Name = cloverdetratio
+  solver = CG
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  Type2 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 1
+  IntegrationSteps2 = 10
+  tau = 1.00
+  Lambda0 = 0.19
+  Lambda1 = 0.20
+  Lambda2 = 0.21
+  NumberOfTimescales = 3
+EndIntegrator

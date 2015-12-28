@@ -6,7 +6,7 @@
 #(the running time for this job)
 #$ -l h_rt=H_RT
 #$ -l s_rt=S_RT
-#$ -l h_vmem=3G
+#$ -l h_rss=1G
 #
 #(stderr and stdout are merged together to stdout) 
 #$ -j y
@@ -21,6 +21,7 @@
 
 # number of mpi processes
 NPROCS=NP
+OMP_NUM_THREADS=NT
 # basename, e.g. hmc0
 BASENAME=BN
 # e.g. openmp_noreduct
@@ -65,13 +66,13 @@ case ${ADDON} in
   ;;
   *hybrid*) 
     if [[ "$PENAME" == "pax9" ]]; then
-      export BINDING="--cpus-per-proc 4 --map-by ppr:2:socket"
+      export BINDING="--cpus-per-proc ${OMP_NUM_THREADS} --map-by ppr:$((8/OMP_NUM_THREADS)):socket"
     else
-      export BINDING="--cpus-per-proc 4 --map-by ppr:1:socket"
+      export BINDING="--cpus-per-proc ${OMP_NUM_THREADS} --map-by ppr:$((4/OMP_NUM_THREADS)):socket"
     fi
   ;;
   *openmp*)
-    export BINDING="--cpus-per-proc 8 --map-by ppr:1:node"
+    export BINDING="--cpus-per-proc ${OMP_NUM_THREADS} --map-by ppr:1:node"
   ;;
 esac
 

@@ -28,7 +28,7 @@ REFTFILE="runtimes_211_ndcloverrat.csv"
 # a ratio REFMEAS = 100 means that the times in ${REFTFILE}
 # refer to timings of runs with 100 trajectories
 NMEAS=10000
-REFMEAS=1000
+REFMEAS=900
 
 # set the random_seed variable in the hmc
 SEED=123456
@@ -52,11 +52,12 @@ CORRELATORS=0
 #          hmc_check_ndclover_nocsw_tmcloverdet hmc_tmcloverdetratio"
 #EXECS="serial openmp 1D_hybrid_hs_2 2D_hybrid_hs_4 4D_hybrid_hs_16  2D_MPI_hs_16 3D_MPI_hs_8 3D_MPI_hs_16 3D_MPI_hs_32 3D_MPI_hs_64 4D_MPI_hs_16 4D_MPI_hs_32 4D_MPI_hs_64 4D_MPI_hs_128 4D_MPI_hs_256"
 
-SAMPLES="L16T32_ndcloverrat_211_9 L16T32_ndcloverrat_211_12 L16T32_ndcloverrat_211_9_tight"
+SAMPLES="L16T32_ndcloverrat_211_12"
+#SAMPLES="L16T32_ndcloverrat_211_9_tight"
 #EXECS="openmp 1D_hybrid_hs_4_2 1D_hybrid_hs_2_4 3D_MPI_hs_32"
 
 #SAMPLES="mpihmc4"
-EXECS="4D_MPI_hs_128"
+EXECS="4D_MPI_hs_256"
 
 ##############################################################################################
 ################################# END OF CONFIGURATION #######################################

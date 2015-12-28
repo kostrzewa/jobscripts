@@ -1,0 +1,180 @@
+measurements=N
+startcondition=S
+initialstorecounter=I
+seed=S
+ranluxdlevel=L
+reproducerandomnumbers=R                                                                                                                             
+
+L=16
+T=32
+
+2KappaMu = 0.00280132
+2kappamubar=0.0394425856
+2Kappaepsbar=0.0426080772
+CSW = 1.74
+kappa = 0.140066
+NSave = 10
+ThetaT = 1.0
+
+userelativeprecision = yes
+UseEvenOdd = yes
+
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+
+DebugLevel = 2
+
+BeginMeasurement CORRELATORS
+  Frequency = 1
+EndMeasurement
+#
+#BeginMeasurement GRADIENTFLOW
+#  Frequency = 4
+#EndMeasurement
+
+BeginOperator CLOVER
+  CSW = 1.74
+  kappa = 0.140066
+  2KappaMu = 0.00280132
+  SolverPrecision = 1e-18
+  MaxSolverIterations = 40000
+EndOperator
+
+BeginMonomial GAUGE
+  Type = Iwasaki
+  beta = 1.726
+  Timescale = 0
+EndMonomial
+
+BeginMonomial CLOVERDET
+  Timescale = 1
+  kappa = 0.140066
+  2KappaMu = 0.00280132
+  CSW = 1.74000
+  # nominator shift
+  rho = 0.2
+  MaxSolverIterations = 10000
+  AcceptancePrecision =  1.e-19
+  ForcePrecision = 1.e-12
+  Name = cloverdetlight
+  solver = CG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 2
+  kappa = 0.140066
+  2KappaMu = 0.00280132
+  # nominator shift
+  rho = 0.02
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.2
+  CSW = 1.74
+  MaxSolverIterations = 20000
+  AcceptancePrecision =  1.e-19
+  ForcePrecision = 1.e-12
+  Name = cloverdetratio1light
+  solver = CG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 3
+  kappa = 0.140066
+  2KappaMu = 0.00280132
+  # nominator shift
+  rho = 0
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.02
+  CSW = 1.74000
+  MaxSolverIterations = 40000
+  AcceptancePrecision =  1.e-19
+  ForcePrecision = 1.e-12
+  Name = cloverdetratio2light
+  solver = CG
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 1
+  kappa = 0.140066
+  CSW = 1.74
+  AcceptancePrecision =  1e-19
+  ForcePrecision = 1e-12
+  StildeMin = 0.000036
+  StildeMax = 3.6
+  Name = ndcloverrat1a
+  DegreeOfRational = 12
+  Cmin = 0
+  Cmax = 3
+  ComputeEVFreq = 1
+  2Kappamubar = 0.0394425856
+  2Kappaepsbar = 0.0426080772
+  AddTrLog = yes
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 2
+  kappa = 0.140066
+  CSW = 1.74
+  AcceptancePrecision =  1e-19
+  ForcePrecision = 1e-12
+  StildeMin = 0.000036
+  StildeMax = 3.6
+  Name = ndcloverrat2a
+  DegreeOfRational = 12
+  Cmin = 4
+  Cmax = 7
+  ComputeEVFreq = 0
+  2Kappamubar = 0.0394425856
+  2Kappaepsbar = 0.0426080772
+  AddTrLog = no
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 3
+  kappa = 0.140066
+  CSW = 1.74
+  AcceptancePrecision =  1e-19
+  ForcePrecision = 1e-12
+  StildeMin = 0.000036
+  StildeMax = 3.6
+  Name = ndcloverrat3a
+  DegreeOfRational = 12
+  Cmin = 8
+  Cmax = 11
+  ComputeEVFreq = 0
+  2Kappamubar = 0.0394425856
+  2Kappaepsbar = 0.0426080772
+  AddTrLog = no
+EndMonomial
+
+BeginMonomial NDCLOVERRATCOR
+  Timescale = 1
+  kappa = 0.140066
+  CSW = 1.74
+  AcceptancePrecision =  1e-19
+  ForcePrecision = 1e-12
+  StildeMin = 0.000036
+  StildeMax = 3.6
+  Name = ndcloverratcor
+  DegreeOfRational = 12
+  ComputeEVFreq = 0
+  2Kappamubar = 0.0394425856
+  2Kappaepsbar = 0.0426080772
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  Type2 = 2MN
+  Type3 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 1
+  IntegrationSteps2 = 1
+  IntegrationSteps3 = 12
+  tau = 1.0
+  Lambda0 = 0.19
+  Lambda1 = 0.20
+  Lambda2 = 0.20
+  Lambda3 = 0.21
+  NumberOfTimescales = 4
+  MonitorForces = yes
+EndIntegrator
