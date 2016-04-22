@@ -1,0 +1,243 @@
+L=24
+T=48
+
+NrXProcs = 4
+NrYProcs = 4
+NrZprocs = 6
+
+ompnumthreads=2
+
+Measurements = NMEAS
+
+# suppress the acceptance step for this many trajectories
+thermalisationsweeps=0 
+
+seed=SEED
+
+#Startcondition = hot
+#InitialStoreCounter = 0
+
+#Startcondition = cold
+#InitialStoreCounter = 0
+
+Startcondition = continue
+InitialStoreCounter = readin
+
+2KappaMu = KAPPAMU2
+2KappaMuBar = KAPPAMUBAR2
+2KappaEpsBar = KAPPAMUDEL2
+CSW = 1.74
+kappa = KAPPAONLY
+NSave = 1
+ThetaT = 1.0
+UseEvenOdd = yes
+userelativeprecision=yes
+
+# the reversibility check should be disabled in production because it messes up the number of CG iterations in output.data
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 1
+# GaugeConfigInputFile = conf.save
+
+# for the beginning 3 is fine, afterwards run with 2 because 3 slows down progress by about 10%!
+#DebugLevel = 3
+DebugLevel = 2
+
+ReproduceRandomNumbers = no
+RanluxdLevel = 2
+
+BeginMeasurement CORRELATORS
+  Frequency = 1
+EndMeasurement
+
+#BeginMeasurement GRADIENTFLOW
+#  Frequency = 4
+#EndMeasurement
+
+BeginOperator CLOVER
+  CSW = 1.74
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  SolverPrecision = 1e-18
+  MaxSolverIterations = 70000
+  solver = rgmixedcg
+EndOperator
+
+BeginMonomial GAUGE
+  Type = Iwasaki
+  beta = 1.726
+  Timescale = 0
+EndMonomial
+
+BeginMonomial CLOVERDET
+  Timescale = 0
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  CSW = 1.74
+  # numerator shift
+  rho = 0.08
+  MaxSolverIterations = 60000
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-14
+  Name = cloverdetlight
+  solver = rgmixedcg
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 1
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  # numerator shift
+  rho = 0.02
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.08
+  CSW = 1.74
+  MaxSolverIterations = 60000
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-14
+  Name = cloverdetratio1light
+  solver = rgmixedCG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 2
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  # numerator shift
+  rho = 0.006
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.02
+  CSW = 1.74
+  MaxSolverIterations = 60000
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-14
+  Name = cloverdetratio2light
+  solver = rgmixedCG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 3
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  # numerator shift
+  rho = 0.0008
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.006
+  CSW = 1.74
+  MaxSolverIterations = 60000
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-14
+  Name = cloverdetratio3light
+  solver = rgmixedCG
+EndMonomial
+
+BeginMonomial CLOVERDETRATIO
+  Timescale = 4
+  kappa = KAPPAONLY
+  2KappaMu = KAPPAMU2
+  # numerator shift
+  rho = 0.0
+  # denominator shift, should match CLOVERDET shift
+  rho2 = 0.0008
+  CSW = 1.74
+  MaxSolverIterations = 60000
+  AcceptancePrecision =  1.e-20
+  ForcePrecision = 1.e-14
+  Name = cloverdetratio4light
+  solver = rgmixedCG
+EndMonomial
+
+# so the forces of ndcloverrat1 are genuinely large, but the maximal 
+# force fluctuates much less than the forces coming from the light determinant
+# ratios, maybe it will be possible to integrate it like this.. 
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 1
+  kappa = KAPPAONLY
+  CSW = 1.74
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-14
+  # the eigenvalue band remains to be adjusted but this worked well before
+  StildeMin = 0.000047
+  StildeMax = 4.7
+  Name = ndcloverrat1
+  DegreeOfRational = 10
+  Cmin = 0
+  Cmax = 3
+  ComputeEVFreq = 1
+  2Kappamubar = KAPPAMUBAR2
+  2Kappaepsbar = KAPPAMUDEL2
+  AddTrLog = yes
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 2
+  kappa = KAPPAONLY
+  CSW = 1.74
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-14
+  StildeMin = 0.000047
+  StildeMax = 4.7
+  Name = ndcloverrat2
+  DegreeOfRational = 10
+  Cmin = 4
+  Cmax = 6
+  ComputeEVFreq = 0
+  2Kappamubar = KAPPAMUBAR2
+  2Kappaepsbar = KAPPAMUDEL2
+  AddTrLog = no
+EndMonomial
+
+BeginMonomial NDCLOVERRAT
+  Timescale = 3
+  kappa = KAPPAONLY
+  CSW = 1.74
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-14
+  StildeMin = 0.000047
+  StildeMax = 4.7
+  Name = ndcloverrat3
+  DegreeOfRational = 10
+  Cmin = 7
+  Cmax = 9
+  ComputeEVFreq = 0
+  2Kappamubar = KAPPAMUBAR2
+  2Kappaepsbar = KAPPAMUDEL2
+  AddTrLog = no
+EndMonomial
+
+BeginMonomial NDCLOVERRATCOR
+  Timescale = 1
+  kappa = KAPPAONLY
+  CSW = 1.74
+  # since this corrects for approximation errors, let's make it a little higher
+  AcceptancePrecision =  1e-20
+  ForcePrecision = 1e-14
+  StildeMin = 0.000047
+  StildeMax = 4.7
+  Name = ndcloverratcor
+  DegreeOfRational = 10
+  ComputeEVFreq = 0
+  2Kappamubar = KAPPAMUBAR2
+  2Kappaepsbar = KAPPAMUDEL2
+EndMonomial
+
+BeginIntegrator 
+  Type0 = 2MN
+  Type1 = 2MN
+  Type2 = 2MN
+  Type3 = 2MN
+  Type4 = 2MN
+  IntegrationSteps0 = 1
+  IntegrationSteps1 = 1
+  IntegrationSteps2 = 1
+  IntegrationSteps3 = 1
+  IntegrationSteps4 = 8
+  tau = 1.0
+  Lambda0 = 0.185
+  Lambda1 = 0.190
+  Lambda2 = 0.195
+  Lambda3 = 0.20
+  Lambda4 = 0.21
+  NumberOfTimescales = 5
+  MonitorForces = yes
+EndIntegrator

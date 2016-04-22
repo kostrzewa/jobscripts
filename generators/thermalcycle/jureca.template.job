@@ -1,0 +1,37 @@
+#!/bin/bash -x                                                                                                                                                           
+#SBATCH --job-name=SLJOBNAME
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bartosz.kostrzewa@desy.de
+#SBATCH --nodes=64
+#SBATCH --ntasks-per-node=24
+#SBATCH --cpus-per-task=2
+#SBATCH --output=outputs/SLJOBNAME.%j.out
+#SBATCH --error=outputs/SLJOBNAME.%j.err
+#SBATCH --time=06:00:00
+#SBATCH --partition=batch
+
+module load intel
+
+EXEC=${HOME}/bin/jureca/tmLQCD/hmc_tm.4D_hybrid_overlap
+
+prevWDIR=
+IFILE=SLIFILE
+IFILE_BASENAME=$( basename ${IFILE} )
+OFILE=SLOFILE
+WDIR=SLWDIR
+
+cd $WDIR
+
+# if prevWDIR is not empty, make a conf.start link to the last configuration
+# of the last run
+# also generate .nstore_counter
+if [ ! -z "${prevWDIR}" ]; then
+  cfname=$( ls -d -1 ${prevWDIR}/conf.* | tail -n 1 )
+  ln -s ${cfname} conf.start
+  echo "0 1 conf.start" > .nstore_counter
+fi
+
+date
+OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK} KMP_AFFINITY=compact srun ${EXEC} -f ${IFILE_BASENAME} | tee ${OFILE}
+date
+wait
