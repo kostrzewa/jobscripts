@@ -8,8 +8,6 @@
 
 import glob, sys, getopt, random
 
-glob.glob("*")
-
 def main(argv):
   helpstring = 'scalar_combinator.py -d <scalars_dir> -f <conf_end> [-r <reuse_scalars=0>] [-i <conf_start=0>] [-s <conf_step=1>] [-n <npergauge=1>] [-S <rng_seed=123456>]'
   scalars_dir = ''
@@ -73,7 +71,8 @@ def main(argv):
   print
 
   random.seed(rng_seed)
-  scalars = glob.glob(scalars_dir+"/*.dat")
+  scalars = sorted(glob.glob(scalars_dir+"/*.dat"), key=str.lower)
+
   
   if reuse_scalars:
     g_scalars = random.sample(scalars,npergauge)

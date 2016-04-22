@@ -1,0 +1,14 @@
+name=wilson_b5.85-L12T24-Kap0.130_variance_gauge
+scalar_rng_seed=871982
+tmlqcd_rng_seed=90012
+conf_start=100
+conf_end=1100
+conf_step=10
+npergauge=1
+reuse_scalars=1
+scalars_dir=/hiskp2/knippsch/BSM/dataBase/data/results/pHMC/configurations/subFolderL12x12x12x24Nf1Kap0.13000Lam0.01000Y0.00000Rho1.000R0.500PolDeg2PolAl0.500J0.00000_level14
+gauges_dir=/hiskp2/bartek/BSM/quenched/wilson_b5.85-L12T24
+jdir=/hiskp2/bartek/BSM/inversions/quenched/${name}
+jscr=L12T24-lcpunode01.sh
+ifile=L12T24-lcpunode01.input
+executable=/hadron/bartek/bin/tmLQCD/BSM/openmp-intel/invert

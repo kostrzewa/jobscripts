@@ -1,0 +1,46 @@
+L=12
+T=24
+
+ompnumthreads=32
+
+DebugLevel = 2
+
+BCAngleT = 1
+ThetaX = 0.0
+
+seed = SEED
+reproducerandomnumbers = no
+ranluxdlevel = 2
+
+InitialStoreCounter = NSTORE
+Measurements = 1
+
+GaugeConfigInputFile = conf
+ScalarConfigInputFile = scalar
+
+InitialScalarCounter = 0
+
+# this is a must right now
+UseEvenOdd = no
+
+UseSloppyPrecision = no
+userelativeprecision = yes
+DisableIOChecks = no
+
+SourceType = volume
+NoSamples = 1
+
+ReadSource = no
+SourceFilename = propagator 
+
+BeginOperator BSM
+  rho = 1.
+  eta = -1.10
+  m0 = 0.
+  Solver = CG
+  SolverPrecision = 1e-18
+  MaxSolverIterations = 9000
+  npergauge = NPERGAUGE
+EndOperator
+
+

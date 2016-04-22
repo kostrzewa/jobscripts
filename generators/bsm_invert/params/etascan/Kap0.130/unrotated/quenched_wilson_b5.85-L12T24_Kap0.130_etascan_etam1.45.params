@@ -1,0 +1,14 @@
+name=quenched_wilson_b5.85-L12T24-Kap0.130_etascan_etam1.45
+reuse_scalars=0
+scalar_rng_seed=12366
+tmlqcd_rng_seed=98663
+conf_start=100
+conf_end=101
+conf_step=1
+npergauge=200
+scalars_dir=/hiskp2/knippsch/BSM/dataBase/data/results/pHMC/configurations/subFolderL12x12x12x24Nf1Kap0.13000Lam0.01000Y0.00000Rho1.000R0.500PolDeg2PolAl0.500J0.00000_level14
+gauges_dir=/hiskp2/bartek/BSM/quenched/wilson_b5.85-L12T24
+jdir=/hiskp2/bartek/BSM/inversions/quenched/unrotated/etascan/Kap0.130/${name}
+jscr=L12T24-lcpunode01.sh
+ifile=etascan/L12T24-lcpunode01_etam1.45.input
+executable=/hadron/bartek/bin/tmLQCD/BSM/openmp-intel/invert
