@@ -63,7 +63,7 @@ def main(argv):
   print "### SCALARS_COMBINATOR ###"
   print "scalars_dir="+str(scalars_dir)
   print "conf_start="+str(conf_start)
-  print  "conf_end="+str(conf_end)
+  print "conf_end="+str(conf_end)
   print "conf_step="+str(conf_step)
   print "npergauge="+str(npergauge)
   print "rng_seed="+str(rng_seed)
