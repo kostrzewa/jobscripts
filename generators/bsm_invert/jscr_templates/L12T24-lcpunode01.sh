@@ -15,7 +15,7 @@ cd JDIR
 
 date > NAME.log
 
-KMP_AFFINITY=compact ${efile} | tee -a NAME.log
+KMP_AFFINITY=compact ${efile} -v | tee -a NAME.log
 
 date >> NAME.log
 
