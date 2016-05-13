@@ -1,5 +1,7 @@
 #!/bin/sh
 
+DEBUG=1
+
 if [ -z ${1} ]; then
   echo "You must specify an input file."
   echo "usage: ./generate_jobs.sh <inputfile>"
@@ -27,6 +29,10 @@ executable='invert'
 # read the input file
 . ${wd}/${1}
 
+if [ $DEBUG -eq 1 ]; then
+  cat ${wd}/${1}
+fi
+
 # create job directory
 if [ ! -d ${jdir}/jscr ]; then
   mkdir -p ${jdir}/jscr
@@ -34,6 +40,7 @@ fi
 
 
 # generate the scalar mappings
+echo "Executing " ${wd}/scalar_combinator.py -d ${scalars_dir} -i ${conf_start} -f ${conf_end} -s ${conf_step} -n ${npergauge} -S ${scalar_rng_seed} -r ${reuse_scalars}
 ${wd}/scalar_combinator.py -d ${scalars_dir} -i ${conf_start} -f ${conf_end} -s ${conf_step} -n ${npergauge} -S ${scalar_rng_seed} -r ${reuse_scalars}
 
 for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); do
