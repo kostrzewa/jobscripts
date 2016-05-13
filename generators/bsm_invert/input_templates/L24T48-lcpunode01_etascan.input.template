@@ -6,7 +6,7 @@ ompnumthreads=32
 
 useevenodd=no
 usesloppyprecision=no
-disableiochecks=no
+disableiochecks=yes
 
 reproducerandomnumbers=no
 ranluxdlevel = 2
