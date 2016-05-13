@@ -57,7 +57,7 @@ def main(argv):
     elif opt in ('-S'):
       rng_seed = int(arg)
     elif opt in ('-r'):
-      reuse_scalars = bool(arg)
+      reuse_scalars = bool(int(arg))
   
   print
   print "### SCALARS_COMBINATOR ###"
