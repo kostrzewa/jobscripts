@@ -48,6 +48,10 @@ for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); d
   echo "Preparing conf.${i4}"
   jdir_i4=${jdir}/${i4}
   mkdir -p ${jdir_i4}
+
+  # create directory and back up mapping of scalar configurations to gauge configurations
+  mkdir -p ${jdir}/scalarmap
+  cp scalarmap.${i4} ${jdir}/scalarmap/ 
   
   # make links
   ln -s ${gauges_dir}/conf.${i4} ${jdir_i4}
@@ -58,6 +62,9 @@ for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); d
   ln -s ${line} ${jdir_i4}/scalar.${nscalar}
     nscalar=$(( ${nscalar} + 1 ))
   done < scalarmap.${i4}
+  
+  # delete the local copy
+  rm scalarmap.${i4}
   
   # generate input file
   ifile_i4=${jdir_i4}/invert.input
