@@ -10,5 +10,5 @@ scalars_dir=/hiskp2/bartek/BSM/ROT_scalars/L24x24x24x48Nf1Kap0.13000Lam0.01000Y0
 gauges_dir=/hiskp2/gauges/B85.24
 jdir=/hiskp2/bartek/BSM/etascan_L24/${name}
 jscr=L24T48-lcpunode01.sh
-ifile=etascan_L24/L12T24-lcpunode01-etscan.-2.2.input
+ifile=etascan_L24/L24T48-lcpunode01-etascan.-2.2.input
 executable=/hadron/bartek/bin/tmLQCD/BSM/openmp-intel/invert
