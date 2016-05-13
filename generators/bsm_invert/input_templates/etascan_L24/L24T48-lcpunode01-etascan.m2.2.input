@@ -29,7 +29,7 @@ sourcefilename = bsm2prop
 
 BeginOperator BSM2b
   rho = 1.
-  m0 = 0.
+  m0 = 0.0005
   eta = -2.2
   solver = cg
   solverprecision = 1e-16
