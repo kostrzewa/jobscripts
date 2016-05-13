@@ -1,4 +1,4 @@
-name=etascan_L24_-2.3_Kap0.132
+name=etascan_L24_m2.3_Kap0.132
 reuse_scalars=0
 scalar_rng_seed=24132
 tmlqcd_rng_seed=13224
@@ -10,5 +10,5 @@ scalars_dir=/hiskp2/bartek/BSM/ROT_scalars/L24x24x24x48Nf1Kap0.13200Lam0.01000Y0
 gauges_dir=/hiskp2/gauges/B85.24
 jdir=/hiskp2/bartek/BSM/etascan_L24/${name}
 jscr=L24T48-lcpunode01.sh
-ifile=etascan_L24/L24T48-lcpunode01-etascan.-2.3.input
+ifile=etascan_L24/L24T48-lcpunode01-etascan.m2.3.input
 executable=/hadron/bartek/bin/tmLQCD/BSM/openmp-intel/invert

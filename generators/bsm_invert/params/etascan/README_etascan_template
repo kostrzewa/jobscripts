@@ -1,0 +1,10 @@
+The template files in the L12 and L24 directories were generated using:
+
+./make_etascan_param_templates.sh L24/etascan_L24.Kap0.130 etascan_L24.Kap0.130.params.template '0 1 -1.1 -1.15 -1.2 -2.2 -2.3 -2.4'
+./make_etascan_param_templates.sh L24/etascan_L24.Kap0.132 etascan_L24.Kap0.132.params.template '0 1 -1.1 -1.15 -1.2 -2.2 -2.3 -2.4'
+
+with suitable replacements for L12 and whatever choice for the various etas.
+
+This script is the counterpart to ../../input_templates/make_etascan_templates.sh
+
+BaKo, May 2016
