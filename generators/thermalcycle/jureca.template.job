@@ -10,7 +10,7 @@
 #SBATCH --time=06:00:00
 #SBATCH --partition=batch
 
-module load intel
+module load Intel IntelMPI imkl
 
 EXEC=${HOME}/bin/jureca/tmLQCD/hmc_tm.4D_hybrid_overlap
 
@@ -26,7 +26,7 @@ cd $WDIR
 # of the last run
 # also generate .nstore_counter
 if [ ! -z "${prevWDIR}" ]; then
-  cfname=$( ls -d -1 ${prevWDIR}/conf.* | tail -n 1 )
+  cfname=$( ls -d -1 ${prevWDIR}/conf.[0-9]* | sort | tail -n 1 )
   ln -s ${cfname} conf.start
   echo "0 1 conf.start" > .nstore_counter
 fi
