@@ -1,5 +1,7 @@
 #!/bin/sh
 
+DEBUG=1
+
 if [ -z ${1} ]; then
   echo "You must specify an input file."
   echo "usage: ./generate_jobs.sh <inputfile>"
@@ -27,6 +29,10 @@ executable='invert'
 # read the input file
 . ${wd}/${1}
 
+if [ $DEBUG -eq 1 ]; then
+  cat ${wd}/${1}
+fi
+
 # create job directory
 if [ ! -d ${jdir}/jscr ]; then
   mkdir -p ${jdir}/jscr
@@ -34,6 +40,7 @@ fi
 
 
 # generate the scalar mappings
+echo "Executing " ${wd}/scalar_combinator.py -d ${scalars_dir} -i ${conf_start} -f ${conf_end} -s ${conf_step} -n ${npergauge} -S ${scalar_rng_seed} -r ${reuse_scalars}
 ${wd}/scalar_combinator.py -d ${scalars_dir} -i ${conf_start} -f ${conf_end} -s ${conf_step} -n ${npergauge} -S ${scalar_rng_seed} -r ${reuse_scalars}
 
 for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); do
@@ -41,6 +48,10 @@ for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); d
   echo "Preparing conf.${i4}"
   jdir_i4=${jdir}/${i4}
   mkdir -p ${jdir_i4}
+
+  # create directory and back up mapping of scalar configurations to gauge configurations
+  mkdir -p ${jdir}/scalarmap
+  cp scalarmap.${i4} ${jdir}/scalarmap/ 
   
   # make links
   ln -s ${gauges_dir}/conf.${i4} ${jdir_i4}
@@ -51,6 +62,9 @@ for i in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) ); d
   ln -s ${line} ${jdir_i4}/scalar.${nscalar}
     nscalar=$(( ${nscalar} + 1 ))
   done < scalarmap.${i4}
+  
+  # delete the local copy
+  rm scalarmap.${i4}
   
   # generate input file
   ifile_i4=${jdir_i4}/invert.input

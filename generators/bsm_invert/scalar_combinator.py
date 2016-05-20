@@ -57,13 +57,13 @@ def main(argv):
     elif opt in ('-S'):
       rng_seed = int(arg)
     elif opt in ('-r'):
-      reuse_scalars = bool(arg)
+      reuse_scalars = bool(int(arg))
   
   print
   print "### SCALARS_COMBINATOR ###"
   print "scalars_dir="+str(scalars_dir)
   print "conf_start="+str(conf_start)
-  print  "conf_end="+str(conf_end)
+  print "conf_end="+str(conf_end)
   print "conf_step="+str(conf_step)
   print "npergauge="+str(npergauge)
   print "rng_seed="+str(rng_seed)

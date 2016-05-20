@@ -1,0 +1,9 @@
+The template input files in the etascan_L24 and etsacan_L12 directoreis were generated using:
+
+./make_etascan_input_templates.sh etascan_L24/L24T48-lcpunode01-etascan etascan_L24/L24T48-lcpunode01_etascan.input.template '1 0 -1.1 -1.15 -1.2 -2.2 -2.3 -2.4'
+
+and suitable replacements for L12 and whatever choice for the various etas.
+
+This script is the counterpart to ../params/etascan/make_etascan_param_templates.sh
+
+BaKo, May 2016

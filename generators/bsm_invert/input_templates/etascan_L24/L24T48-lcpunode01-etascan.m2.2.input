@@ -1,0 +1,39 @@
+L=24
+T=48
+
+debuglevel=1
+ompnumthreads=32
+
+useevenodd=no
+usesloppyprecision=no
+disableiochecks=yes
+
+reproducerandomnumbers=no
+ranluxdlevel = 2
+
+seed = SEED
+initialstorecounter = NSTORE
+
+measurements = 1
+
+bcanglet = 1
+
+gaugeconfiginputfile = conf
+scalarconfiginputfile = scalar
+
+sourcetype = volume
+nosamples = 1
+
+readsource = no
+sourcefilename = bsm2prop
+
+BeginOperator BSM2b
+  rho = 1.
+  m0 = 0.0005
+  eta = -2.2
+  solver = cg
+  solverprecision = 1e-16
+  maxsolveriterations = 20000
+  npergauge = NPERGAUGE
+EndOperator
+

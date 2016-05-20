@@ -6,9 +6,6 @@
 
 efile=EXEC
 
-#PBS_TASKNUM=1
-#PBS_NUM_PPN=32
-
 export OMP_NUM_THREADS=32
 
 cd JDIR

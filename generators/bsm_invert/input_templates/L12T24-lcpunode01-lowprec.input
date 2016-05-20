@@ -38,7 +38,7 @@ BeginOperator BSM
   eta = -1.15
   m0 = 0.
   Solver = CG
-  SolverPrecision = 1e-21
+  SolverPrecision = 1e-15
   MaxSolverIterations = 3000
   npergauge = NPERGAUGE
 EndOperator
