@@ -1,0 +1,27 @@
+ensemble='cA2.09.48'
+names=( fwdprop seqprop )
+thetas=( 0 )
+skiptheta0=0
+solverprecision=1.e-18
+conf_start=2600
+conf_end=2608
+conf_step=8
+gauges_dir=/work/hch02/hch028/confs_tmp/nf2/cA2.09.48
+jdir=${WORK}/pion_form_fctr/tbc_pion_props/${ensemble}
+tmlqcd_rng_seed=26002704
+itemplate='invert.input.template'
+jtemplate='jscr_templates/bgq.jscr.template'
+executable='/homec/hbn28/hbn288/build/juqueen/V1R2M4/tmLQCD/INDTC/4d.hybrid/invert'
+kappa=0.13729
+kappa2mu=0.000247122
+csw=1.57551
+nodes=1024
+npn=1
+L=48
+T=96
+ompnumthreads=64
+nrxprocs=4
+nryprocs=4
+nrzprocs=4
+wtime=05:55:55
+
