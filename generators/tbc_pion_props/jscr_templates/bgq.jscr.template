@@ -1,0 +1,125 @@
+# @ job_name         = JOBNAME
+# @ error            = outputs/$(job_name).$(jobid).$(stepid).out
+# @ output           = outputs/$(job_name).$(jobid).$(stepid).out
+# @ environment      = COPY_ALL;
+# @ wall_clock_limit = WTIME
+# @ notification     = always
+# @ notify_user      = bartosz.kostrzewa@desy.de
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size          = NODES
+# @ queue
+
+np=$LOADL_BG_SIZE
+rpn=NPN
+export OMP_NUM_THREADS=OMPNUMTHREADS
+
+executable=EXECUTABLE
+thetas=( THETAS )
+names=( NAMES )
+wdir=WDIR
+conf4=CONF4
+skiptheta0=SKIPTHETA0
+
+cd $wdir
+
+# determine optimal mapping to network topology
+echo loadl shape is $LOADL_BG_SHAPE
+# default mapping for bg_size=32 and bg_size=512 
+export MP=EABCDT
+case ${LOADL_BG_SHAPE} in
+  # mappings for BG_SIZE=1024 (16x4x4x4)
+  2x1x1x1 )
+    MP=EABCDT 
+  ;;
+  1x2x1x1 )
+    MP=EBACDT
+  ;;    
+  1x1x2x1 )
+    MP=ECABDT
+  ;;    
+  1x1x1x2 )
+    MP=EDABCT
+  ;;
+  # mappings for BG_SIZE=64 (8x2x2x2)
+  2x2x2x4x2 )
+    MP=EDABCT
+  ;;
+  2x2x4x2x2 )
+    MP=ECABDT
+  ;;
+  2x4x2x2x2 )
+    MP=EBACDT
+  ;;
+  4x2x2x2x2 )
+    MP=EABCDT
+  ;;
+  # mappings for bg_size=128 (16x2x2x2)
+  2x2x4x4x2 )
+    MP=CDABET
+  ;;
+  2x4x2x4x2 )
+    MP=BDACET
+  ;;
+  4x2x2x4x2 )
+    MP=ADBCET
+  ;;
+  2x4x4x2x2 )
+    MP=BCADET
+  ;;
+  4x2x4x2x2 )
+    MP=ACBDET
+  ;;
+  4x4x2x2x2 )
+    MP=ABCDET
+  ;;
+  # mappings for bg_size=256 (4x4x4x4)
+  2x4x4x4x2 )
+    MP=BCDAET
+  ;;
+  4x4x2x4x2 )
+    MP=ABDCET
+  ;;
+  4x2x4x4x2 )
+    MP=ACDBET
+  ;;
+  4x4x4x2x2 )
+    MP=ABCDET
+  ;;
+esac
+
+echo mapping is ${MP}
+
+runjobparams="--mapping ${MP} --envs "MUSPI_NUMINJFIFOS=8" --envs "MUSPI_NUMRECFIFOS=8" --envs "MUSPI_NUMBATIDS=2" \
+--ranks-per-node ${rpn} --np ${np} --cwd ${wdir}"
+
+date
+
+time \
+for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
+  if [ "${thetas[itheta]}" == "0" -a skiptheta0 -ne 0 ]; then
+    continue
+  fi
+  for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
+    texttheta=$( echo ${thetas[itheta]} | sed 's/-/m/g' )
+    flavour="u"                                                                                                                                                        
+    if [ "${names[itheta]}" == "seqprop" ]; then
+      flavour="d"
+    fi
+
+    propagatorfilename=${flavour}_${names[iname]}_theta_${texttheta}
+    
+    ifile=${propagatorfilename}.invert.input
+    logfile=logs/${propagatorfilename}.${conf4}.log
+    
+    date > ${logfile}
+    runjob ${runjobparams} : ${executable} -f ${ifile} | tee -a ${logfile}
+    dat >> ${logfile}
+  done
+done
+
+date
+
+
+
+

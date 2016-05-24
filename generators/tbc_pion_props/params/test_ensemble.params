@@ -1,0 +1,27 @@
+ensemble='test_ensemble'
+names=( fwdprop seqprop )
+thetas=( 0 -0.3 -0.7 -1.3 0.3 0.7 1.3 )
+skiptheta0=0
+solverprecision=1.e-18
+conf_start=0
+conf_end=100
+conf_step=4
+gauges_dir=/tmp
+jdir=/tmp/tbc_pion_props/${ensemble}
+tmlqcd_rng_seed=987908
+itemplate='invert.input.template'
+jtemplate='jscr_templates/bgq.jscr.template'
+executable='/home/bartek/code/build/tmLQCD.urbach/4d.hybrid/invert'
+kappa=0.125
+kappa2mu=0.00250
+csw=1.0
+nodes=1
+npn=1
+L=24
+T=48
+ompnumthreads=4
+nrxprocs=2
+nryprocs=2
+nrzprocs=2
+wtime=05:05:05
+
