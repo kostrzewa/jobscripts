@@ -81,7 +81,7 @@ for conf in $(seq ${conf_start} ${conf_step} $(( ${conf_end} - ${conf_step} )) )
 
   ## GENERATE INPUT FILES
   for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
-    if [ "${thetas[itheta]}" == "0" -a skiptheta0 -ne 0 ]; then
+    if [ "${thetas[itheta]}" == "0" -a ${skiptheta0} -ne 0 ]; then
       continue
     fi
       
