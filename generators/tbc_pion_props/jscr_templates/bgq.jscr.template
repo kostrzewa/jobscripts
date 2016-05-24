@@ -97,7 +97,7 @@ date
 
 time \
 for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
-  if [ "${thetas[itheta]}" == "0" -a skiptheta0 -ne 0 ]; then
+  if [ "${thetas[itheta]}" == "0" -a ${skiptheta0} -ne 0 ]; then
     continue
   fi
   for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
