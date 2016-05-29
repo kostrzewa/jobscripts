@@ -1,0 +1,56 @@
+#!/bin/bash -x
+#SBATCH --job-name=JOBNAME
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bartosz.kostrzewa@desy.de
+#SBATCH --nodes=NODES
+#SBATCH --ntasks-per-node=RPN
+#SBATCH --cpus-per-task=12
+#SBATCH --output=outputs/out.JOBNAME.%j
+#SBATCH --error=outputs/err.JOBNAME.%j
+#SBATCH --time=WTIME
+#SBATCH --partition=gpus
+#SBATCH --gres=gpu:4
+
+module restore nvidia
+
+export OMP_NUM_THREADS=OMPNUMTHREADS                                                                                                                                                
+
+executable=EXECUTABLE
+thetas=( THETAS )
+names=( NAMES )
+wdir=WDIR
+conf4=CONF4
+skiptheta0=SKIPTHETA0
+
+cd $wdir
+
+date
+
+time \
+for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
+  if [ "${thetas[itheta]}" == "0" -a ${skiptheta0} -ne 0 ]; then
+    continue
+  fi
+  for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
+    theta=${thetas[itheta]}
+    flavour="u"                                                                                                                                                        
+    if [ "${names[iname]}" = "seqprop" ]; then
+      flavour="du"
+      if [ "${theta}" != "0" ]; then
+        theta=-${theta}
+      fi
+    fi
+    texttheta=$( echo ${theta} | sed 's/-/m/g' )
+    propagatorfilename=${flavour}_${names[iname]}_theta_${texttheta}
+    
+    ifile=inputs/${propagatorfilename}.invert.input                                                                                                                                 
+    logfile=logs/${propagatorfilename}.${conf4}.log
+    
+    date > ${logfile}
+    #QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop 
+    srun ${executable} -f ${ifile} | tee -a ${logfile}
+    date >> ${logfile}
+  done
+done
+
+date
