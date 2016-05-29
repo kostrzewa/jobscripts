@@ -14,7 +14,7 @@ thetaz = THETA
 propagatorfilename = PROPFILE
 SourceFilename = SRCFILE
 
-ReadSource = no
+ReadSource = SRCREAD
 SourceType = SRCTYPE
 SourceTimeslice = detect
 NoSamples = 1
@@ -34,4 +34,5 @@ BeginOperator CLOVER
   solver = rgmixedcg
   solverprecision = SPREC
   AddDownPropagator = no
+  maxsolveriterations = 50000
 EndOperator
