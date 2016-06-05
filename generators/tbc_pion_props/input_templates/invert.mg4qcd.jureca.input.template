@@ -17,8 +17,9 @@ SourceFilename = SRCFILE
 ReadSource = SRCREAD
 SourceType = SRCTYPE
 SourceTimeslice = detect
-NoSamples = 1
+NoSamples = NOSAMPLES
 
+UseEvenOdd = no
 UseRelativePrecision = yes
 UseSloppyPrecision = no
 
@@ -27,12 +28,22 @@ kappa = KAPPA
 csw = CSW
 
 BeginOperator CLOVER
+  MGBlockX = 4
+  MGBlockY = 4
+  MGBlockZ = 4
+  MGBlockT = 4
+  MGSetupIter = 3
+  MGCoarseSetupIter = 3
+  MGNumberOfVectors = 24
+  MGNumberOfLevels = 3
+  MGCoarseMuFactor = 5
   csw = CSW
   kappa = KAPPA
   2kappamu = MUSIGN2KAPMU
-  propagatorprecision = 32
-  solver = rgmixedcg
+  propagatorprecision = 64
+  solver = mg4qcd
   solverprecision = SPREC
   AddDownPropagator = no
-  maxsolveriterations = 50000
+  maxsolveriterations = 60000
+  useevenodd = no
 EndOperator

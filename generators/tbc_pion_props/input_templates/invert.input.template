@@ -1,0 +1,38 @@
+
+measurements = 1
+initialstorecounter = NSTORE 
+
+seed = SEED
+ranluxdlevel=2
+reproducerandomnumbers=no
+
+BcAngleT = 1.0
+
+thetax = THETA
+thetay = THETA
+thetaz = THETA
+propagatorfilename = PROPFILE
+SourceFilename = SRCFILE
+
+ReadSource = SRCREAD
+SourceType = SRCTYPE
+SourceTimeslice = detect
+NoSamples = 1
+
+UseRelativePrecision = yes
+UseSloppyPrecision = no
+
+kappa = KAPPA
+2kappamu = 2KAPMU
+csw = CSW
+
+BeginOperator CLOVER
+  csw = CSW
+  kappa = KAPPA
+  2kappamu = MUSIGN2KAPMU
+  propagatorprecision = 64
+  solver = rgmixedcg
+  solverprecision = SPREC
+  AddDownPropagator = no
+  maxsolveriterations = 60000
+EndOperator

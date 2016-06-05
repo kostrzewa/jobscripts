@@ -1,14 +1,14 @@
 ensemble='cA2.60.32_combined'
 names=( fwdprop seqprop )
-thetas=( 0.3024 0.5223 0.7422 0.9622 1.0721 1.2096 0.1197 0.1693 0.2186 0.3787 0.4373 0.4889 0.5701 0.6027 0.6486 0.6774 0.7822 )
+thetas=( 0 0.3024 0.5223 0.7422 0.9622 1.0721 1.2096 0.1197 0.1693 0.2186 0.3787 0.4373 0.4889 0.5701 0.6027 0.6486 0.6774 0.7822 )
 skiptheta0=0
 srcread="no"
 solverprecision=1.e-20
 conf_start=0000
-conf_end=5376
+conf_end=0000
 conf_step=16
 gauges_dir=/work/hch02/hch028/confs_tmp/nf2/cA2.60.32_combined
-jdir=${WORK}/pion_form_fctr/tbc_pion_props/${ensemble}
+jdir=${WORK}/pion_form_fctr/tbc_pion_props/test_${ensemble}
 tmlqcd_rng_seed=26032
 itemplate='invert.quda.input.template'
 jtemplate='jscr_templates/slurm.quda.jscr.template'

@@ -38,6 +38,7 @@ nryprocs=1
 nrzprocs=1
 wtime=00:02:00
 skiptheta0=0
+nosamples=1
 
 # read the input file
 . ${wd}/${1}
@@ -49,6 +50,16 @@ fi
 # create job directory
 if [ ! -d ${jdir}/jscr/outputs ]; then
   mkdir -p ${jdir}/jscr/outputs
+fi
+
+if [ ! -f ${jtemplate} ]; then
+  echo "Job template ${jtemplate} does not exist!"
+  exit 2
+fi
+
+if [ ! -f ${itemplate} ]; then
+  echo "Input file template ${itemplate} does not exist!"
+  exit 3
 fi
 
 for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
@@ -123,6 +134,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       sed -i "s/PROPFILE/${propagatorfilename}/g" ${ifile}.tmp
       sed -i "s/SRCFILE/${sourcefilename}/g" ${ifile}.tmp
       sed -i "s/SEED/${tmlqcd_rng_seed}/g" ${ifile}.tmp
+      sed -i "s/NOSAMPLES/${nosamples}/g" ${ifile}.tmp
       
       # choose appropriate source type for given job
       if [ "${names[iname]}" = "fwdprop" ]; then
@@ -148,7 +160,13 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       sed -i "s/KAPPA/${kappa}/g" ${ifile}.tmp
       sed -i "s/MUSIGN/${musign}/g" ${ifile}.tmp
       sed -i "s/2KAPMU/${kappa2mu}/g" ${ifile}.tmp
-      sed -i "s/SPREC/${solverprecision}/g" ${ifile}.tmp
+      
+      if [ "${names[iname]}" = "seqprop" ]; then
+        sed -i "s/SPREC/1e-20/g" ${ifile}.tmp
+      else
+        sed -i "s/SPREC/${solverprecision}/g" ${ifile}.tmp
+      fi
+
 
       echo L=${L} > ${ifile}.header
       echo T=${T} >> ${ifile}.header
