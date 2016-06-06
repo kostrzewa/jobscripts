@@ -16,10 +16,12 @@ thetaz = THETA
 propagatorfilename = PROPFILE
 SourceFilename = SRCFILE
 
+GaugeConfigInputFile = GCONF
+
 ReadSource = SRCREAD
 SourceType = SRCTYPE
 SourceTimeslice = detect
-NoSamples = 1
+NoSamples = NOSAMPLES
 
 UseRelativePrecision = yes
 UseSloppyPrecision = no
@@ -32,7 +34,7 @@ BeginOperator CLOVER
   csw = CSW
   kappa = KAPPA
   2kappamu = MUSIGN2KAPMU
-  propagatorprecision = 32
+  propagatorprecision = 64
   solver = cg
   solverprecision = SPREC
   AddDownPropagator = no
