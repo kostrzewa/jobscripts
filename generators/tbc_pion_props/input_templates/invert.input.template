@@ -17,7 +17,7 @@ SourceFilename = SRCFILE
 ReadSource = SRCREAD
 SourceType = SRCTYPE
 SourceTimeslice = detect
-NoSamples = 1
+NoSamples = NOSAMPLES
 
 UseRelativePrecision = yes
 UseSloppyPrecision = no

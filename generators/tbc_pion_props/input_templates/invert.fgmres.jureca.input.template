@@ -1,0 +1,79 @@
+
+measurements = 1
+initialstorecounter = NSTORE 
+
+seed = SEED
+ranluxdlevel=2
+reproducerandomnumbers=no
+
+BcAngleT = 1.0
+
+thetax = THETA
+thetay = THETA
+thetaz = THETA
+propagatorfilename = PROPFILE
+SourceFilename = SRCFILE
+
+# going for block sizes of 4^4
+NoBlocksT = 2
+NoBlocksX = 2
+NoBlocksY = 2
+NoBlocksZ = 2
+
+ReadSource = SRCREAD
+SourceType = SRCTYPE
+SourceTimeslice = detect
+NoSamples = NOSAMPLES
+
+UseEvenOdd = no
+UseRelativePrecision = yes
+UseSloppyPrecision = no
+
+kappa = KAPPA
+2kappamu = 2KAPMU
+csw = CSW
+
+GMRESMParameter = 24
+
+BeginDeflationInit
+  DeflationSubspaceDimension = 24
+  NiterMsap = 4
+  NcycleMsap = 4
+  KappaMsap = 0.137290
+  2KappaMuMsap = 0.00304
+
+  NiterMsapSubspace = 4
+  NcycleMsapSubspace = 4
+  NsmoothSubspace = 7
+
+  LittleSolverLowPrecision = 0.01
+  LittleSolverHighPrecision = 0.01
+  LittleSolverMaxIter = 10
+  LittleGMRESMParameter = 60
+  KappaSubspace = 0.137290
+#  2KappaMu = 0.00104
+#  2KappaMuSubspace = 0.000247122
+  2KappaMuSubspace = 0.0
+#  Kappa = 0.13710
+  Kappa = 0.137290
+  2KappaMu = 0.00304
+  #2KappaMu = 0.0
+
+  LittleEvenOdd = yes
+  UseLittleLittleD = no
+
+#  LittleEvenOdd = no
+EndDeflationInit
+
+
+BeginOperator CLOVER
+  csw = CSW
+  kappa = KAPPA
+  2kappamu = MUSIGN2KAPMU
+  propagatorprecision = 64
+  solver = dflfgmres
+  solverprecision = SPREC
+  AddDownPropagator = no
+  maxsolveriterations = 6000
+  useevenodd = no
+EndOperator
