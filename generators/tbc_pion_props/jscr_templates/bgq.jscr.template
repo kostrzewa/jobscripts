@@ -11,7 +11,7 @@
 # @ queue
 
 np=$LOADL_BG_SIZE
-rpn=NPN
+rpn=RPN
 export OMP_NUM_THREADS=OMPNUMTHREADS
 
 executable=EXECUTABLE
@@ -97,24 +97,28 @@ date
 
 time \
 for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
-  if [ "${thetas[itheta]}" == "0" -a ${skiptheta0} -ne 0 ]; then
+  if [ "${thetas[itheta]}" = "0" -a ${skiptheta0} -ne 0 ]; then
     continue
   fi
   for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
-    texttheta=$( echo ${thetas[itheta]} | sed 's/-/m/g' )
+    theta=${thetas[itheta]}
     flavour="u"                                                                                                                                                        
-    if [ "${names[itheta]}" == "seqprop" ]; then
-      flavour="d"
+    if [ "${names[iname]}" = "seqprop" ]; then
+      flavour="du"
+      if [ "${theta}" != "0" ]; then
+        theta=-${theta}
+      fi
     fi
+    texttheta=$( echo ${theta} | sed 's/-/m/g' )
 
     propagatorfilename=${flavour}_${names[iname]}_theta_${texttheta}
     
-    ifile=${propagatorfilename}.invert.input
+    ifile=inputs/${propagatorfilename}.invert.input
     logfile=logs/${propagatorfilename}.${conf4}.log
     
     date > ${logfile}
     runjob ${runjobparams} : ${executable} -f ${ifile} | tee -a ${logfile}
-    dat >> ${logfile}
+    date >> ${logfile}
   done
 done
 
