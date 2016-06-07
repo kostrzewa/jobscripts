@@ -14,6 +14,8 @@ thetaz = THETA
 propagatorfilename = PROPFILE
 SourceFilename = SRCFILE
 
+GaugeConfigInputFile = GCONF
+
 ReadSource = SRCREAD
 SourceType = SRCTYPE
 SourceTimeslice = detect
