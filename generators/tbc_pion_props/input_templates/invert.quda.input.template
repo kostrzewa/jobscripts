@@ -1,5 +1,5 @@
 
-debuglevel=5
+debuglevel=1
 
 measurements = 1
 initialstorecounter = NSTORE 
