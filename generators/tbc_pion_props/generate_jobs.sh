@@ -66,9 +66,9 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   conf4=$(printf %04d ${conf})
   echo "Preparing conf.${conf4}"
   jdir_conf4=${jdir}/${conf4}
-  mkdir -p ${jdir_conf4}
-  mkdir -p ${jdir_conf4}/logs
-  mkdir -p ${jdir_conf4}/inputs
+  mkdir ${jdir_conf4}
+  mkdir ${jdir_conf4}/logs
+  mkdir ${jdir_conf4}/inputs
 
   # this is now done via the input file
   # if the filename is too long, the links can be reinstated
