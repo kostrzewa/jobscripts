@@ -10,7 +10,7 @@ fi
 for eta in ${3}; do
   # replace minus signs in the eta value with an "m"
   texteta=$( echo $eta | sed "s/-/m/g" )
-  targetfile=${1}.${texteta}.input
+  targetfile=${1}_${texteta}.input
   cp ${2} ${targetfile}
   sed -i "s/ETA/${eta}/g" ${targetfile}
 done

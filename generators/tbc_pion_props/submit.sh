@@ -11,7 +11,7 @@ no=${3}
 prefix=Z_extend
 
 if [ -z "$( ls ${prefix}* )" ]; then
-  touch ${prefix}_0000
+  touch ${prefix}_xxxx
 fi
 
 for i in $( seq ${start} ${step} $(( ${start} + (${no}-1)*${step} )) ); do 

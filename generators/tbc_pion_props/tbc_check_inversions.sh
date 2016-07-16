@@ -5,9 +5,9 @@
 # diretory have gone through sucessfully
 # if not, a log file is written with the missing configurations
 
-thetas=( 0.8033 )
+thetas=( 0 0.1796 0.2540 0.3279 0.4536 0.5680 )
 names=( fwdprop seqprop )
-conf_start=240
+conf_start=1808
 conf_end=2280
 step=8
 nosamples=12

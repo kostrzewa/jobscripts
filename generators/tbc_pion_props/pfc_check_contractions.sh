@@ -5,13 +5,12 @@
 # diretory have gone through sucessfully
 # if not, a log file is written with the missing configurations
 
-nothetas=1
+nothetas=7
 names=( ppcor vector_ff )
 conf_start=240
 conf_end=2280
 step=8
 cdir=/work/hch02/hch028/pionff/cA2.09.48_set3
-
 
 for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
   date > missing_${names[iname]}.txt

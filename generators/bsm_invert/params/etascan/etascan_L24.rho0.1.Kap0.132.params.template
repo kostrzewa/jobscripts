@@ -1,0 +1,14 @@
+name=etascan_rho0.1_L24_ETA_Kap0.132
+reuse_scalars=0
+scalar_rng_seed=1413
+tmlqcd_rng_seed=1324
+conf_start=1041
+conf_end=3341
+conf_step=50
+npergauge=4
+scalars_dir=/hiskp2/bartek/BSM/ROT_scalars/L24x24x24x48Nf1Kap0.13200Lam0.01000Y0.00000Rho1.000R0.500PolDeg2PolAl0.500J0.00000_level14
+gauges_dir=/hiskp2/gauges/B85.24
+jdir=/hiskp2/bartek/BSM/etascan_L24/${name}
+jscr=L24T48-lcpunode01.sh
+ifile=etascan_L24_rho0.1/L24T48-lcpunode01_etascan.rho0.1_ETA.input
+executable=/hadron/bartek/bin/tmLQCD/BSM/openmp-intel/invert

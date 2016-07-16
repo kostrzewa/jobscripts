@@ -14,6 +14,8 @@ thetaz = THETA
 propagatorfilename = PROPFILE
 SourceFilename = SRCFILE
 
+GaugeConfigInputFile = GCONF
+
 # going for block sizes of 4^4
 NoBlocksT = 2
 NoBlocksX = 2

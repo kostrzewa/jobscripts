@@ -66,12 +66,13 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   conf4=$(printf %04d ${conf})
   echo "Preparing conf.${conf4}"
   jdir_conf4=${jdir}/${conf4}
-  mkdir -p ${jdir_conf4}
-  mkdir -p ${jdir_conf4}/logs
-  mkdir -p ${jdir_conf4}/inputs
+  mkdir ${jdir_conf4}
+  mkdir ${jdir_conf4}/logs
+  mkdir ${jdir_conf4}/inputs
 
-  # make links
-  ln -s ${gauges_dir}/conf.${conf4} ${jdir_conf4}
+  # this is now done via the input file
+  # if the filename is too long, the links can be reinstated
+  ## ln -s ${gauges_dir}/conf.${conf4} ${jdir_conf4}
 
   jfile=${jdir}/jscr/job.${conf4}.cmd
 
@@ -135,6 +136,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       sed -i "s/SRCFILE/${sourcefilename}/g" ${ifile}.tmp
       sed -i "s/SEED/${tmlqcd_rng_seed}/g" ${ifile}.tmp
       sed -i "s/NOSAMPLES/${nosamples}/g" ${ifile}.tmp
+      sed -i "s@GCONF@${gauges_dir}\/conf@g" ${ifile}.tmp
       
       # choose appropriate source type for given job
       if [ "${names[iname]}" = "fwdprop" ]; then
@@ -161,6 +163,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       sed -i "s/MUSIGN/${musign}/g" ${ifile}.tmp
       sed -i "s/2KAPMU/${kappa2mu}/g" ${ifile}.tmp
       
+      # for the sequential propagator it seems very difficult or impossible to reach relative precisions below 1e-20  
       if [ "${names[iname]}" = "seqprop" ]; then
         sed -i "s/SPREC/1e-20/g" ${ifile}.tmp
       else
