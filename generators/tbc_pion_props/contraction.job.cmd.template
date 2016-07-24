@@ -1,11 +1,11 @@
 #!/bin/bash -x
-#SBATCH --job-name=contrvectorff.cA2.09.64.GCONF
+#SBATCH --job-name=contrvectorff.cA2.09.48.GCONF
 #SBATCH --nodes=1
 #SBATCH --exclusive
 ## %J is job-id.step-id
 #SBATCH --output=outputs/out.contrvectorff.GCONF.%J.out
 #SBATCH --error=outputs/err.contrvectorff.GCONF.%J.out
-#SBATCH --time=00:25:00
+#SBATCH --time=00:30:00
 #SBATCH --mail-user=bartosz.kostrzewa@desy.de
 #SBATCH --mail-type=ALL
 #SBATCH --partition=batch
@@ -13,20 +13,17 @@
 module load Intel/2016.2.181-GCC-4.9.3-2.25  IntelMPI/5.1.3.181
 module load Boost/1.60.0-Python-2.7.11
 
-wpath=/work/hch02/hch028/pionff/cA2.09.64/
-rpath=/work/hch02/hch028/pion_form_fctr/tbc_pion_props/cA2.09.64/
-nosamples=16
-L=64
-T=128
+wpath=/work/hch02/hch028/pionff/cA2.09.48_extend_test/
+rpath=/work/hch02/hch028/pion_form_fctr/tbc_pion_props/cA2.09.48_extend/
+L=48
+T=96
+nosources=12
 
 # config no
 j=GCONF
 
-#p0=( 0.8033 )
-#p1=( m0.8033 )
-
-p0=( 0 0.4372 )
-p1=( 0 m0.4372 )
+p0=( 0 0.1796 0.2540 0.3279 0.4536 0.5680 )
+p1=( 0 m0.1796 m0.2540 m0.3279 m0.4536 m0.5680 )
 
 if [ ! -d ${wpath} ]; then
   mkdir ${wpath}
@@ -39,11 +36,9 @@ fi
 cd ${wpath}/
 
 for(( p = 0; p<${#p0[@]}; p=p+1 )); do
-  #if( !( [ -e vector_ff.0${p}.${j} ] ) ); then
-    echo doing config ${j} theta ${p0[p]}
-    pa=${rpath}/${j}/
-    srun -n 1 --cpus-per-task=$(( 48 / ${#p0[@]} )) /homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff -S -L${L} -T${T} -n${j} -s${nosamples} --propagator-filename ${pa}/u_fwdprop_theta_${p0[p]} --gen-propagator-filename ${pa}/du_seqprop_theta_${p1[p]} --b-propagator-filename ${pa}/u_fwdprop_theta_0 -p${p} | tee logs/${j}.${p}.log &
-  #fi
+  echo doing config ${j} theta ${p0[p]}
+  pa=${rpath}/${j}/
+  srun -n 1 --cpus-per-task=$(( 48 / ${#p0[@]} )) /homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff -S -L${L} -T${T} -n${j} -s${nosources} --propagator-filename ${pa}/u_fwdprop_theta_${p0[p]} --gen-propagator-filename ${pa}/du_seqprop_theta_${p1[p]} --b-propagator-filename ${pa}/u_fwdprop_theta_0 -p${p} | tee logs/${j}.${p}.log &
 done
 
 wait
