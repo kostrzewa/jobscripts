@@ -47,7 +47,7 @@ for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
     logfile=logs/${propagatorfilename}.${conf4}.log
     
     date > ${logfile}
-    QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop-gcc srun ${executable} -f ${ifile} | tee -a ${logfile}
+    QUDA_ENABLE_P2P=0 QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop srun ${executable} -f ${ifile} | tee -a ${logfile}
     date >> ${logfile}
   done
 done
