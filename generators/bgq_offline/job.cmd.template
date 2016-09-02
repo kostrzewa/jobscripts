@@ -1,0 +1,77 @@
+# @ job_name         = omeas_JNAME
+# @ error            = outputs/$(job_name).$(jobid).out
+# @ output           = outputs/$(job_name).$(jobid).out
+# @ environment      = COPY_ALL;
+# @ wall_clock_limit = 00:30:00
+# @ notification     = always
+# @ notify_user      = bartosz.kostrzewa@desy.de
+# @ job_type         = bluegene
+# @ bg_connectivity  = TORUS
+# @ bg_size          = 64
+# @ queue
+
+export OMP_NUM_THREADS=64
+export EXEC=${HOME}/bgq_bin/V1R2M3/INDTC/offline_measurement
+# set by genjobscripts
+wdir=WDIR
+ifile=IFILE
+
+cd ${wdir}
+
+# determine optimal mapping to network topology
+echo loadl shape is $LOADL_BG_SHAPE
+export MP=EABCDT
+
+case ${LOADL_BG_SHAPE} in
+# mappings for BG_SIZE=1024
+  2x1x1x1 )
+    MP=EABCDT 
+  ;;
+  1x2x1x1 )
+    MP=EBACDT
+  ;;    
+  1x1x2x1 )
+    MP=ECABDT
+  ;;    
+  1x1x1x2 )
+    MP=EDABCT
+  ;;
+  # mappings for BG_SIZE=64
+  2x2x2x4x2 )
+    MP=EDABCT
+  ;;
+  2x2x4x2x2 )
+    MP=ECABDT
+  ;;
+  2x4x2x2x2 )
+    MP=EBACDT
+  ;;
+  4x2x2x2x2 )
+    MP=EABCDT
+  ;;
+  # mappings for bg_size=128
+  2x2x4x4x2 )
+    MP=CDABET
+  ;;
+  2x4x2x4x2 )
+    MP=BDACET
+  ;;
+  4x2x2x4x2 )
+    MP=ADBCET
+  ;;
+  2x4x4x2x2 )
+    MP=BCADET
+  ;;
+  4x2x4x2x2 )
+    MP=ACBDET
+  ;;
+  4x4x2x2 )
+    MP=ABCDET
+  ;;
+esac
+
+date
+runjob --mapping ${MP} --np 64 --ranks-per-node 1 : ${EXEC} -f ${ifile}
+RVAL=$?
+date
+exit $RVAL

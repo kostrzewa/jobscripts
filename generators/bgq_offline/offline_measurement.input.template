@@ -1,0 +1,42 @@
+L=24
+T=48
+
+NrXProcs = 2
+NrYProcs = 2
+NrZprocs = 2
+ompnumthreads=64
+
+Measurements = 60
+Nsave = 10
+initialstorecounter = CSTART
+
+seed = SEED
+
+2KappaMu = 2KMU
+CSW = 1.57551
+kappa = KAPPA
+ThetaT = 1.0
+
+userelativeprecision = yes
+UseEvenOdd = yes
+
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 100
+
+DebugLevel = 2
+
+ReproduceRandomNumbers = no
+RanluxdLevel = 2
+
+BeginMeasurement CORRELATORS
+  Frequency = 1
+EndMeasurement
+
+BeginOperator CLOVER
+  CSW = 1.57551
+  kappa = KAPPA
+  2KappaMu = 2KMU
+  SolverPrecision = PREC
+  MaxSolverIterations = 40000
+EndOperator
+
