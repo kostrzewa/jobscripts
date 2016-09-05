@@ -1,6 +1,6 @@
 omp_num_threads = 2
 
-config = 500
+config = NSTORE
 total number of configs = 1
 distance between configs = 8
 
@@ -9,8 +9,8 @@ Lt = 48
 
 nb_ev = 120
 
-nb_rnd = 0
-seed = 1337
+nb_rnd = NB_RND
+seed = SEED
 
 verbose = 0
 
@@ -33,4 +33,4 @@ inversion_sink_type_c   = F
 inversion_sink_number_c = 3
 
 outpath = ./
-inpath_ev = /hiskp2/bartek/make_eigensystems/cA2a.60.24
+inpath_ev = EVDIR

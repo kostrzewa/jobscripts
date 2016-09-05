@@ -5,13 +5,13 @@ T=48
 
 DisableIOChecks = no
 DebugLevel = 1
-InitialStoreCounter = 500
+InitialStoreCounter = NSTORE
 Measurements = 1
 2kappamu = 0.0016476
 csw = 1.57551
 kappa = 0.1373
 BCAngleT = 1
-GaugeConfigInputFile = /hiskp2/gauges/cA2a.60.24/conf
+GaugeConfigInputFile = GCONFBASE
 UseEvenOdd = yes
 UseRelativePrecision = yes
 
