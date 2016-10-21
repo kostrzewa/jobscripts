@@ -1,0 +1,54 @@
+
+measurements = 1
+initialstorecounter = NSTORE 
+
+seed = SEED
+ranluxdlevel=2
+reproducerandomnumbers=no
+
+BcAngleT = 1.0
+
+thetax = THETA
+thetay = THETA
+thetaz = THETA
+propagatorfilename = PROPFILE
+SourceFilename = SRCFILE
+
+GaugeConfigInputFile = GCONF
+
+ReadSource = SRCREAD
+SourceType = SRCTYPE
+SourceTimeslice = detect
+NoSamples = NOSAMPLES
+
+UseEvenOdd = no
+UseRelativePrecision = yes
+UseSloppyPrecision = no
+
+kappa = KAPPA
+2kappamu = 2KAPMU
+csw = CSW
+
+BeginDDalphaAMG
+  MGBlockT = 4
+  MGBlockX = 4
+  MGBlockY = 4
+  MGBlockZ = 4
+  MGSetupIter = 3
+  MGCoarseSetupIter = 3
+  MGNumberOfVectors = 28
+  MGNumberOfLevels = 3
+  MGCoarseMuFactor = 5
+EndDDalphaAMG
+
+BeginOperator CLOVER
+  csw = CSW
+  kappa = KAPPA
+  2kappamu = MUSIGN2KAPMU
+  propagatorprecision = 64
+  solver = DDalphaAMG
+  solverprecision = SPREC
+  AddDownPropagator = no
+  maxsolveriterations = 60000
+  useevenodd = no
+EndOperator

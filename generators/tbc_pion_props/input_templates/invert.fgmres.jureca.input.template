@@ -16,10 +16,10 @@ SourceFilename = SRCFILE
 
 GaugeConfigInputFile = GCONF
 
-# going for block sizes of 6^3*4
+# going for block sizes of 4^4
 NoBlocksT = 2
 NoBlocksX = 2
-NoBlocksY = 2
+NoBlocksY = 4
 NoBlocksZ = 2
 
 ReadSource = SRCREAD
