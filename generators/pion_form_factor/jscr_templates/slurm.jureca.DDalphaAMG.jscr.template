@@ -20,7 +20,6 @@ thetas=( THETAS )
 names=( NAMES )
 wdir=WDIR
 conf4=CONF4
-skiptheta0=SKIPTHETA0
 
 cd $wdir
 
@@ -28,9 +27,6 @@ date
 
 time \
 for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
-  if [ "${thetas[itheta]}" == "0" -a ${skiptheta0} -ne 0 ]; then
-    continue
-  fi
   for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
     theta=${thetas[itheta]}
     flavour="u"                                                                                                                                                        
