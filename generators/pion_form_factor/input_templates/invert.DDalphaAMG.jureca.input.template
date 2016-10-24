@@ -32,11 +32,11 @@ csw = CSW
 BeginDDalphaAMG
   MGBlockT = 4
   MGBlockX = 4
-  MGBlockY = 4
-  MGBlockZ = 4
-  MGSetupIter = 3
+  MGBlockY = 8
+  MGBlockZ = 8
+  MGSetupIter = 5
   MGCoarseSetupIter = 3
-  MGNumberOfVectors = 28
+  MGNumberOfVectors = 32
   MGNumberOfLevels = 3
   MGCoarseMuFactor = 5
 EndDDalphaAMG

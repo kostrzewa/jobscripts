@@ -6,8 +6,8 @@
 #SBATCH --ntasks-per-node=RPN
 #SBATCH --cpus-per-task=1
 #SBATCH --cpu_bind=map_cpu:1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,19
-#SBATCH --output=outputs/out.JOBNAME.%j
-#SBATCH --error=outputs/err.JOBNAME.%j
+#SBATCH --output=outputs/out.JOBNAME.nNODES.%j
+#SBATCH --error=outputs/err.JOBNAME.nNODES.%j
 #SBATCH --time=WTIME
 #SBATCH --partition=batch
 #SBATCH --hint=nomultithread

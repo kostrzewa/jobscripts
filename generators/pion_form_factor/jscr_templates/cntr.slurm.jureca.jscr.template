@@ -1,0 +1,101 @@
+#!/bin/bash -x
+#SBATCH --job-name=JOBNAME
+#SBATCH --nodes=1
+#SBATCH --exclusive
+#SBATCH --output=outputs/out.cntr.JOBNAME.CONF4.%j.out
+#SBATCH --error=outputs/err.cntr.JOBNAME.CONF4.%j.out
+#SBATCH --time=WTIME
+#SBATCH --mail-user=bartosz.kostrzewa@desy.de
+#SBATCH --mail-type=ALL
+#SBATCH --partition=batch
+
+module load Intel/2016.2.181-GCC-4.9.3-2.25  IntelMPI/5.1.3.181
+module load Boost/1.60.0-Python-2.7.11
+
+cntrdir=CNTRDIR
+propdir=PROPDIR
+L=SPACEEXTENT
+T=TIMEEXTENT
+nosources=NOSAMPLES
+executable=EXECUTABLE
+
+# config no
+j=CONF4
+
+thetas=( THETAS )
+
+correlators=( ppcor scalar_ff vector_ff )
+
+if [ ! -d ${cntrdir} ]; then
+  mkdir ${cntrdir}
+fi
+
+if [ ! -d ${cntrdir}/logs ]; then
+  mkdir ${cntrdir}/logs
+fi
+
+cd ${cntrdir}/
+
+for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
+  echo doing config ${j} theta ${thetas[p]}
+
+  pp=${thetas[p]}
+  pm=${pp}
+  if [ "${pp}" != "0.0000" ]; then
+    pm=m${pp}
+  fi
+
+  logfile=logs/cntr_${j}.${p}_${pp}.log
+
+  date > ${logfile}
+  
+  ( srun -n 1 --cpus-per-task=$(( 48 / ${#pp[@]} )) ${executable} -S -L${L} -T${T} -n${j} -s${nosources} \
+    --propagator-filename ${propdir}/u_fwdprop_theta_${pp} \
+    --gen-propagator-filename ${propdir}/du_seqprop_theta_${pm} \
+    --b-propagator-filename ${propdir}/u_fwdprop_theta_0.0000 -p${p} && date ) | tee -a ${logfile} &
+
+done
+
+wait ## wait for all contractions to finish
+
+for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
+  echo checking correlators for config ${j} theta ${thetas[p]} and deleting props
+
+  pp=${thetas[p]}
+  pm=${pp}
+  if [ "${pp}" != "0.0000" ]; then
+    pm=m${pp}
+  fi
+
+  logfile=logs/failed_cntr_${j}.${p}_${pp}_ok_if_empty.log
+
+  # create logfile of zero length rather than "touching"
+  echo -n >> ${logfile}
+
+  fail=0
+  for correlator in ${correlators[@]}; do
+    corrfname=${correlator}.$( printf %02d ${p}).${j}
+    if [ -f ${corrfname} ]; then
+      if [ $( stat -c '%s' ${corrfname} ) -eq 0 ]; then
+        fail=$(( $fail + 1 ))
+        echo "${corrfname} exists but has wrong size" >> ${logfile}
+      fi
+    else
+      fail=$(( fail + 1 ))
+      echo "${corrfname} does not exist" >> ${logfile}
+    fi
+  done
+   
+  if [ ${fail} -eq 0 ]; then
+    # delete only propagators at non-zero theta 
+    if [ "${pp}" != "0.0000" ]; then
+      echo rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* >> ${logfile}
+      echo rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* >> ${logfile}
+      #rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.*
+      #rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.*
+    fi
+  fi
+
+done
+
+wait

@@ -1,0 +1,35 @@
+ensemble='cA2a.09.64'
+names=( fwdprop seqprop )
+thetas=( 0.0000 0.2395 0.4373 0.6048 0.7573 1.0710 )
+srcread="no"
+solverprecision=1.e-20
+nosamples=16
+conf_start=100
+conf_end=100
+conf_step=2
+gauges_dir=/work/hch02/hch028/confs_tmp/nf2/${ensemble}
+
+jdir=${WORK}/pion_form_fctr/${ensemble}
+
+invert_tmlqcd_rng_seed=26342704
+invert_itemplate='input_templates/invert.DDalphaAMG.nomultithread.jureca.input.template'
+invert_jtemplate='jscr_templates/slurm.jureca.DDalphaAMG.jscr.template'
+invert_executable='/homea/hch02/hch028/build/jureca/tmLQCD/4D_hybrid_hs_DDalphaAMG_lemon/invert'
+invert_wtime=06:00:00
+
+cntr_jtemplate='jscr_templates/cntr.slurm.jureca.jscr.template'
+cntr_executable='/homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff'
+cntr_wtime=02:00:00
+
+kappa=0.1372938
+kappa2mu=0.00024712884
+csw=1.57551
+
+nodes=32
+rpn=16
+L=64
+T=128
+ompnumthreads=1
+nrxprocs=4
+nryprocs=4
+nrzprocs=4

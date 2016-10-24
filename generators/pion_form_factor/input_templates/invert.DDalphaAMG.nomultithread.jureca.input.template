@@ -29,16 +29,20 @@ kappa = KAPPA
 2kappamu = 2KAPMU
 csw = CSW
 
+debuglevel = 3
+
 BeginDDalphaAMG
   MGBlockT = 4
   MGBlockX = 4
-  MGBlockY = 8
+  MGBlockY = 4
   MGBlockZ = 4
-  MGSetupIter = 5
+  MGSetupIter = 3
   MGCoarseSetupIter = 3
-  MGNumberOfVectors = 36
+  MGNumberOfVectors = 24
   MGNumberOfLevels = 3
   MGCoarseMuFactor = 5
+  MGMixedPrecision = yes
+  MGUpdateSetupIter = 0
 EndDDalphaAMG
 
 BeginOperator CLOVER

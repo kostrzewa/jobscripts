@@ -8,6 +8,11 @@ if [ -z ${1} ]; then
   exit 1
 fi
 
+if [ ! -f ${1} ]; then
+  echo "Parameter file ${1} does not exist!"
+  exit 11
+fi
+
 wd=$(pwd)
 
 # default values for variables read from input file
@@ -15,19 +20,27 @@ ensemble='ensemble'
 names=( fwdprop seqprop )
 thetas=( 0 )
 solverprecision=1.e-18
+srcread="no"
 conf_start=0
 conf_end=0
 conf_step=0
 gauges_dir='.'
 jdir='.'
-tmlqcd_rng_seed=123456
-itemplate='input.template'
-jtemplate='jscr.template'
-executable='invert'
-srcread="no"
+
+invert_tmlqcd_rng_seed=123456
+invert_itemplate='input.template'
+invert_jtemplate='jscr.template'
+invert_executable='invert'
+invert_wtime=00:02:00
+
+cntr_executable='vector_ff'
+cntr_jtemplate='cntr.job.template'
+cntr_wtime=00:02:00
+
 kappa=0.125
 kappa2mu=0.00250
 csw=1.0
+
 nodes=1
 rpn=1
 L=24
@@ -36,8 +49,6 @@ ompnumthreads=1
 nrxprocs=1
 nryprocs=1
 nrzprocs=1
-wtime=00:02:00
-skiptheta0=0
 nosamples=1
 
 # read the input file
@@ -52,34 +63,44 @@ if [ ! -d ${jdir}/jscr/outputs ]; then
   mkdir -p ${jdir}/jscr/outputs
 fi
 
-if [ ! -f ${jtemplate} ]; then
-  echo "Job template ${jtemplate} does not exist!"
+if [ ! -f ${invert_jtemplate} ]; then
+  echo "Job template ${invert_jtemplate} does not exist!"
   exit 2
 fi
 
-if [ ! -f ${itemplate} ]; then
-  echo "Input file template ${itemplate} does not exist!"
+if [ ! -f ${cntr_jtemplate} ]; then
+  echo "Job template ${cntr_jtemplate} does not exist!"
   exit 3
 fi
+
+if [ ! -f ${invert_itemplate} ]; then
+  echo "Input file template ${invert_itemplate} does not exist!"
+  exit 4
+fi
+  
+cntrdir=${jdir}/correlators
+mkdir ${cntrdir}
 
 for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   conf4=$(printf %04d ${conf})
   echo "Preparing conf.${conf4}"
   jdir_conf4=${jdir}/${conf4}
+  inputdir_conf4=${jdir_conf4}/inputs
+  logdir_conf4=${jdir_conf4}/logs
   mkdir ${jdir_conf4}
-  mkdir ${jdir_conf4}/logs
-  mkdir ${jdir_conf4}/inputs
+  mkdir ${logdir_conf4}
+  mkdir ${inputdir_conf4}
 
   # this is now done via the input file
   # if the filename is too long, the links can be reinstated
   ## ln -s ${gauges_dir}/conf.${conf4} ${jdir_conf4}
 
-  jfile=${jdir}/jscr/job.${conf4}.cmd
 
-  ## GENERATE JOB SCRIPT
-  cp ${jtemplate} ${jfile}
+  ## GENERATE INVERSION JOB SCRIPT
+  jfile=${jdir}/jscr/invert.job.${conf4}.cmd
+  cp ${invert_jtemplate} ${jfile}
   sed -i "s/JOBNAME/${ensemble}_tbc_pion_props_${conf4}/g" ${jfile}
-  sed -i "s/WTIME/${wtime}/g" ${jfile}
+  sed -i "s/WTIME/${invert_wtime}/g" ${jfile}
   # escape spaces in thetas arrays
   thetasub=$( echo ${thetas[@]} | sed 's/ /\\ /g' )
   sed -i "s/THETAS/${thetasub}/g" ${jfile}
@@ -88,17 +109,26 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   sed -i "s/NODES/${nodes}/g" ${jfile}
   sed -i "s/RPN/${rpn}/g" ${jfile}
   sed -i "s/OMPNUMTHREADS/${ompnumthreads}/g" ${jfile}
-  sed -i "s@EXECUTABLE@${executable}@g" ${jfile}
+  sed -i "s@EXECUTABLE@${invert_executable}@g" ${jfile}
   sed -i "s@WDIR@${jdir_conf4}@g" ${jfile}
   sed -i "s@CONF4@${conf4}@g" ${jfile}
-  sed -i "s/SKIPTHETA0/${skiptheta0}/g" ${jfile}
+
+  ## GENERATE CONTRACTION JOB SCRIPT
+  jfile=${jdir}/jscr/cntr.job.${conf4}.cmd
+  cp ${cntr_jtemplate} ${jfile}
+  sed -i "s/JOBNAME/${ensemble}_pionff_cntr_${conf4}/g" ${jfile}
+  sed -i "s/WTIME/${cntr_wtime}/g" ${jfile}
+  sed -i "s/SPACEEXTENT/${L}/g" ${jfile}
+  sed -i "s/TIMEEXTENT/${T}/g" ${jfile}
+  sed -i "s@EXECUTABLE@${cntr_executable}@g" ${jfile}
+  sed -i "s@CONF4@${conf4}@g" ${jfile}
+  sed -i "s@CNTRDIR@${cntrdir}@g" ${jfile}
+  sed -i "s@PROPDIR@${jdir_conf4}@g" ${jfile}
+  sed -i "s@NOSAMPLES@${nosamples}@g" ${jfile}
+  sed -i "s@THETAS@${thetasub}@g" ${jfile}
 
   ## GENERATE INPUT FILES
   for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
-    if [ "${thetas[itheta]}" = "0" -a ${skiptheta0} -ne 0 ]; then
-      continue
-    fi
-      
     echo theta=${thetas[itheta]}
     for iname in $( seq 0 $(( ${#names[@]} - 1 )) ); do
       echo name=${names[iname]}
@@ -108,9 +138,10 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       # if the fwdprop is computed with +theta(-theta), the seqprop should be computed with -theta(+theta)
       theta=${thetas[itheta]}
       if [ "${names[iname]}" = "seqprop" ]; then
+        # for the sequential propagator, invert the 'd' flavour
         flavour="du"
         musign="-"
-        if [ "${theta}" != "0" ]; then
+        if [ "${theta}" != "0.0000" ]; then
           theta=-${theta}
         fi
       fi
@@ -125,16 +156,16 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
         sourcefilename=u_fwdprop_theta_0
       fi
       
-      ifile=${jdir_conf4}/inputs/${propagatorfilename}.invert.input
+      ifile=${inputdir_conf4}/${propagatorfilename}.invert.input
       logfile=${jdir_conf4}/${propagatorfilename}.${conf4}.log
 
-      cp ${itemplate} ${ifile}.tmp
+      cp ${invert_itemplate} ${ifile}.tmp
       
       sed -i "s/NSTORE/${conf}/g" ${ifile}.tmp
       sed -i "s/THETA/${theta}/g" ${ifile}.tmp
       sed -i "s/PROPFILE/${propagatorfilename}/g" ${ifile}.tmp
       sed -i "s/SRCFILE/${sourcefilename}/g" ${ifile}.tmp
-      sed -i "s/SEED/${tmlqcd_rng_seed}/g" ${ifile}.tmp
+      sed -i "s/SEED/${invert_tmlqcd_rng_seed}/g" ${ifile}.tmp
       sed -i "s/NOSAMPLES/${nosamples}/g" ${ifile}.tmp
       sed -i "s@GCONF@${gauges_dir}\/conf@g" ${ifile}.tmp
       
