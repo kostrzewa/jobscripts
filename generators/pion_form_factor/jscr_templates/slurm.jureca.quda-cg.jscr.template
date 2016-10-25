@@ -4,15 +4,14 @@
 #SBATCH --mail-user=bartosz.kostrzewa@desy.de
 #SBATCH --nodes=NODES
 #SBATCH --ntasks-per-node=RPN
-#SBATCH --cpus-per-task=1
-#SBATCH --cpu_bind=map_cpu:1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,19
+#SBATCH --cpus-per-task=OMPNUMTHREADS
 #SBATCH --output=outputs/out.JOBNAME.nNODES.%j
 #SBATCH --error=outputs/err.JOBNAME.nNODES.%j
 #SBATCH --time=WTIME
-#SBATCH --partition=batch
-#SBATCH --hint=nomultithread
+#SBATCH --partition=gpus
+#SBATCH --gres=gpu:4
 
-module restore default
+module restore nvidia
 
 export OMP_NUM_THREADS=OMPNUMTHREADS                                                                                                                                                
 executable=EXECUTABLE
@@ -43,7 +42,7 @@ for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
     logfile=logs/${propagatorfilename}.${conf4}.log
     
     date > ${logfile}
-    srun ${executable} -f ${ifile} | tee -a ${logfile}
+    QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop srun ${executable} -f ${ifile} | tee -a ${logfile}
     date >> ${logfile}
   done
 done

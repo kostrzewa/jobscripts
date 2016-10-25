@@ -1,7 +1,6 @@
 ensemble='cA2a.09.64'
 names=( fwdprop seqprop )
 thetas=( 0 0.4372 )
-skiptheta0=0
 srcread="no"
 solverprecision=1.e-22
 nosamples=1
@@ -9,20 +8,28 @@ conf_start=100
 conf_end=100
 conf_step=2
 gauges_dir=/work/hch02/hch028/confs_tmp/nf2/cA2a.09.64
-jdir=${WORK}/pion_form_fctr/hch028.tbc_pion_props/${ensemble}_DDalphaAMG
-tmlqcd_rng_seed=26342704
-itemplate='input_templates/invert.DDalphaAMG.nomultithread.jureca.input.template'
-jtemplate='jscr_templates/slurm.jureca.DDalphaAMG.jscr.template'
-executable='/homea/hch02/hch028/build/jureca/tmLQCD/4D_hybrid_hs_DDalphaAMG/invert'
+
+jdir=${WORK}/pion_form_fctr/${ensemble}_DDalphaAMG
+
+invert_tmlqcd_rng_seed=26342704
+invert_itemplate='input_templates/invert.DDalphaAMG.nomultithread.jureca.input.template'
+invert_jtemplate='jscr_templates/slurm.jureca.DDalphaAMG.jscr.template'
+invert_executable='/homea/hch02/hch028/build/jureca/tmLQCD/4D_hybrid_hs_DDalphaAMG/invert'
+invert_wtime=01:00:00
+
+cntr_jtemplate='jscr_templates/cntr.slurm.jureca.jscr.template'
+cntr_executable='/homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff'
+cntr_wtime=01:00:00
+
 kappa=0.1372938
 kappa2mu=0.00024712884
 csw=1.57551
+
 nodes=128
 rpn=16
 L=64
 T=128
 ompnumthreads=1
 nrxprocs=8
-nryprocs=2
-nrzprocs=8
-wtime=01:00:00
+nryprocs=4
+nrzprocs=4

@@ -41,7 +41,7 @@ BeginDDalphaAMG
   MGNumberOfVectors = 24
   MGNumberOfLevels = 3
   MGCoarseMuFactor = 5
-  MGMixedPrecision = yes
+  MGMixedPrecision = no
   MGUpdateSetupIter = 0
 EndDDalphaAMG
 

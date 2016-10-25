@@ -1,0 +1,35 @@
+ensemble='cA2a.30.48'
+names=( fwdprop seqprop )
+thetas=( 0.0000 0.1796 0.2540 0.3279 0.4536 0.5680 0.7333 0.8033 )
+srcread="no"
+solverprecision=1.e-20
+nosamples=12
+conf_start=0
+conf_end=0
+conf_step=8
+gauges_dir=/work/hch02/hch028/runs/nf2/${ensemble}
+
+jdir=${WORK}/pion_form_fctr/${ensemble}_n08
+
+invert_tmlqcd_rng_seed=1513048
+invert_itemplate='input_templates/invert.clover.jureca.quda-cg.input.template'
+invert_jtemplate='jscr_templates/slurm.jureca.quda-cg.jscr.template'
+invert_executable='/homea/hch02/hch028/build/jureca/tmLQCD/quda-develop/invert'
+invert_wtime=06:00:00
+
+cntr_jtemplate='jscr_templates/cntr.slurm.jureca.jscr.template'
+cntr_executable='/homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff'
+cntr_wtime=02:00:00
+
+kappa=0.137295
+kappa2mu=0.00082377
+csw=1.57551
+
+nodes=8
+rpn=4
+L=48
+T=96
+ompnumthreads=12
+nrxprocs=8
+nryprocs=1
+nrzprocs=1

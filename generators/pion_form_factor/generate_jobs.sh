@@ -142,6 +142,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
         flavour="du"
         musign="-"
         if [ "${theta}" != "0.0000" ]; then
+          echo ${theta}
           theta=-${theta}
         fi
       fi
@@ -153,7 +154,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       
       sourcefilename=${flavour}_${names[iname]}_theta_${texttheta}
       if [ "${names[iname]}" = "seqprop" ]; then
-        sourcefilename=u_fwdprop_theta_0
+        sourcefilename=u_fwdprop_theta_0.0000
       fi
       
       ifile=${inputdir_conf4}/${propagatorfilename}.invert.input
