@@ -56,7 +56,7 @@ for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
 
 done
 
-wait ## wait for all contractions to finish
+wait ## wait for all contractions to finish and / or crash
 
 for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
   echo checking correlators for config ${j} theta ${thetas[p]} and deleting props
@@ -70,29 +70,35 @@ for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
   logfile=logs/failed_cntr_${j}.${p}_${pp}_ok_if_empty.log
 
   # create logfile of zero length rather than "touching"
-  echo -n >> ${logfile}
+  echo -n > ${logfile}
 
   fail=0
   for correlator in ${correlators[@]}; do
     corrfname=${correlator}.$( printf %02d ${p}).${j}
     if [ -f ${corrfname} ]; then
+      # we don't check if the correlator has the right size, we just check if it has non-zero size...
       if [ $( stat -c '%s' ${corrfname} ) -eq 0 ]; then
         fail=$(( $fail + 1 ))
-        echo "${corrfname} exists but has wrong size" >> ${logfile}
+        echo "${corrfname} exists but has zero size" | tee -a ${logfile}
+        echo "fail=${fail}" | tee -a ${logfile}
       fi
     else
-      fail=$(( fail + 1 ))
-      echo "${corrfname} does not exist" >> ${logfile}
+      fail=$(( $fail + 1 ))
+      echo "${corrfname} does not exist" | tee -a ${logfile}
+      echo "fail=${fail}" | tee -a ${logfile}
     fi
   done
-   
+  
+  # if the contractions seem fine, we delete the propagators, but not the theta=0.0000 ones 
+  logfile=logs/prop_delete_${j}.${p}_${pp}.log
+  echo -n > ${logfile}
   if [ ${fail} -eq 0 ]; then
     # delete only propagators at non-zero theta 
     if [ "${pp}" != "0.0000" ]; then
-      echo rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* >> ${logfile}
-      echo rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* >> ${logfile}
-      #rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.*
-      #rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.*
+      echo rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
+      rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
+      echo rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* | tee -a ${logfile}
+      rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* | tee -a ${logfile}
     fi
   fi
 
