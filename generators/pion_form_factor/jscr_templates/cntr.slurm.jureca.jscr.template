@@ -89,14 +89,14 @@ for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
     fi
   done
   
-  # if the contractions seem fine, we delete the propagators, but not the theta=0.0000 ones 
+  # if the contractions seem fine, we delete the propagators, except for the theta=0.0000 forward ones 
   logfile=logs/prop_delete_${j}.${p}_${pp}.log
   echo -n > ${logfile}
   if [ ${fail} -eq 0 ]; then
-    # delete only propagators at non-zero theta 
+    echo rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
+    rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
+    # delete forward props propagators only at non-zero theta 
     if [ "${pp}" != "0.0000" ]; then
-      echo rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
-      rm ${propdir}/du_seqprop_theta_${pm}\.${j}\.* | tee -a ${logfile}
       echo rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* | tee -a ${logfile}
       rm ${propdir}/u_fwdprop_theta_${pp}\.${j}\.* | tee -a ${logfile}
     fi
