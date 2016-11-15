@@ -12,7 +12,9 @@
 #SBATCH --partition=batch
 #SBATCH --hint=nomultithread
 
-module restore default
+module use /usr/local/software/jureca/OtherStages
+module load Stages/2016a
+module load Intel IntelMPI flex
 
 export OMP_NUM_THREADS=OMPNUMTHREADS                                                                                                                                                
 executable=EXECUTABLE

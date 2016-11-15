@@ -1,6 +1,7 @@
 ensemble='cA2a.30.48'
 names=( fwdprop seqprop )
 thetas=( 0.0000 0.1796 0.2540 0.3279 0.4536 0.5680 0.7333 0.8033 )
+p_offset=0
 srcread="no"
 solverprecision=1.e-19
 nosamples=12
@@ -10,6 +11,7 @@ conf_step=8
 gauges_dir=/work/hch02/hch028/runs/nf2/${ensemble}
 
 jdir=${WORK}/pion_form_fctr/${ensemble}_n02
+jscr_dir="jscr"
 
 invert_tmlqcd_rng_seed=1513048
 invert_itemplate='input_templates/invert.clover.jureca.quda-cg.input.template'

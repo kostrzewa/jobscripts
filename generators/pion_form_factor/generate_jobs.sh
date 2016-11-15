@@ -18,7 +18,8 @@ wd=$(pwd)
 # default values for variables read from input file
 ensemble='ensemble'
 names=( fwdprop seqprop )
-thetas=( 0 )
+thetas=( 0.0000 )
+p_offset=0
 solverprecision=1.e-18
 srcread="no"
 conf_start=0
@@ -26,6 +27,7 @@ conf_end=0
 conf_step=0
 gauges_dir='.'
 jdir='.'
+jscr_dir="jscr"
 
 invert_tmlqcd_rng_seed=123456
 invert_itemplate='input.template'
@@ -59,8 +61,8 @@ if [ $DEBUG -eq 1 ]; then
 fi
 
 # create job directory
-if [ ! -d ${jdir}/jscr/outputs ]; then
-  mkdir -p ${jdir}/jscr/outputs
+if [ ! -d ${jdir}/${jscr_dir}/outputs ]; then
+  mkdir -p ${jdir}/${jscr_dir}/outputs
 fi
 
 if [ ! -f ${invert_jtemplate} ]; then
@@ -97,7 +99,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
 
 
   ## GENERATE INVERSION JOB SCRIPT
-  jfile=${jdir}/jscr/invert.job.${conf4}.cmd
+  jfile=${jdir}/${jscr_dir}/invert.job.${conf4}.cmd
   cp ${invert_jtemplate} ${jfile}
   sed -i "s/JOBNAME/${ensemble}_tbc_pion_props_${conf4}/g" ${jfile}
   sed -i "s/WTIME/${invert_wtime}/g" ${jfile}
@@ -114,7 +116,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   sed -i "s@CONF4@${conf4}@g" ${jfile}
 
   ## GENERATE CONTRACTION JOB SCRIPT
-  jfile=${jdir}/jscr/cntr.job.${conf4}.cmd
+  jfile=${jdir}/${jscr_dir}/cntr.job.${conf4}.cmd
   cp ${cntr_jtemplate} ${jfile}
   sed -i "s/JOBNAME/${ensemble}_pionff_cntr_${conf4}/g" ${jfile}
   sed -i "s/WTIME/${cntr_wtime}/g" ${jfile}
@@ -126,6 +128,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
   sed -i "s@PROPDIR@${jdir_conf4}@g" ${jfile}
   sed -i "s@NOSAMPLES@${nosamples}@g" ${jfile}
   sed -i "s@THETAS@${thetasub}@g" ${jfile}
+  sed -i "s@P_OFFSET@${p_offset}@g" ${jfile}
 
   ## GENERATE INPUT FILES
   for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do

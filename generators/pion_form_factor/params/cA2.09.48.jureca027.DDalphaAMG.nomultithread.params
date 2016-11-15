@@ -1,30 +1,30 @@
-ensemble='cA2b.30.48'
+ensemble='cA2.09.48'
 names=( fwdprop seqprop )
-thetas=( 0.0000 0.1796 0.2540 0.3279 0.4536 0.5680 0.7333 0.8033 )
+thetas=( 0.0000 0.1796 0.2540 0.3279 0.4536 0.5680 0.8033 )
 p_offset=0
 srcread="no"
 solverprecision=1.e-19
 nosamples=12
-conf_start=692
-conf_end=700
-conf_step=4
+conf_start=244
+conf_end=244
+conf_step=8
 gauges_dir=/work/hch02/hch028/runs/nf2/${ensemble}
 
-jdir=${WORK}/pion_form_fctr/${ensemble}_DDalphaAMG
+jdir=${WORK}/pion_form_fctr/${ensemble}
 jscr_dir="jscr"
 
-invert_tmlqcd_rng_seed=9662523
-invert_itemplate='input_templates/invert.DDalphaAMG.heavier.nomultithread.jureca.input.template'
+invert_tmlqcd_rng_seed=26332704
+invert_itemplate='input_templates/invert.DDalphaAMG.nomultithread.jureca.input.template'
 invert_jtemplate='jscr_templates/slurm.jureca.DDalphaAMG.jscr.template'
 invert_executable='/homea/hch02/hch028/build/jureca/tmLQCD/4D_hybrid_hs_DDalphaAMG_lemon/invert'
-invert_wtime=02:00:00
+invert_wtime=04:00:00
 
 cntr_jtemplate='jscr_templates/cntr.slurm.jureca.jscr.template'
 cntr_executable='/homea/hch02/hch028/bin/jureca/contractions/vector_ff'
 cntr_wtime=00:30:00
 
-kappa=0.137295
-kappa2mu=0.00082377
+kappa=0.13729
+kappa2mu=0.000247122
 csw=1.57551
 
 nodes=27

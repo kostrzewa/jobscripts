@@ -1,6 +1,7 @@
 ensemble='cA2a.09.64'
 names=( fwdprop seqprop )
 thetas=( 0 0.4372 )
+p_offset=0
 srcread="no"
 solverprecision=1.e-22
 nosamples=1
@@ -10,6 +11,7 @@ conf_step=2
 gauges_dir=/work/hch02/hch028/confs_tmp/nf2/cA2a.09.64
 
 jdir=${WORK}/pion_form_fctr/${ensemble}_DDalphaAMG
+jscr_dir="jscr"
 
 invert_tmlqcd_rng_seed=26342704
 invert_itemplate='input_templates/invert.DDalphaAMG.nomultithread.jureca.input.template'
