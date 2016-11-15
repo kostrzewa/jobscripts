@@ -14,6 +14,8 @@ if [ -z "$( ls ${prefix}* )" ]; then
   touch ${prefix}_xxxx
 fi
 
+no_of_chains=8
+
 jobid=""
 # if we submit 8 or fewer jobs, or we are doing contractions only,
 # we submit with normal dependency rules
@@ -22,12 +24,15 @@ if [ $no -le 8 -o "${4}" = "co" ]; then
     i4=$( printf %04d $i )
     if [ "${4}" != "co" ]; then
       if [ ! -z ${4} ]; then
+        # if an initial dependency has been specified on the command line, job has to wait for this
         jobid=$( sbatch --dependency=afterok:${4} invert.job.${i4}.cmd | awk '{print $NF}' )
       else
         jobid=$( sbatch invert.job.${i4}.cmd | awk '{print $NF}' )
       fi
+      # contraction always depends on inversion
       sbatch --dependency=afterok:${jobid} cntr.job.${i4}.cmd
     else
+      # only contraction jobs have been requested, no job dependencies
       sbatch cntr.job.${i4}.cmd
     fi
     counter=$(( $counter + 1 ))
@@ -39,46 +44,51 @@ if [ $no -le 8 -o "${4}" = "co" ]; then
 else
   # array holding the configuration numbers to be processed
   configs=( $( seq ${start} ${step} $(( ${start} + (${no}-1)*${step} )) ) )
-  no_per_chain=$(( $no / 8 )) # we try to create 8 chains, each of which will contain this many jobs
+  no_per_chain=$(( $no / $no_of_chains )) # we try to create ${no_of_chains} chains, 
+                              # each of which will contain this many jobs
                               # this is due to the way the Jureca QoS system works
-                              # remaining configs of the integer division will be packed into a ninth
-                              # overflow chain
+                              # remaining configs of the integer division will be packed into a
+                              # ${no_of_chains+1}'th overflow chain
   remaining=${no}
-  for chain in $( seq 0 7 ); do
+  for chain in $( seq 0 $(( $no_of_chains - 1 )) ); do
     # initial dependency specified via command line, all job chains should wait for this job
     jobid="${4}"
     offset=$(( $chain * $no_per_chain ))
     for i in $( seq 0 $(( $no_per_chain - 1 )) ); do
       i4=$(printf %04d ${configs[$(( $offset + $i ))]} )
       echo "chain $chain config $i4"
-      # the first inversion in the job chain does not depend on any job
+      # the first inversion in the job chain does not depend on any job, unless
+      # a dependency has been specified on the command line
       if [ -z "${jobid}" ]; then
         jobid=$( sbatch invert.job.${i4}.cmd | awk '{print $NF}' )
       else
         # the next inversion depends on the previous contraction
         jobid=$( sbatch --dependency=afterok:${jobid} invert.job.${i4}.cmd | awk '{print $NF}' )
       fi
+      # contraction always depends on inversion
       jobid=$( sbatch --dependency=afterok:${jobid} cntr.job.${i4}.cmd | awk '{printf $NF}' )
       remaining=$(( $remaining - 1 ))
       echo remaining $remaining
       mv ${prefix}_* ${prefix}_${i4}
     done
   done
-  # pop remaining configs into a ninth job chain
+  # pop remaining configs into a ($no_of_chains+1)'th job chain
   if [ ${remaining} -gt 0 ]; then
     # initial dependency specified via command line, all job chains should wait for this job
     jobid="${4}"
-    offset=$(( 8 * $no_per_chain ))
+    offset=$(( $no_of_chains * $no_per_chain ))
     for i in $( seq 0 $(( ${remaining} - 1 )) ); do
       i4=$(printf %04d ${configs[$(( $offset + $i ))]} )
       echo "overflow chain config $i4"
-      # the first inversion in the job chain does not depend on any job
+      # the first inversion in the job chain does not depend on any job, unless
+      # a dependency has been specified on the command line
       if [ -z "${jobid}" ]; then
         jobid=$( sbatch invert.job.${i4}.cmd | awk '{print $NF}' )
       else
         # the next inversion depends on the previous contraction
         jobid=$( sbatch --dependency=afterok:${jobid} invert.job.${i4}.cmd | awk '{print $NF}' )
       fi
+      # contraction always depends on inversion
       jobid=$( sbatch --dependency=afterok:${jobid} cntr.job.${i4}.cmd | awk '{printf $NF}' )
       remaining=$(( $remaining - 1 ))
       echo remaining $remaining
