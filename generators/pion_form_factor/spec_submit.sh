@@ -1,6 +1,5 @@
 if [ -z "${1}" ]; then
  echo "usage: ./spec_submit.sh <confs>"
- echo "[-co] contraction only"
  exit 1
 fi
 
@@ -12,7 +11,6 @@ fi
 
 no_of_chains=8
 
-jobid=""
 # array holding the configuration numbers to be processed
 configs=()
 counter=0
@@ -29,6 +27,7 @@ no_per_chain=$(( ${#configs[@]} / $no_of_chains )) # we try to create ${no_of_ch
                             # ${no_of_chains+1}'th overflow chain
 remaining=${#configs[@]}
 for chain in $( seq 0 $(( $no_of_chains - 1 )) ); do
+  jobid=""
   offset=$(( $chain * $no_per_chain ))
   for i in $( seq 0 $(( $no_per_chain - 1 )) ); do
     i4=$(printf %04d ${configs[$(( $offset + $i ))]} )
@@ -47,9 +46,9 @@ for chain in $( seq 0 $(( $no_of_chains - 1 )) ); do
   done
 done
 # pop remaining configs into a ($no_of_chains+1)'th job chain
-jobid=""
 if [ ${remaining} -gt 0 ]; then
   offset=$(( $no_of_chains * $no_per_chain ))
+  jobid=""
   for i in $( seq 0 $(( ${remaining} - 1 )) ); do
     i4=$(printf %04d ${configs[$(( $offset + $i ))]} )
     echo "overflow chain config $i4"
