@@ -16,11 +16,11 @@ jscr_dir="jscr"
 invert_tmlqcd_rng_seed=1513048
 invert_itemplate='input_templates/invert.clover.jureca.quda-cg.input.template'
 invert_jtemplate='jscr_templates/slurm.jureca.quda-cg.jscr.template'
-invert_executable='/homea/hch02/hch028/build/jureca/tmLQCD/quda-develop/invert'
+invert_executable='/homec/hbn28/hbn288/build/jureca/tmLQCD/tmLQCD.quda-develop/invert'
 invert_wtime=06:00:00
 
 cntr_jtemplate='jscr_templates/cntr.slurm.jureca.jscr.template'
-cntr_executable='/homea/hch02/hch026/daten/workdir/head/pion_ff/vector_ff'
+cntr_executable='/homea/hch02/hch028/bin/jureca/contractions/vector_ff'
 cntr_wtime=02:00:00
 
 kappa=0.137295
@@ -31,7 +31,7 @@ nodes=4
 rpn=4
 L=48
 T=96
-ompnumthreads=12
-nrxprocs=4
-nryprocs=1
-nrzprocs=1
+ompnumthreads=1
+nrxprocs=2
+nryprocs=2
+nrzprocs=2

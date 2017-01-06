@@ -36,11 +36,11 @@ BeginDDalphaAMG
   MGBlockX = 4
   MGBlockY = 4
   MGBlockZ = 4
-  MGSetupIter = 5
+  MGSetupIter = 3
   MGCoarseSetupIter = 3
-  MGNumberOfVectors = 28
+  MGNumberOfVectors = 24
   MGNumberOfLevels = 3
-  MGCoarseMuFactor = 5.2
+  MGCoarseMuFactor = 3
   MGMixedPrecision = no
   MGUpdateSetupIter = 0
 EndDDalphaAMG

@@ -4,14 +4,16 @@
 #SBATCH --mail-user=bartosz.kostrzewa@desy.de
 #SBATCH --nodes=NODES
 #SBATCH --ntasks-per-node=RPN
-#SBATCH --cpus-per-task=OMPNUMTHREADS
+#SBATCH --cpus-per-task=1
 #SBATCH --output=outputs/out.JOBNAME.nNODES.%j
 #SBATCH --error=outputs/err.JOBNAME.nNODES.%j
 #SBATCH --time=WTIME
-#SBATCH --partition=gpus
-#SBATCH --gres=gpu:4
+#SBATCH --partition=batch
+#SBATCH --hint=nomultithread
 
-module restore nvidia
+module use /usr/local/software/jureca/OtherStages
+module load Stages/2016a
+module load Intel IntelMPI flex
 
 export OMP_NUM_THREADS=OMPNUMTHREADS                                                                                                                                                
 executable=EXECUTABLE
@@ -42,7 +44,7 @@ for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
     logfile=logs/${propagatorfilename}.${conf4}.log
     
     date > ${logfile}
-    QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop-working-without-pinned srun ${executable} -f ${ifile} | tee -a ${logfile}
+    srun ${executable} -f ${ifile} | tee -a ${logfile}
     date >> ${logfile}
   done
 done
