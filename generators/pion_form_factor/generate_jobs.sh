@@ -38,6 +38,7 @@ invert_wtime=00:02:00
 cntr_executable='vector_ff'
 cntr_jtemplate='cntr.job.template'
 cntr_wtime=00:02:00
+cntr_corr_dir=correlators
 
 kappa=0.125
 kappa2mu=0.00250
@@ -80,7 +81,7 @@ if [ ! -f ${invert_itemplate} ]; then
   exit 4
 fi
   
-cntrdir=${jdir}/correlators
+cntrdir=${jdir}/${cntr_corr_dir}
 mkdir ${cntrdir}
 
 for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
@@ -198,13 +199,7 @@ for conf in $(seq ${conf_start} ${conf_step} ${conf_end} ); do
       sed -i "s/MUSIGN/${musign}/g" ${ifile}.tmp
       sed -i "s/2KAPMU/${kappa2mu}/g" ${ifile}.tmp
       
-      # for the sequential propagator it seems very difficult or impossible to reach relative precisions below 1e-20  
-      if [ "${names[iname]}" = "seqprop" ]; then
-        sed -i "s/SPREC/1e-20/g" ${ifile}.tmp
-      else
-        sed -i "s/SPREC/${solverprecision}/g" ${ifile}.tmp
-      fi
-
+      sed -i "s/SPREC/${solverprecision}/g" ${ifile}.tmp
 
       echo L=${L} > ${ifile}.header
       echo T=${T} >> ${ifile}.header
