@@ -1,17 +1,10 @@
 #!/bin/bash -x
-#SBATCH --job-name=JOBNAME
-#SBATCH --nodes=1
-#SBATCH --exclusive
-#SBATCH --output=outputs/out.cntr.JOBNAME.CONF4.%j.out
-#SBATCH --error=outputs/err.cntr.JOBNAME.CONF4.%j.out
-#SBATCH --time=WTIME
-#SBATCH --mail-user=bartosz.kostrzewa@desy.de
-#SBATCH --mail-type=ALL
-#SBATCH --partition=batch
-
-module use /usr/local/software/jureca/OtherStages
-module load Stages/2016a
-module load Intel IntelMPI Boost
+#PBS -N JOBNAME
+#PBS -m abe
+#PBS -M bartosz.kostrzewa@desy.de
+#PBS -l nodes=1:ppn=4:qbig
+#PBS -l walltime=WTIME,mem=25gb
+#PBS -j oe
 
 cntrdir=CNTRDIR
 propdir=PROPDIR
@@ -53,7 +46,7 @@ for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
 
   date > ${logfile}
   
-  ( srun -n 1 --cpus-per-task=$(( 48 / ${#pp[@]} )) ${executable} -S -L${L} -T${T} -n${j} -s${nosources} \
+  ( ${executable} -S -L${L} -T${T} -n${j} -s${nosources} \
     --propagator-filename ${propdir}/u_fwdprop_theta_${pp} \
     --gen-propagator-filename ${propdir}/du_seqprop_theta_${pm} \
     --b-propagator-filename ${propdir}/u_fwdprop_theta_0.0000 -p${pidx} && date ) | tee -a ${logfile} &
@@ -63,6 +56,7 @@ done
 wait ## wait for all contractions to finish and / or crash
 
 exit_status=0
+
 for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
   pidx=$(( $p_offset + p ))
   echo checking correlators for config ${j} theta ${thetas[p]} and deleting props
@@ -112,6 +106,5 @@ for(( p = 0; p<${#thetas[@]}; p=p+1 )); do
 
 done
 
-wait
-
 exit $exit_status
+

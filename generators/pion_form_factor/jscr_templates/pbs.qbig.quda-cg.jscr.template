@@ -1,17 +1,10 @@
 #!/bin/bash -x
-#SBATCH --job-name=JOBNAME
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=bartosz.kostrzewa@desy.de
-#SBATCH --nodes=NODES
-#SBATCH --ntasks-per-node=RPN
-#SBATCH --cpus-per-task=OMPNUMTHREADS
-#SBATCH --output=outputs/out.JOBNAME.nNODES.%j
-#SBATCH --error=outputs/err.JOBNAME.nNODES.%j
-#SBATCH --time=WTIME
-#SBATCH --partition=gpus
-#SBATCH --gres=gpu:4
-
-module restore nvidia
+#PBS -N JOBNAME
+#PBS -m abe
+#PBS -M bartosz.kostrzewa@desy.de
+#PBS -l nodes=NODES:ppn=RPN:gpus=4
+#PBS -l walltime=WTIME,mem=55GB
+#PBS -j oe
 
 export OMP_NUM_THREADS=OMPNUMTHREADS                                                                                                                                                
 executable=EXECUTABLE
@@ -25,6 +18,8 @@ exit_status=0
 cd $wdir
 
 date
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-7.5/lib64
 
 time \
 for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
@@ -44,7 +39,7 @@ for itheta in $( seq 0 $(( ${#thetas[@]} - 1 )) ); do
     logfile=logs/${propagatorfilename}.${conf4}.log
     
     date > ${logfile}
-    QUDA_RESOURCE_PATH=${HOME}/misc/jureca/quda_resources/develop-working-without-pinned srun ${executable} -f ${ifile} | tee -a ${logfile}
+    QUDA_RESOURCE_PATH=$HOME/misc/quda_resources/develop-current mpirun.openmpi -n $(( NODES * RPN )) -npersocket 2 ${executable} -f ${ifile} | tee -a ${logfile}
     [[ "${PIPESTATUS[@]}" =~ [^0\ ] ]] && exit_status=$(( $exit_status + 1 ))
     date >> ${logfile}
   done
