@@ -1,0 +1,36 @@
+#PBS -l walltime=06:00:00
+#PBS -q knl
+#PBS -l select=NODES:ncpus=68:mpiprocs=64:mcdram=cache:mem=92GB:numa=snc2
+#PBS -l place=exclhost
+#PBS -N itersITERS_nlevelNLEVEL_nvecNVEC_mucoarseMUCOARSE.64.L64
+#PBS -j eo
+#PBS -m abe
+#PBS -M bartosz.kostrzewa@desy.de
+
+#!/bin/bash
+
+module load intel intelmpi mkl
+
+RUNDIR=WDIR
+ODIR=${RUNDIR}/outputs
+
+if [ ! -d ${ODIR} ]; then
+  mkdir -p ${ODIR}
+  mkdir ${ODIR}
+fi
+
+cd ${RUNDIR}
+
+export OMP_NUM_THREADS=2
+export KMP_AFFINITY="balanced,granularity=fine,verbose"
+
+#prog and arguments
+EXE=$HOME/build/tmLQCD.DDalphaAMG.hybrid.nopropwrite/invert
+
+#launch
+ofile=${ODIR}/ndsNODES_itersITERS_nlevelNLEVEL_nvecNVEC_mucoarseMUCOARSE.64.L64.DDalphaAMG.test.out
+
+date > $ofile
+mpirun $EXE -f invert.input 2>&1 | tee -a ${ofile}
+date >> ${ofile}
+
