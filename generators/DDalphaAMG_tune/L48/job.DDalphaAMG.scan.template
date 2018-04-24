@@ -1,0 +1,47 @@
+#!/bin/bash -x
+#SBATCH --time=00:45:00
+#SBATCH --mem=82G
+#SBATCH --nodes=NODES
+#SBATCH --exclusive
+#SBATCH --ntasks-per-node=54
+#SBATCH --cpus-per-task=4
+#SBATCH --account=INF18_lqcd123_0
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=bartosz_kostrzewa@fastmail.com
+#SBATCH --job-name=ndsNODES_itersITERS_nlevelNLEVEL_nvecNVEC_mucoarseMUCOARSE.54.L48
+#SBATCH --partition=knl_usr_prod
+
+#!/bin/bash
+
+module load intel intelmpi mkl
+
+RUNDIR=WDIR
+ODIR=${RUNDIR}/outputs
+
+if [ ! -d ${ODIR} ]; then
+  mkdir -p ${ODIR}
+  mkdir ${ODIR}
+fi
+
+cd ${RUNDIR}
+
+export I_MPI_HYDRA_ENV=all
+export I_MPI_FABRICS=shm:tmi
+export I_MPI_PIN=1
+
+## pin tasks to regions of 4 threads (1 core)
+export I_MPI_PIN_DOMAIN=4
+
+export OMP_NUM_THREADS=2
+export KMP_AFFINITY="balanced,granularity=fine,verbose"
+
+#prog and arguments
+EXE=/marconi/home/userexternal/bkostrze/build/tmLQCD.DDalphaAMG_latestND.hybrid.nopropwrite/invert
+
+#launch
+ofile=${ODIR}/ndsNODES_itersITERS_nlevelNLEVEL_nvecNVEC_mucoarseMUCOARSE.54.L48.DDalphaAMG.test.out
+
+date > $ofile
+mpirun -n $(( NODES * 54 )) -ppn 54 $EXE -f invert.input 2>&1 | tee -a ${ofile}
+date >> ${ofile}
+
