@@ -1,0 +1,11 @@
+L=Ls
+T=Ts
+
+nrxprocs=NX
+nryprocs=NY
+nrzprocs=NZ
+
+ompnumthreads=NTHREADS
+
+useevenodd=yes
+

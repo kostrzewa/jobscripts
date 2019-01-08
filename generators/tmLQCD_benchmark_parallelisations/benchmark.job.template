@@ -1,0 +1,38 @@
+#PBS -l walltime=00:20:00
+#PBS -q knl
+#PBS -l select=NDS:ncpus=68:mpiprocs=TPN:mcdram=cache:mem=92GB:numa=snc2
+#PBS -l place=exclhost
+#PBS -N benchmark_lLLL_ndsNDS_tpnTPN_tptTPT
+#PBS -j eo
+#PBS -m abe
+#PBS -M bartosz.kostrzewa@desy.de
+
+#!/bin/bash
+
+module load intel intelmpi mkl
+
+RUNDIR=WDIR
+ODIR=${RUNDIR}/outputs
+
+if [ ! -d ${ODIR} ]; then
+  mkdir -p ${ODIR}
+  mkdir ${ODIR}
+fi
+
+cd ${RUNDIR}
+
+export OMP_NUM_THREADS=TPT
+#export KMP_HW_SUBSET=64c,4t
+export KMP_AFFINITY=balanced
+export KMP_AFFINITY_VERBOSE=1
+
+#prog and arguments
+EXE=/marconi_work/INF16_lqcd123_1/executables/tmLQCD.DDalphaAMG.lemon.4D.hybrid.hs/benchmark
+
+#launch
+date > ${ODIR}/out.benchmark_lLLL_ndsNDS_tpnTPN_tptTPT.out
+mpirun $EXE 2>&1|tee -a ${ODIR}/out.benchmark_lLLL_ndsNDS_tpnTPN_tptTPT.out
+date >> ${ODIR}/out.benchmark_lLLL_ndsNDS_tpnTPN_tptTPT.out
+
+rm conf.test
+
