@@ -1,0 +1,93 @@
+###
+#       First run longer run on L=80 at mu = 0.0006, 
+#
+#       started from tiled config from the L40 run, some trajectories were
+#       performed on mu = 0.00125 until this run was started.
+#
+#       kappa_c = 0.13875285
+#       with mu = 0.0006
+#
+#       from cnfg id 75 - bug corrected in expo.c
+#       cnfg 1 - 110     - version without Qphix, detclover=mixrgcg, rest DDalphaAMG
+#       
+#       switch to version qphix from 110
+#       and minimized rho by a factor 1/3 "rho = 0.003,0.03,0.3 --> 0.0012,0.012,0.3 (?increases CG cost)
+#       and switched  ndcloverratcor on
+#
+#       from tracjectory 118, switch to rho = 0.3 --> 0.12 and increase solver prec to 10^-18
+#
+#       at trajectory 191 -> 192 SB went down because of a power cutoff (12/08/18), machine only fully recovered
+#                                  at 13th, (jobs between failed likely because of untraceble libs/licences)
+#   
+#       around 264 - 270, sb had some problem with the interconnect, runs was interrupted several times,
+#       and wrong results are possible (at least there is a spike in the history)
+#
+#	from 272, shift outer integrator to 2MN, and increase precision for DDalphaAMG
+#
+#       gradflow.00311 is not complete
+##
+L=80
+T=160
+
+NrXProcs = 1
+NrYProcs = 10
+NrZprocs = 10
+
+ompnumthreads=3
+
+Measurements = 5
+
+
+seed=3028
+InitialStoreCounter = 700
+
+2KappaMu = 0.000166503420
+2KappaMuBar = 0.0295782225
+2KappaEpsBar = 0.029733626
+CSW = 1.6452
+kappa = 0.13875285
+NSave = 1
+ThetaT = 1.0
+UseEvenOdd = yes
+userelativeprecision=yes
+
+ReversibilityCheck = no
+ReversibilityCheckIntervall = 1
+DisableIOChecks = no
+#TuneCheck=yes
+# for the beginning 3 is fine, afterwards run with 2 because 3 slows down progress by about 10%!
+#DebugLevel = 3
+DebugLevel = 2
+EigenvaluePrecision = 1e-9
+
+ReproduceRandomNumbers = no
+RanluxdLevel = 2
+
+BeginMeasurement CORRELATORS
+  Frequency = 1
+  NoSamples = 4
+EndMeasurement
+
+BeginExternalInverter QPHIX
+  Ncores = 3
+  MinCt = 1
+  Bz = _BZ_
+  By = _BY_
+  PadXY = _PADXY_
+  PadXYZ = _PADXYZ_
+  Sy = 1
+  Sz = 1
+EndExternalInverter
+
+BeginOperator CLOVER
+  CSW = 1.6452
+  kappa = 0.13875285
+  2KappaMu = 0.00166503420
+  SolverPrecision = 1e-18
+  MaxSolverIterations = 35000
+  solver = mixedcg
+  UseExternalInverter = qphix
+  UseCompression = 12
+  UseSloppyPrecision = single
+EndOperator
+
