@@ -1,0 +1,39 @@
+T = 64
+L = 32
+
+nrzprocs = 1
+ompnumthreads = 3
+
+kappa = 0.1400645
+2kappamu = 0.0008403870
+2KappaMuBar = 0.03944216320
+2KappaEpsBar = 0.04260762090
+
+CSW = 1.74
+
+GaugeConfigInputFile = =GAUGEPATH=
+
+InitialStoreCounter = =NSTORE=
+
+ThetaT = 1.0
+UseEvenOdd = yes
+UseRelativePrecision = yes
+
+DebugLevel = 2
+
+BeginExternalInverter QUDA
+  MGCoarseMuFactor = 1.0, 1.0, 40.0
+  MGNumberOfLevels = 3
+  MGSetupSolver = cg
+  MGSetupSolverTolerance = 5e-7
+  MgCoarseSolverTolerance = 0.45
+  MGBlockSizesX = 4,4
+  MGBlockSizesY = 4,4
+  MGBlockSizesZ = 4,4
+  MGBlockSizesT = 4,2
+  MGCoarseSolverType = gcr, gcr, cagcr
+  MGSmootherType = cagcr, cagcr, cagcr
+  MGOverUnderRelaxationFactor = 0.85
+EndExternalInverter
+
+

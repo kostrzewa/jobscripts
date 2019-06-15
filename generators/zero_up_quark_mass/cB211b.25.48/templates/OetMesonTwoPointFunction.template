@@ -1,0 +1,13 @@
+
+OetMesonTwoPointFunction:
+  id: =TWOPT_ID=
+  fwd_flav: =FWD_FLAV=
+  bwd_flav: =BWD_FLAV=
+  gi: [5]
+  gf: [5]
+  gb: [5]
+  Pi: pzero
+  Pf: pzero
+  momentum_conservation: true
+  dirac_join: inner
+

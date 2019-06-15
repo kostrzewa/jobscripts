@@ -1,0 +1,78 @@
+# *******************************************************
+# * input parameters for cvc-code
+# *******************************************************
+
+T =  64
+LX = 32
+LY = 32
+LZ = 32
+mu = 0.0030
+kappa = 0.1400645
+Nconf = 0
+csw = 1.74
+format = 0
+BCangleT = 1.
+BCangleX = 0
+BCangleY = 0
+BCangleZ = 0
+
+check_inversion = no
+
+# prefix of source and propagator fiels,
+# in case  of source / propagator io
+filename_prefix = stochastic_source_oet
+gaugefilename_prefix = conf
+
+outfile_prefix =./
+
+# taken from tmLQCD if wrapper is used
+#NrTProcs = 2
+#NrXProcs = 2
+#NrYProcs = 1
+#NrZProcs = 1
+
+# taken from tmLQCD if wrapper is used
+# num_threads = 3
+
+###########################
+# source and prop io
+###########################
+read_source                 = no
+#  read_propagator             = no;  not used at the moment
+write_source                = no
+write_propagator            = no
+
+write_sequential_source     = no
+write_sequential_propagator = no
+
+
+###########################
+# gamma matrix lists
+###########################
+
+# note required for this code version
+
+###########################
+# timeslice lists
+###########################
+
+# timeslice for sequential source
+# this is dt,
+# counted from current source timeslice
+
+##########################
+# misc
+###########################
+propagator_precision = 64
+
+fermion_type = TwistedMass
+
+verbosity_level = 1
+
+seed = =SEED=
+noise_type = Z2
+
+###########################
+# source coordinate list
+# only t-coord is used
+###########################

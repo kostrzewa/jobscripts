@@ -1,0 +1,14 @@
+
+BeginOperator CLOVER
+  kappa = 0.1400645
+  2kappamu = =TWOKAPPAMU=
+  csw = 1.74
+  maxsolveriterations = 1000
+  solverprecision = 1e-22
+
+  solver = mg
+  useexternalinverter = quda
+  usesloppyprecision = single
+  useevenodd = yes
+EndOperator
+

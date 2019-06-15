@@ -1,0 +1,8 @@
+
+TimeSlicePropagator:
+  id: =ID=
+  solver_id: =SOLVER_ID=
+  solver_driver: tmlqcd
+  g: [5]
+  P: pzero
+
